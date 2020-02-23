@@ -118,19 +118,19 @@ class API {
     }
 
     getSwap(swapId) {
-        return api.__call(this._scoreAddress, 'get_swap', { swapid: swapId }).then(swap => {
+        return this.__call(this._scoreAddress, 'get_swap', { swapid: swapId }).then(swap => {
             return swap
         })
     }
 
     getOrder(orderId) {
-        return api.__call(this._scoreAddress, 'get_order', { orderid: orderId }).then(swap => {
+        return this.__call(this._scoreAddress, 'get_order', { orderid: orderId }).then(swap => {
             return swap
         })
     }
 
     refundOrder(walletAddress, order) {
-        return api.__iconexCallTransaction(walletAddress, this._scoreAddress, 'refund_order', 0, {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'refund_order', 0, {
             'orderid': order['id']
         }).then(txHash => {
             return txHash
@@ -143,14 +143,14 @@ class API {
                 resolve(ICX_TOKEN_DECIMALS)
             })
         }
-        return api.__call(contract, 'decimals').then(decimals => {
+        return this.__call(contract, 'decimals').then(decimals => {
             return decimals
         })
     }
 
     fulfillIcxOrder(walletAddress, order) {
         const value = IconService.IconConverter.toHex(order['amount'])
-        return api.__iconexCallTransaction(walletAddress, this._scoreAddress, 'fulfill_icx_order', value, { orderid: order['id'] }).then(txHash => {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'fulfill_icx_order', value, { orderid: order['id'] }).then(txHash => {
             return txHash
         })
     }
@@ -168,22 +168,22 @@ class API {
         const params = {
             '_to': this._scoreAddress,
             '_value': value,
-            '_data': api._toBytes(order['id'])
+            '_data': this._toBytes(order['id'])
         }
 
-        return api.__iconexCallTransaction(walletAddress, order['contract'], 'transfer', 0, params).then(txHash => {
+        return this.__iconexCallTransaction(walletAddress, order['contract'], 'transfer', 0, params).then(txHash => {
             return txHash
         })
     }
 
     doSwap(walletAddress, swapId) {
-        return api.__iconexCallTransaction(walletAddress, this._scoreAddress, 'do_swap', 0, { swapid: swapId }).then(txHash => {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'do_swap', 0, { swapid: swapId }).then(txHash => {
             return txHash
         })
     }
 
     cancelSwap(walletAddress, swapId) {
-        return api.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap', 0, { swapid: swapId }).then(txHash => {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap', 0, { swapid: swapId }).then(txHash => {
             return txHash
         })
     }
@@ -256,9 +256,8 @@ class API {
     }
 
     __iconexCallTransaction(from, to, method, value, params) {
-        return api.__estimateCallStep(from, to, method, value, params).then(stepLimit => {
-            console.log("step = ", stepLimit)
-            return api.__iconexCallTransactionEx(from, to, method, value, stepLimit, params)
+        return this.__estimateCallStep(from, to, method, value, params).then(stepLimit => {
+            return this.__iconexCallTransactionEx(from, to, method, value, stepLimit, params)
         })
     }
 
@@ -280,6 +279,17 @@ class API {
         })
     }
 
+    __iconexIcxTransaction(from, to, value) {
+        const transaction = this.__icxTransactionBuild(from, to, value, 100000)
+        const jsonRpcQuery = {
+            jsonrpc: '2.0',
+            method: 'icx_sendTransaction',
+            params: IconService.IconConverter.toRawTransaction(transaction),
+            id: 1234
+        }
+        return this.__iconexJsonRpc(jsonRpcQuery)
+    }
+
     __iconexJsonRpc(jsonRpcQuery) {
         return this.__iconexConnectRequest('REQUEST_JSON-RPC', jsonRpcQuery).then(payload => {
             return payload
@@ -287,6 +297,29 @@ class API {
     }
 
     // ======================================================================================
+    __getIcxBalance(address) {
+        const digits = IconService.IconConverter.toBigNumber('10').exponentiatedBy(18)
+        return this._iconService.getBalance(address).execute().then(balance => {
+            return balance / digits;
+        })
+    }
+
+    __getIRC2Balance(address, contract) {
+        return this.__call(contract, 'balanceOf', { '_owner': address }).then(balance => {
+            return this.getDecimals(contract).then(decimals => {
+                const digits = IconService.IconConverter.toBigNumber('10').exponentiatedBy(decimals)
+                return balance / digits
+            })
+        })
+    }
+    __getBalance(address, contract) {
+        if (contract === ICX_TOKEN_CONTRACT) {
+            return this.__getIcxBalance(address)
+        } else {
+            return this.__getIRC2Balance(address, contract)
+        }
+    }
+
     __call(to, method, params = {}) {
         return new Promise((resolve, reject) => {
             try {

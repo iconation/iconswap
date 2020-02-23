@@ -16,7 +16,7 @@ const Homepage = ({ wallet }) => {
 
     !whitelist && api.getWhitelist().then(contract => {
         const promises = contract.map(contract => {
-            return getTokenDetails(contract)
+            return getTokenDetails(wallet, contract)
         })
 
         Promise.all(promises).then(whitelist => {
@@ -88,7 +88,7 @@ const Homepage = ({ wallet }) => {
 
                             {Object.keys(whitelist).map((key) => (
                                 <option key={whitelist[key].contract} value={whitelist[key].contract}>
-                                    {whitelist[key].name} ({whitelist[key].symbol})
+                                    {whitelist[key].name} ({whitelist[key].symbol}) (Balance : {whitelist[key].balance})
                         </option>
                             ))}
 
@@ -110,7 +110,7 @@ const Homepage = ({ wallet }) => {
 
                             {Object.keys(whitelist).map((key) => (
                                 <option key={whitelist[key].contract} value={whitelist[key].contract}>
-                                    {whitelist[key].name} ({whitelist[key].symbol})
+                                    {whitelist[key].name} ({whitelist[key].symbol}) (Balance : {whitelist[key].balance})
                         </option>
                             ))}
 

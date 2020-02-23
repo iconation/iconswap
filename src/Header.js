@@ -2,14 +2,49 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import logo from './static/img/logo.png'
 import { WALLET_LOCAL_STORAGE_KEY } from './constants'
-import './Header.css';
-import { api } from './API';
+import './Header.css'
+import { api } from './API'
+import { IconConverter } from 'icon-sdk-js'
 
 const Header = ({ wallet, setWallet }) => {
 
     const disconnectClick = () => {
         localStorage.removeItem(WALLET_LOCAL_STORAGE_KEY)
         setWallet(null)
+    }
+
+    const isAdmin = () => {
+        return wallet === 'hxcc8c9d91d0db660f91d8041af702d79edcb02958'
+    }
+
+    const sendTestNetICX = () => {
+
+        const address = document.getElementById('toAddress').value
+
+        return api.__iconexIcxTransaction(wallet, address, 10000000000000000000).then(txHash => {
+            console.log("txHash", txHash)
+            return true
+        })
+    }
+
+    const sendTestNetTAP = () => {
+
+        const address = document.getElementById('toAddress').value
+
+        // 100 TAP
+        const value = IconConverter.toHex(1000 * 1000000000000000000)
+
+        const params = {
+            '_to': address,
+            '_value': value
+        }
+
+        console.log(value)
+        console.log(params)
+
+        return api.__iconexCallTransaction(wallet, 'cx429c8563414991a2c5566fa9518c3f10da242487', 'transfer', 0, params).then(txHash => {
+            console.log("txHash", txHash)
+        })
     }
 
     return (
@@ -23,6 +58,12 @@ const Header = ({ wallet, setWallet }) => {
             {wallet && <>
                 <div id="headercontentright">
                     <button className="disconnect" onClick={() => { disconnectClick() }}>Disconnect</button>
+                    {isAdmin() && <><br />
+                        <input type="text" id="toAddress"></input>
+                        <button onClick={() => { sendTestNetICX() }}>Send ICX</button>
+                        <button onClick={() => { sendTestNetTAP() }}>Send TAP</button>
+                    </>
+                    }
                 </div>
             </>}
         </div>

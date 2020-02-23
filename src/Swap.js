@@ -11,25 +11,26 @@ const Swap = ({ match, wallet }) => {
     const [ready, setReady] = useState(false)
     const [errorUi, setErrorUi] = useState(null)
 
-    const refreshOrders = (orderId1, orderId2) => {
-        return api.getOrder(orderId1).then(order1 => {
-            return getTokenDetails(order1['contract']).then(token => {
-                order1['token'] = token
-                order1['id'] = orderId1;
+    useEffect(() => {
 
-                return api.getOrder(orderId2).then(order2 => {
-                    return getTokenDetails(order2['contract']).then(token => {
-                        order2['token'] = token
-                        order2['id'] = orderId2;
+        const refreshOrders = (orderId1, orderId2) => {
+            return api.getOrder(orderId1).then(order1 => {
+                return getTokenDetails(wallet, order1['contract']).then(token => {
+                    order1['token'] = token
+                    order1['id'] = orderId1;
 
-                        setOrders([order1, order2])
+                    return api.getOrder(orderId2).then(order2 => {
+                        return getTokenDetails(wallet, order2['contract']).then(token => {
+                            order2['token'] = token
+                            order2['id'] = orderId2;
+
+                            setOrders([order1, order2])
+                        })
                     })
                 })
             })
-        })
-    }
+        }
 
-    useEffect(() => {
         const refreshSwap = () => {
             return api.getSwap(swapId).then(swap => {
                 refreshOrders(swap['order1'], swap['order2']).then(() => {
@@ -47,7 +48,7 @@ const Swap = ({ match, wallet }) => {
                 refreshSwap()
             }, 1000);
         }
-    }, [ready, swapId]);
+    }, [ready, swapId, wallet]);
 
     const swappable = () => {
         return (orders
