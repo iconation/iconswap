@@ -1,6 +1,6 @@
 {
-  "homepage": "https://iconation.github.io/iconswap-ui",
-  "name": "iconswap-ui",
+  "homepage": "https://iconation.github.io/iconswap/",
+  "name": "iconswap",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
