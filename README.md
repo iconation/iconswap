@@ -24,6 +24,6 @@ Alternatively, ICONSwap may be used by other SCORE developers willing to impleme
 
 You can read and **review the open source code** here :
 
-SCORE GitHub : [https://github.com/iconation/ICONSwap](https://github.com/iconation/ICONSwap)
+SCORE GitHub : [https://github.com/iconation/ICONSwap-SCORE](https://github.com/iconation/ICONSwap-SCORE)
 
-GUI GitHub : [https://github.com/iconation/ICONSwap-UI](https://github.com/iconation/ICONSwap-UI) 
+GUI GitHub : [https://github.com/iconation/ICONSwap](https://github.com/iconation/ICONSwap) 
