@@ -1,40 +1,13 @@
+* {
+  font-family: "Montserrat", sans-serif;
+}
+
 .App {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+#body {
+  font-size: 20px;
 }
 
  /* Split the screen in half */
@@ -59,12 +32,6 @@
 }
 
 /* If you want the content centered horizontally and vertically */
-.centered {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
 
 .center {
   position: fixed;
@@ -116,8 +83,43 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  font-size: 50px;
+  font-size: 30px;
   color: black;
   transform: translate(-50%,-50%);
   -ms-transform: translate(-50%,-50%);
+}
+
+.bigbutton {
+  font-size: 30px !important;
+}
+
+.flatbutton {
+  background-color: #2d8386;
+  background-repeat:no-repeat;
+  outline:none;
+  border: #2d8386 1px solid;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 20px;
+  border-radius: 12px;
+  cursor:pointer;
+}
+
+.flatbutton:hover {
+  background-color: #0d6366;
+  background-repeat:no-repeat;
+  outline:none;
+}
+
+.flatbutton:disabled {
+  background-color: #cccccc;
+  background-repeat:no-repeat;
+  outline:none;
+  border: #aaaaaa 1px solid;
+  opacity: 1.0; 
+  cursor: not-allowed;
+  box-shadow: 0px 0px 0px #27272780;
 }

@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from 'react'
-import { IconConverter } from 'icon-sdk-js'
 import { api } from './API'
 import { getTokenDetails } from './utils'
-import { ICX_TOKEN_CONTRACT } from './constants'
+import OrderView from './OrderView'
+import './Swap.css';
 
 const Swap = ({ match, wallet }) => {
     const swapId = match.params.id
     const [orders, setOrders] = useState(null)
     const [swap, setSwap] = useState(null)
     const [ready, setReady] = useState(false)
+    const [errorUi, setErrorUi] = useState(null)
 
     const refreshOrders = (orderId1, orderId2) => {
-        api.getOrder(orderId1).then(order1 => {
-            getTokenDetails(order1['contract']).then(token => {
+        return api.getOrder(orderId1).then(order1 => {
+            return getTokenDetails(order1['contract']).then(token => {
                 order1['token'] = token
                 order1['id'] = orderId1;
 
-                api.getOrder(orderId2).then(order2 => {
-                    getTokenDetails(order2['contract']).then(token => {
+                return api.getOrder(orderId2).then(order2 => {
+                    return getTokenDetails(order2['contract']).then(token => {
                         order2['token'] = token
                         order2['id'] = orderId2;
 
                         setOrders([order1, order2])
                     })
                 })
-
             })
         })
     }
@@ -32,9 +32,12 @@ const Swap = ({ match, wallet }) => {
     useEffect(() => {
         const refreshSwap = () => {
             return api.getSwap(swapId).then(swap => {
-                refreshOrders(swap['order1'], swap['order2'])
-                setSwap(swap)
-                !ready && setReady(true)
+                refreshOrders(swap['order1'], swap['order2']).then(() => {
+                    setSwap(swap)
+                    !ready && setReady(true)
+                }).catch((error) => {
+                    setErrorUi(error)
+                })
             })
         }
 
@@ -46,14 +49,6 @@ const Swap = ({ match, wallet }) => {
         }
     }, [ready, swapId]);
 
-    const depositOrder = (order) => {
-        if (order['contract'] === ICX_TOKEN_CONTRACT) {
-            api.fulfillIcxOrder(wallet, order)
-        } else {
-            api.fulfillIRC2Order(wallet, order);
-        }
-    }
-
     const swappable = () => {
         return (orders
             && orders[0]['status'] === 'FILLED'
@@ -64,16 +59,12 @@ const Swap = ({ match, wallet }) => {
         return (swap && swap['status'] === 'PENDING')
     }
 
-    const depositButtonDisabled = (order) => {
-        return order['status'] !== 'EMPTY'
-    }
-
     const doSwapClicked = () => {
-        api.doSwap(wallet, swapId)
+        api.doSwap(wallet, swapId).catch(error => { setErrorUi(error) })
     }
 
     const cancelSwapClicked = () => {
-        api.cancelSwap(wallet, swapId)
+        api.cancelSwap(wallet, swapId).catch(error => { setErrorUi(error) })
     }
 
     const swapSuccess = () => {
@@ -84,13 +75,24 @@ const Swap = ({ match, wallet }) => {
         return swap && swap['status'] === 'CANCELLED'
     }
 
+    // Fatal error
+    if (errorUi) {
+        return (
+            <div className="overlay">
+                <div className="overlayText">
+                    An error occured : {errorUi}
+                </div>
+            </div>
+        )
+    }
+
     return (
         <>
             {swapSuccess() &&
                 <div className="overlay">
                     <div className="overlayText">
                         Swap successfull! <br />
-                        <a href={"https://tracker.icon.foundation/transaction/" + swap['transaction']}>
+                        <a href={api.getTrackerEndpoint() + "/transaction/" + swap['transaction']} rel="noopener noreferrer" target="_blank">
                             Check the transaction
                 </a>
                     </div>
@@ -101,48 +103,45 @@ const Swap = ({ match, wallet }) => {
                 <div className="overlay">
                     <div className="overlayText">
                         Swap cancelled. Your funds have been refunded. <br />
-                        <a href={"https://tracker.icon.foundation/transaction/" + swap['transaction']}>
+                        <a href={api.getTrackerEndpoint() + "/transaction/" + swap['transaction']} rel="noopener noreferrer" target="_blank">
                             Check the transaction
                     </a>
                     </div>
                 </div>
             }
 
+            {!orders && <>
+                <div className="overlay">
+                    <div className="overlayText">
+                        Loading, please wait...
+                    </div>
+                </div>
+            </>}
+
             {orders && <>
                 <div className="split left">
                     <div className="centered">
-                        <p className="bigtext">
-                            {IconConverter.toBigNumber(orders[0]['amount'])
-                                / IconConverter.toBigNumber('10').exponentiatedBy(orders[0]['token']['decimals'])
-                            } {orders[0]['token']['symbol']} ({orders[0]['token']['name']})
-                            </p>
-                        <button className="bigbutton" disabled={depositButtonDisabled(orders[0])}
-                            onClick={() => { depositOrder(orders[0]) }}>Deposit</button>
+                        <OrderView wallet={wallet} order={orders[0]} />
                     </div>
                 </div>
 
+
                 <div className="split right">
                     <div className="centered">
-                        <p className="bigtext">
-                            {IconConverter.toBigNumber(orders[1]['amount'])
-                                / IconConverter.toBigNumber('10').exponentiatedBy(orders[1]['token']['decimals'])
-                            } {orders[1]['token']['symbol']} ({orders[1]['token']['name']})
-                            </p>
-                        <button className="bigbutton" disabled={depositButtonDisabled(orders[1])}
-                            onClick={() => { depositOrder(orders[1]) }}>Deposit</button>
+                        <OrderView wallet={wallet} order={orders[1]} />
                     </div>
                 </div>
 
                 <div className="center">
-                    <button className="bigbutton" disabled={!swappable()}
+                    <button className="flatbutton bigbutton" disabled={!swappable()}
                         onClick={() => doSwapClicked()}>
                         Swap!
-                        </button>
+                    </button>
                 </div>
 
                 {swap && swap['author'] === wallet &&
                     <div className="bottom">
-                        <button className="bigbutton" disabled={!cancellable()}
+                        <button className="flatbutton" disabled={!cancellable()}
                             onClick={() => cancelSwapClicked()}>
                             Cancel Swap
                         </button>

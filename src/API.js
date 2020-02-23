@@ -59,9 +59,9 @@ class API {
     constructor(network, scoreAddress) {
         const iconNetworkInfo = this._getNetworkInfo(network)
 
-        const url = iconNetworkInfo.url
-        const httpProvider = new IconService.HttpProvider(url + '/api/v3')
-        const httpDebugProvider = new IconService.HttpProvider(url + '/api/debug/v3')
+        const api = iconNetworkInfo.api
+        const httpProvider = new IconService.HttpProvider(api + '/api/v3')
+        const httpDebugProvider = new IconService.HttpProvider(api + '/api/debug/v3')
 
         this._nid = iconNetworkInfo.nid
         this._network = network
@@ -72,15 +72,43 @@ class API {
 
     _getNetworkInfo(network) {
         const iconNetworksInfo = []
-        iconNetworksInfo[Networks.LOCALHOST] = { url: 'http://127.0.0.1:9000', nid: 0 }
-        iconNetworksInfo[Networks.MAINNET] = { url: 'https://ctz.solidwallet.io', nid: 1 }
-        iconNetworksInfo[Networks.EULJIRO] = { url: 'https://test-ctz.solidwallet.io', nid: 2 }
-        iconNetworksInfo[Networks.YEOUIDO] = { url: 'https://bicon.net.solidwallet.io', nid: 3 }
+        iconNetworksInfo[Networks.LOCALHOST] = {
+            name: 'localhost',
+            api: 'http://127.0.0.1:9000',
+            tracker: 'http://127.0.0.1:9000',
+            nid: 0
+        }
+        iconNetworksInfo[Networks.MAINNET] = {
+            name: 'MainNet',
+            api: 'https://ctz.solidwallet.io',
+            tracker: 'https://tracker.icon.foundation',
+            nid: 1
+        }
+        iconNetworksInfo[Networks.EULJIRO] = {
+            name: 'Euljiro (TestNet)',
+            api: 'https://test-ctz.solidwallet.io',
+            tracker: 'https://trackerdev.icon.foundation',
+            nid: 2
+        }
+        iconNetworksInfo[Networks.YEOUIDO] = {
+            name: 'Yeouido (TestNet)',
+            api: 'https://bicon.net.solidwallet.io',
+            tracker: 'https://bicon.tracker.solidwallet.io',
+            nid: 3
+        }
         return iconNetworksInfo[network]
     }
 
-    getEndpoint() {
-        return this._getNetworkInfo(Networks.MAINNET).url
+    getAPIEndpoint() {
+        return this._getNetworkInfo(this._network).api
+    }
+
+    getTrackerEndpoint() {
+        return this._getNetworkInfo(this._network).tracker
+    }
+
+    getNetworkName() {
+        return this._getNetworkInfo(this._network).name
     }
 
     getWhitelist() {
@@ -98,6 +126,14 @@ class API {
     getOrder(orderId) {
         return api.__call(this._scoreAddress, 'get_order', { orderid: orderId }).then(swap => {
             return swap
+        })
+    }
+
+    refundOrder(walletAddress, order) {
+        return api.__iconexCallTransaction(walletAddress, this._scoreAddress, 'refund_order', 0, {
+            'orderid': order['id']
+        }).then(txHash => {
+            return txHash
         })
     }
 
@@ -119,13 +155,23 @@ class API {
         })
     }
 
+    _toBytes(data) {
+        const hex = IconService.IconConverter.toHex(data)
+        if (hex.length % 2 === 1) {
+            return '0x0' + hex.replace('0x', '')
+        }
+        return hex
+    }
+
     fulfillIRC2Order(walletAddress, order) {
         const value = IconService.IconConverter.toHex(order['amount'])
-        return api.__iconexCallTransaction(walletAddress, order['contract'], 'transfer', 0, {
+        const params = {
             '_to': this._scoreAddress,
             '_value': value,
-            '_data': IconService.IconConverter.toHex(order['id'])
-        }).then(txHash => {
+            '_data': api._toBytes(order['id'])
+        }
+
+        return api.__iconexCallTransaction(walletAddress, order['contract'], 'transfer', 0, params).then(txHash => {
             return txHash
         })
     }
@@ -151,13 +197,13 @@ class API {
         }
         return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'create_swap', 0, params)
             .then(async tx => {
+                if (!tx) return null;
                 const txHash = tx['result']
                 const txResult = await this.__txResult(txHash)
                 const eventLogs = txResult['eventLogs'][0]
                 if (eventLogs['indexed'][0] !== SwapCreatedEvent) {
                     throw WrongEventSignature(eventLogs['indexed']);
                 }
-                console.log(txResult)
                 const swapId = parseInt(eventLogs['indexed'][1], 16)
                 const order1 = parseInt(eventLogs['data'][0], 16)
                 const order2 = parseInt(eventLogs['data'][1], 16)
@@ -211,6 +257,7 @@ class API {
 
     __iconexCallTransaction(from, to, method, value, params) {
         return api.__estimateCallStep(from, to, method, value, params).then(stepLimit => {
+            console.log("step = ", stepLimit)
             return api.__iconexCallTransactionEx(from, to, method, value, stepLimit, params)
         })
     }

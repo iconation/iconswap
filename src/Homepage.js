@@ -8,10 +8,11 @@ const Homepage = ({ wallet }) => {
 
     const [whitelist, setWhitelist] = useState(null)
     const [contract1, setContract1] = useState(null)
-    const [amount1, setAmount1] = useState(12)
+    const [amount1, setAmount1] = useState(null)
     const [contract2, setContract2] = useState(null)
-    const [amount2, setAmount2] = useState(34)
+    const [amount2, setAmount2] = useState(null)
     const [swapId, setSwapId] = useState(null)
+    const [waitForSwapCreation, setWaitForSwapCreation] = useState(false)
 
     !whitelist && api.getWhitelist().then(contract => {
         const promises = contract.map(contract => {
@@ -30,6 +31,7 @@ const Homepage = ({ wallet }) => {
     })
 
     const createSwapClicked = () => {
+        setWaitForSwapCreation(true)
         api.getDecimals(contract1.contract).then(decimals1 => {
             api.getDecimals(contract2.contract).then(decimals2 => {
                 const digits1 = IconConverter.toBigNumber('10').exponentiatedBy(decimals1)
@@ -41,7 +43,13 @@ const Homepage = ({ wallet }) => {
                     contract2.contract,
                     amount2 * digits2)
                     .then(swapInfo => {
-                        setSwapId(swapInfo['swapId'])
+                        if (swapInfo) {
+                            setSwapId(swapInfo['swapId'])
+                        }
+                    }).catch((reason) => {
+                        console.log(reason)
+                    }).finally(() => {
+                        setWaitForSwapCreation(false)
                     })
             })
         })
@@ -54,6 +62,22 @@ const Homepage = ({ wallet }) => {
     return (
         <>
             {swapId && <Redirect to={"/swap/" + swapId} />}
+
+            {!whitelist && <>
+                <div className="overlay">
+                    <div className="overlayText">
+                        Loading, please wait...
+                    </div>
+                </div>
+            </>}
+
+            {waitForSwapCreation && <>
+                <div className="overlay">
+                    <div className="overlayText">
+                        Creating Swap, please wait...
+                    </div>
+                </div>
+            </>}
 
             <div className="split left">
                 <div className="centered">
@@ -101,7 +125,7 @@ const Homepage = ({ wallet }) => {
 
             {swappable() &&
                 <div className="center">
-                    <button className="bigbutton"
+                    <button className="flatbutton bigbutton"
                         onClick={() => createSwapClicked()}>
                         Create Swap
                         </button>

@@ -2,17 +2,19 @@ import React, { useState } from 'react'
 import { Switch, Route } from 'react-router-dom'
 import './App.css';
 import Swap from './Swap'
+import Header from './Header'
 import Homepage from './Homepage'
+import { WALLET_LOCAL_STORAGE_KEY } from './constants'
 import { api } from './API'
-
 
 function App() {
 
-  const [wallet, setWallet] = useState('hxba2e54b54b695085f31ff1a9b33868b5aea44e33')
+  const [wallet, setWallet] = useState(localStorage.getItem(WALLET_LOCAL_STORAGE_KEY))
 
   const loginIconex = () => {
     api.iconexAskAddress().then(address => {
       setWallet(address)
+      localStorage.setItem(WALLET_LOCAL_STORAGE_KEY, address)
     })
   }
 
@@ -20,18 +22,28 @@ function App() {
     <div className="App">
 
       {!wallet &&
-        <button className="bigbutton center"
-          onClick={() => loginIconex()}>
-          Login with ICONex
+        <div className="overlay">
+          <div className="overlayText">
+            <p>You need Google Chrome with ICONex installed for using ICONSwap.</p>
+            <button className="bigbutton"
+              onClick={() => loginIconex()}>
+              Login with ICONex
           </button>
+          </div>
+        </div>
       }
 
-      {wallet &&
-        <Switch>
-          <Route exact path='/' render={(props) => <Homepage {...props} wallet={wallet} />} />
-          <Route exact path='/swap/:id' render={(props) => <Swap {...props} wallet={wallet} />} />
-        </Switch>
-      }
+      {wallet && <>
+
+        <Header wallet={wallet} setWallet={setWallet} />
+
+        <div id="body">
+          <Switch>
+            <Route exact path='/' render={(props) => <Homepage {...props} wallet={wallet} />} />
+            <Route exact path='/swap/:id' render={(props) => <Swap {...props} wallet={wallet} />} />
+          </Switch>
+        </div>
+      </>}
 
     </div>
   );
