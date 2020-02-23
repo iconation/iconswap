@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/iconswap-ui/static/css/main.9e946098.chunk.css",
+    "main.js": "/iconswap-ui/static/js/main.6b354ee5.chunk.js",
+    "main.js.map": "/iconswap-ui/static/js/main.6b354ee5.chunk.js.map",
+    "runtime-main.js": "/iconswap-ui/static/js/runtime-main.1894b3e3.js",
+    "runtime-main.js.map": "/iconswap-ui/static/js/runtime-main.1894b3e3.js.map",
+    "static/js/2.789566dc.chunk.js": "/iconswap-ui/static/js/2.789566dc.chunk.js",
+    "static/js/2.789566dc.chunk.js.map": "/iconswap-ui/static/js/2.789566dc.chunk.js.map",
+    "index.html": "/iconswap-ui/index.html",
+    "precache-manifest.3c889dc7574279ba5bb1fdb5982666bb.js": "/iconswap-ui/precache-manifest.3c889dc7574279ba5bb1fdb5982666bb.js",
+    "service-worker.js": "/iconswap-ui/service-worker.js",
+    "static/css/main.9e946098.chunk.css.map": "/iconswap-ui/static/css/main.9e946098.chunk.css.map",
+    "static/js/2.789566dc.chunk.js.LICENSE.txt": "/iconswap-ui/static/js/2.789566dc.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.1894b3e3.js",
+    "static/js/2.789566dc.chunk.js",
+    "static/css/main.9e946098.chunk.css",
+    "static/js/main.6b354ee5.chunk.js"
+  ]
+}
