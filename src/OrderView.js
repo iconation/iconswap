@@ -18,7 +18,7 @@ const OrderView = ({ wallet, order }) => {
     }
 
     const withdrawButtonDisabled = (order) => {
-        return order['status'] !== 'FILLED'
+        return (order['status'] !== 'FILLED' || order['provider'] !== wallet)
     }
 
     const depositOrder = (order) => {
