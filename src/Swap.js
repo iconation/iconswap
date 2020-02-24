@@ -53,7 +53,9 @@ const Swap = ({ match, wallet }) => {
     const swappable = () => {
         return (orders
             && orders[0]['status'] === 'FILLED'
-            && orders[1]['status'] === 'FILLED')
+            && orders[1]['status'] === 'FILLED'
+            && (wallet === orders[0]['provider'] || wallet === orders[1]['provider'])
+        )
     }
 
     const cancellable = () => {
