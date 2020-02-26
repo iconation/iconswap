@@ -1,6 +1,6 @@
 <p align="center">
   <img 
-    src="https://i.imgur.com/lkXomkd.png" 
+    src="src/static/img/logo.png" 
     width="120px"
     alt="ICONation logo">
 </p>
