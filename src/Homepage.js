@@ -8,10 +8,14 @@ import './Homepage.css'
 import swapPicture from './static/img/swap.png'
 
 const Homepage = ({ wallet }) => {
-
+    const emptyOrder = {
+        contract: null,
+        amount: null,
+        contractError: null,
+        amountError: null,
+    }
+    const [orders, setOrders] = useState([{ ...emptyOrder }, { ...emptyOrder }])
     const [whitelist, setWhitelist] = useState(null)
-    const [contracts, setContracts] = useState([null, null])
-    const [amounts, setAmounts] = useState([null, null])
     const [swapId, setSwapId] = useState(null)
     const [waitForSwapCreation, setWaitForSwapCreation] = useState(false)
 
@@ -30,44 +34,64 @@ const Homepage = ({ wallet }) => {
     })
 
     const createSwapClicked = () => {
-        setWaitForSwapCreation(true)
-        api.getDecimals(contracts[0]).then(decimals1 => {
-            api.getDecimals(contracts[1]).then(decimals2 => {
-                const digits1 = IconConverter.toBigNumber('10').exponentiatedBy(decimals1)
-                const digits2 = IconConverter.toBigNumber('10').exponentiatedBy(decimals2)
-                api.createSwap(
-                    wallet,
-                    contracts[0],
-                    amounts[0] * digits1,
-                    contracts[1],
-                    amounts[1] * digits2)
-                    .then(swapInfo => {
-                        if (swapInfo) {
-                            setSwapId(swapInfo['swapId'])
-                        }
-                    }).catch((reason) => {
-                        console.log(reason)
-                    }).finally(() => {
-                        setWaitForSwapCreation(false)
-                    })
+        if (!swappable()) {
+            !orders[0].contract && setContractError(0, true);
+            !orders[1].contract && setContractError(1, true);
+            !orders[0].amount && setAmountError(0, true);
+            !orders[1].amount && setAmountError(1, true);
+        } else {
+            setWaitForSwapCreation(true)
+            api.getDecimals(orders[0].contract).then(decimals1 => {
+                api.getDecimals(orders[1].contract).then(decimals2 => {
+                    const digits1 = IconConverter.toBigNumber('10').exponentiatedBy(decimals1)
+                    const digits2 = IconConverter.toBigNumber('10').exponentiatedBy(decimals2)
+                    api.createSwap(
+                        wallet,
+                        orders[0].contract,
+                        orders[0].amount * digits1,
+                        orders[1].contract,
+                        orders[1].amount * digits2)
+                        .then(swapInfo => {
+                            if (swapInfo) {
+                                setSwapId(swapInfo['swapId'])
+                            }
+                        }).catch((reason) => {
+                            console.log(reason)
+                        }).finally(() => {
+                            setWaitForSwapCreation(false)
+                        })
+                })
             })
-        })
+        }
     }
 
     const swappable = () => {
-        return contracts && amounts && contracts[0] && contracts[1] && amounts[0] && amounts[1]
+        return orders[0].contract && orders[1].contract && orders[0].amount && orders[1].contract
     }
 
-    const setContractOnChange = (index, value) => {
-        let newContracts = [...contracts]
-        newContracts[index] = value
-        setContracts(newContracts)
+    const setContract = (index, value) => {
+        let newOrders = [...orders]
+        newOrders[index].contract = value
+        setOrders(newOrders)
+        setContractError(index, false)
     }
 
-    const setAmountOnChange = (index, value) => {
-        let newAmounts = [...amounts]
-        newAmounts[index] = value
-        setAmounts(newAmounts)
+    const setContractError = (index, value) => {
+        let newOrders = [...orders]
+        newOrders[index].contractError = value
+        setOrders(newOrders)
+    }
+
+    const setAmount = (index, value) => {
+        let newOrders = [...orders]
+        newOrders[index].amount = value
+        setOrders(newOrders)
+    }
+
+    const setAmountError = (index, value) => {
+        let newOrders = [...orders]
+        newOrders[index].amountError = value
+        setOrders(newOrders)
     }
 
     return (
@@ -94,9 +118,10 @@ const Homepage = ({ wallet }) => {
                 <div className="centered">
                     <OrderChoser
                         whitelist={whitelist}
-                        setContractOnChange={(index, value) => { setContractOnChange(index, value) }}
-                        setAmountOnChange={setAmountOnChange}
+                        setContract={setContract}
+                        setAmount={setAmount}
                         titleText={"I am offering"}
+                        orders={orders}
                         index={0} />
                 </div>
             </div>
@@ -105,9 +130,10 @@ const Homepage = ({ wallet }) => {
                 <div className="centered">
                     <OrderChoser
                         whitelist={whitelist}
-                        setContractOnChange={setContractOnChange}
-                        setAmountOnChange={setAmountOnChange}
+                        setContract={setContract}
+                        setAmount={setAmount}
                         titleText={"I am receiving"}
+                        orders={orders}
                         index={1} />
                 </div>
             </div>
@@ -117,8 +143,7 @@ const Homepage = ({ wallet }) => {
             </div>}
 
             {whitelist && <div className="centerbot">
-                <button className="flatbutton bigbutton"
-                    disabled={!swappable()}
+                <button className={"flatbutton bigbutton"}
                     onClick={() => createSwapClicked()}>
                     Create Swap
              </button>

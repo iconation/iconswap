@@ -85,8 +85,8 @@
   transition: 0.1s all ease-in-out;
 }
 
-.field input + label.error {
-  color: #ec392f;
+.error {
+  border: 2px solid #ec392f;
 }
 
 .field p.predicted {

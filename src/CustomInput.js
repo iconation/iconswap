@@ -1,62 +1,54 @@
-import React from "react";
-import { render } from "react-dom";
-import { TransitionMotion, spring } from "react-motion";
+import React, { useState } from 'react'
 import "./CustomInput.css";
 
-class CustomInput extends React.Component {
-    constructor(props) {
-        super(props);
+const CustomInput = ({ error, label, locked, active, numericOnly, onChange }) => {
 
-        this.state = {
-            active: (props.locked && props.active) || false,
-            value: props.value || "",
-            error: props.error || "",
-            numericOnly: props.numericOnly || false,
-            label: props.label || "Label"
-        };
-    }
+    const [_error, setError] = useState(error);
+    const [_active, setActive] = useState(active);
+    const [value, setValue] = useState("");
+    const [predicted, setPredicted] = useState(null);
 
-    changeValue(event) {
+    error !== _error && setError(error)
+    active !== _active && setActive(active)
+
+    const changeValue = (event) => {
         let value = event.target.value;
-        if (this.props.numericOnly) {
+        if (numericOnly) {
             value = value.replace(/[^0-9.]/g, '');
         }
-        this.setState({ value, error: "" });
-        this.props.onChange(value);
-    }
-
-    handleKeyPress(event) {
-        if (event.which === 13) {
-            this.setState({ value: this.props.predicted });
+        setValue(value)
+        onChange(value)
+        setActive(value.length > 0)
+        if (value.length > 0) {
         }
     }
 
-    render() {
-        const { active, value, error, label } = this.state;
-        const { predicted, locked } = this.props;
-        const fieldClassName = `field ${(locked ? active : active || value) &&
-            "active"} ${locked && !active && "locked"}`;
-
-        return (
-            <div className={fieldClassName}>
-                {active && value && predicted && predicted.includes(value) && (
-                    <p className="predicted">{predicted}</p>
-                )}
-                <input
-                    type="text"
-                    value={value}
-                    placeholder={label}
-                    onChange={this.changeValue.bind(this)}
-                    onKeyPress={this.handleKeyPress.bind(this)}
-                    onFocus={() => !locked && this.setState({ active: true })}
-                    onBlur={() => !locked && this.setState({ active: false })}
-                />
-                <label htmlFor={1} className={error && "error"}>
-                    {error || label}
-                </label>
-            </div>
-        );
+    const handleKeyPress = (event) => {
+        if (event.which === 13) {
+            setPredicted(predicted)
+        }
     }
+
+    const fieldClassName = `field ${(locked ? _active : _active || value) &&
+        "active"} ${locked && !_active && "locked"} ${_error && "error"}`;
+
+    return (
+        <div className={fieldClassName}>
+            {_active && value && predicted && predicted.includes(value) && (
+                <p className="predicted">{predicted}</p>
+            )}
+            <input
+                type="text"
+                value={value}
+                placeholder={label}
+                onChange={changeValue}
+                onKeyPress={handleKeyPress}
+            />
+            <label htmlFor={1}>
+                {label}
+            </label>
+        </div>
+    );
 }
 
 export default CustomInput;

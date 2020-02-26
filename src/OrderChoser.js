@@ -1,18 +1,36 @@
-import React, { useState } from 'react'
+import React from 'react'
 import './OrderChoser.css';
-import { IconConverter } from 'icon-sdk-js'
-import { api } from './API'
-import { ICX_TOKEN_CONTRACT } from './constants'
 import Select from 'react-select';
 import CustomInput from './CustomInput'
 
 const OFFERING_INDEX = 0;
-const RECEIVING_INDEX = 1;
+// const RECEIVING_INDEX = 1;
 
-const OrderChoser = ({ whitelist, setContractOnChange, setAmountOnChange, titleText, index }) => {
+const colors = {
+    divider: 'rgba(0,0,0,0)',
+    error: '#ec392f'
+};
+
+export const customStyles = {
+    control: (base, state) => {
+        let statusColor = colors.divider;
+
+        if (state.selectProps.error) {
+            statusColor = colors.error;
+        }
+
+        return {
+            ...base,
+            boxShadow: `0 0 0 2px ${statusColor}`,
+            transition: " 0.25s linear",
+            transitionProperty: "box-shadow",
+        };
+    },
+};
+
+const OrderChoser = ({ whitelist, setContract, setAmount, titleText, index, orders }) => {
     const tokenId = "token" + index
-    const amountId = "amount" + index
-    const [contract, setContract] = useState(null)
+    const contract = orders[index].contract
 
     if (whitelist && index === OFFERING_INDEX) {
         whitelist = Object.keys(whitelist).reduce(function (filtered, key) {
@@ -29,8 +47,7 @@ const OrderChoser = ({ whitelist, setContractOnChange, setAmountOnChange, titleT
     })
 
     const updateContract = (index, contract) => {
-        setContract(contract)
-        setContractOnChange(index, contract)
+        setContract(index, contract)
     }
 
     return (
@@ -39,10 +56,11 @@ const OrderChoser = ({ whitelist, setContractOnChange, setAmountOnChange, titleT
                 <div className="ChoserTitle">{titleText}</div>
 
                 <div className="ChoserValues">
-
                     <div className="TokenChosers">
                         <div className="balanceSelect">
                             <Select
+                                error={orders[index].contractError}
+                                styles={customStyles}
                                 name="form-field-name"
                                 id={tokenId}
                                 onChange={
@@ -51,20 +69,24 @@ const OrderChoser = ({ whitelist, setContractOnChange, setAmountOnChange, titleT
                                 options={options}
                             />
                         </div>
-                        {index === OFFERING_INDEX && contract && <input className="balanceInput" disabled
-                            value={contract ? 'Balance : ' + whitelist[contract].balance + ' ' + whitelist[contract].symbol : "Balance"} />
+                        {index === OFFERING_INDEX && contract &&
+                            <input className="balanceInput" disabled
+                                value={contract ?
+                                    'Balance : '
+                                    + whitelist[contract].balance + ' '
+                                    + whitelist[contract].symbol : "Balance"} />
                         }
                     </div>
 
                     <br />
 
                     <CustomInput
-                        id={2}
+                        error={orders[index].amountError}
                         label="Amount"
                         locked={false}
                         active={false}
                         numericOnly={true}
-                        onChange={(value) => { setAmountOnChange(index, value) }}
+                        onChange={(value) => { setAmount(index, value) }}
                     />
                 </div>
             </div>}

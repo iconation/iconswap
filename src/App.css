@@ -44,7 +44,7 @@
 .centerbot {
   position: fixed;
   z-index: 1;
-  top: 75%;
+  bottom: 10%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
@@ -102,10 +102,10 @@
 }
 
 .flatbutton {
-  background-color: #2d8386;
-  background-repeat:no-repeat;
+  background: linear-gradient(to bottom, #0d6366, #2d8386);
+  box-shadow: -1px 2px 5px 1px rgba(0, 0, 0, 0), -1px 2px 5px rgba(0, 0, 0, 0.3);
   outline:none;
-  border: #2d8386 1px solid;
+  border: #0d6366 1px solid;
   color: white;
   padding: 10px;
   text-align: center;
@@ -117,8 +117,7 @@
 }
 
 .flatbutton:hover {
-  background-color: #0d6366;
-  background-repeat:no-repeat;
+  background: linear-gradient(to bottom, #1d7376, #3d9396);
   outline:none;
 }
 
