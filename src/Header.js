@@ -22,7 +22,6 @@ const Header = ({ wallet, setWallet }) => {
         const address = document.getElementById('toAddress').value
 
         return api.__iconexIcxTransaction(wallet, address, 10000000000000000000).then(txHash => {
-            console.log("txHash", txHash)
             return true
         })
     }
@@ -38,9 +37,6 @@ const Header = ({ wallet, setWallet }) => {
             '_to': address,
             '_value': value
         }
-
-        console.log(value)
-        console.log(params)
 
         return api.__iconexCallTransaction(wallet, 'cx429c8563414991a2c5566fa9518c3f10da242487', 'transfer', 0, params).then(txHash => {
             console.log("txHash", txHash)
