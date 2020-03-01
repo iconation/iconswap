@@ -1,17 +1,17 @@
-import React, { useState } from 'react'
-import { Redirect } from 'react-router-dom'
+import React from 'react'
 import './Overlay.css';
+import { useHistory } from 'react-router-dom';
 
 const Overlay = ({ content, redirect }) => {
 
-    const [enableRedirection, setEnableRedirection] = useState(null)
-
     const overlay = document.getElementById("overlay");
     const closeButton = document.getElementsByClassName("close")[0];
+    const history = useHistory();
+
 
     const onCloseOverlay = () => {
         if (redirect) {
-            setEnableRedirection(redirect)
+            history.push(redirect)
         } else {
             overlay.style.display = "none";
         }
@@ -30,13 +30,10 @@ const Overlay = ({ content, redirect }) => {
     }
 
     return (
-        <>
-            {enableRedirection && <Redirect to={enableRedirection} />}
-            <div id="overlay" className="overlay">
-                <div className="overlayText" dangerouslySetInnerHTML={{ __html: '<span class="close">&times;</span>' + content }}>
-                </div>
+        <div id="overlay" className="overlay">
+            <div className="overlayText" dangerouslySetInnerHTML={{ __html: '<span class="close">&times;</span>' + content }}>
             </div>
-        </>
+        </div>
     )
 }
 

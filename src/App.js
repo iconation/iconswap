@@ -4,6 +4,7 @@ import './App.css';
 import Swap from './Swap'
 import Header from './Header'
 import Homepage from './Homepage'
+import AccountOrders from './AccountOrders'
 import { WALLET_LOCAL_STORAGE_KEY } from './constants'
 import { api } from './API'
 
@@ -41,6 +42,7 @@ function App() {
           <Switch>
             <Route exact path='/' render={(props) => <Homepage {...props} wallet={wallet} />} />
             <Route exact path='/swap/:id' render={(props) => <Swap {...props} wallet={wallet} />} />
+            <Route exact path='/account/orders' render={(props) => <AccountOrders {...props} wallet={wallet} />} />
           </Switch>
         </div>
       </>}

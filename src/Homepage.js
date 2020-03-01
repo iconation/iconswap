@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { IconConverter } from 'icon-sdk-js'
 import { api } from './API'
-import { Redirect } from 'react-router-dom'
 import { getTokenDetails } from './utils'
 import OrderChoser from './OrderChoser'
 import './Homepage.css'
 import swapPicture from './static/img/swap.png'
+import { useHistory } from 'react-router-dom'
 
 const Homepage = ({ wallet }) => {
     const emptyOrder = {
@@ -16,11 +16,12 @@ const Homepage = ({ wallet }) => {
     }
     const [orders, setOrders] = useState([{ ...emptyOrder }, { ...emptyOrder }])
     const [whitelist, setWhitelist] = useState(null)
-    const [swapId, setSwapId] = useState(null)
     const [waitForSwapCreation, setWaitForSwapCreation] = useState(false)
 
     const maker = orders[0]
     const taker = orders[1]
+
+    const history = useHistory();
 
     !whitelist && api.getWhitelist().then(contract => {
         const promises = contract.map(contract => {
@@ -55,7 +56,7 @@ const Homepage = ({ wallet }) => {
                         taker.amount * IconConverter.toBigNumber('10').exponentiatedBy(decimals_taker))
                         .then(swapInfo => {
                             if (swapInfo) {
-                                setSwapId(swapInfo['swapId'])
+                                history.push("/swap/" + swapInfo['swapId']);
                             }
                         }).catch((reason) => {
                             console.log(reason)
@@ -98,8 +99,6 @@ const Homepage = ({ wallet }) => {
 
     return (
         <>
-            {swapId && <Redirect to={"/swap/" + swapId} />}
-
             {!whitelist && <>
                 <div className="overlay">
                     <div className="overlayText">

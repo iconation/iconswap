@@ -1,0 +1,9 @@
+#account-orders-root {
+    height: 100%;
+    width: 50%;
+    position: fixed;
+    top: 0;
+
+    background-color: #1ab7bc;
+    width: 100%;
+}

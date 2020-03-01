@@ -5,12 +5,19 @@ import { WALLET_LOCAL_STORAGE_KEY } from './constants'
 import './Header.css'
 import { api } from './API'
 import { IconConverter } from 'icon-sdk-js'
+import { useHistory } from 'react-router-dom';
 
 const Header = ({ wallet, setWallet }) => {
+
+    const history = useHistory();
 
     const disconnectClick = () => {
         localStorage.removeItem(WALLET_LOCAL_STORAGE_KEY)
         setWallet(null)
+    }
+
+    const myOrdersClick = () => {
+        history.push("/account/orders");
     }
 
     const isAdmin = () => {
@@ -44,26 +51,30 @@ const Header = ({ wallet, setWallet }) => {
     }
 
     return (
-        <div id="header">
-            <div id="headercontentleft">
-                <Link to="/"><img src={logo} height="60" alt="logo" /></Link>
-                <Link to="/" id="logotexthref"><div id="logotext">ICONSwap</div></Link>
-                <div id="headerBubble">Status: Beta</div>
-                <div id="headerBubble">Network: {api.getNetworkName()}</div>
-            </div>
-            {wallet && <>
-                <div id="headercontentright">
-                    <button className="disconnect" onClick={() => { disconnectClick() }}>Disconnect</button>
-                    {isAdmin() && <><br />
-                        <input type="text" id="toAddress"></input>
-                        <button onClick={() => { sendTestNetICX() }}>Send ICX</button>
-                        <button onClick={() => { sendTestNetTAP() }}>Send TAP</button>
-                    </>
-                    }
+        <>
+
+
+            < div id="header">
+                <div id="headercontentleft">
+                    <Link to="/"><img src={logo} height="60" alt="logo" /></Link>
+                    <Link to="/" id="logotexthref"><div id="logotext">ICONSwap</div></Link>
+                    <div id="headerBubble">Status: Beta</div>
+                    <div id="headerBubble">Network: {api.getNetworkName()}</div>
                 </div>
-            </>}
-        </div>
-    )
+                {wallet && <>
+                    <div id="headercontentright">
+                        <button className="headerButton" onClick={() => { myOrdersClick() }}>My Orders</button>
+                        <button className="headerButton" onClick={() => { disconnectClick() }}>Disconnect</button>
+                        {isAdmin() && <><br />
+                            <input type="text" id="toAddress"></input>
+                            <button onClick={() => { sendTestNetICX() }}>Send ICX</button>
+                            <button onClick={() => { sendTestNetTAP() }}>Send TAP</button>
+                        </>
+                        }
+                    </div>
+                </>}
+            </div>
+        </>)
 }
 
 export default Header

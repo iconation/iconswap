@@ -140,6 +140,13 @@ class API {
         })
     }
 
+    getOpenOrdersByAddress(walletAddress) {
+        return this.__call(this._scoreAddress, 'get_open_orders_by_address', { address: walletAddress })
+            .then(orders => {
+                return orders
+            })
+    }
+
     fillOrder(walletAddress, swapId, taker_contract, taker_amount) {
         swapId = IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(swapId))
         if (taker_contract === ICX_TOKEN_CONTRACT) {
