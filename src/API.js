@@ -206,24 +206,17 @@ class API {
                     return getSwapIdFromTx(tx)
                 })
         } else {
-            console.log(maker_amount)
-            console.log(maker_contract)
-            console.log(taker_amount)
-            console.log(taker_contract)
             const value = IconService.IconConverter.toHex(maker_amount)
-            console.log(value)
             const data = {
                 'action': 'create_irc2_swap',
                 'taker_contract': taker_contract,
                 'taker_amount': IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(taker_amount)),
             }
-            console.log(data)
             const params = {
                 '_to': this._scoreAddress,
                 '_value': value,
                 '_data': IconService.IconConverter.toHex(JSON.stringify(data))
             }
-            console.log(params)
             return this.__iconexCallTransaction(walletAddress, maker_contract, 'transfer', 0, params).then(async tx => {
                 return getSwapIdFromTx(tx)
             })
