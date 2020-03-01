@@ -2,29 +2,41 @@ import React, { useState, useEffect } from 'react'
 import { api } from './API'
 import { getTokenDetails } from './utils'
 import OrderView from './OrderView'
+import Overlay from './Overlay'
+import InfoBox from './InfoBox'
 import './Swap.css';
+import swapPicture from './static/img/swap.png'
+import { IconConverter } from 'icon-sdk-js'
+import { createBrowserHistory } from 'history';
 
 const Swap = ({ match, wallet }) => {
     const swapId = match.params.id
-    const [orders, setOrders] = useState(null)
+    const [orders, setOrders] = useState([null, null])
     const [swap, setSwap] = useState(null)
     const [ready, setReady] = useState(false)
     const [errorUi, setErrorUi] = useState(null)
+    const [intervalHandle, setIntervalHandle] = useState(null)
+
+    const maker = orders[0]
+    const taker = orders[1]
+    const history = createBrowserHistory();
+
+    history.listen((location, action) => {
+        clearInterval(intervalHandle)
+    })
+
 
     useEffect(() => {
 
-        const refreshOrders = (orderId1, orderId2) => {
-            return api.getOrder(orderId1).then(order1 => {
-                return getTokenDetails(wallet, order1['contract']).then(token => {
-                    order1['token'] = token
-                    order1['id'] = orderId1;
+        const refreshOrders = (makerOrderId, takerOrderId) => {
+            return api.getOrder(makerOrderId).then(maker => {
+                return getTokenDetails(wallet, maker['contract']).then(details => {
+                    maker['token'] = details
 
-                    return api.getOrder(orderId2).then(order2 => {
-                        return getTokenDetails(wallet, order2['contract']).then(token => {
-                            order2['token'] = token
-                            order2['id'] = orderId2;
-
-                            setOrders([order1, order2])
+                    return api.getOrder(takerOrderId).then(taker => {
+                        return getTokenDetails(wallet, taker['contract']).then(details => {
+                            taker['token'] = details
+                            setOrders([maker, taker])
                         })
                     })
                 })
@@ -33,7 +45,7 @@ const Swap = ({ match, wallet }) => {
 
         const refreshSwap = () => {
             return api.getSwap(swapId).then(swap => {
-                refreshOrders(swap['order1'], swap['order2']).then(() => {
+                refreshOrders(swap['maker_order_id'], swap['taker_order_id']).then(() => {
                     setSwap(swap)
                     !ready && setReady(true)
                 }).catch((error) => {
@@ -44,30 +56,27 @@ const Swap = ({ match, wallet }) => {
 
         refreshSwap()
         if (ready) {
-            setInterval(() => {
+            const interval = setInterval(() => {
                 refreshSwap()
-            }, 1000);
+            }, 1000)
+            setIntervalHandle(interval)
         }
     }, [ready, swapId, wallet]);
-
-    const swappable = () => {
-        return (orders
-            && orders[0]['status'] === 'FILLED'
-            && orders[1]['status'] === 'FILLED'
-            && (wallet === orders[0]['provider'] || wallet === orders[1]['provider'])
-        )
-    }
 
     const cancellable = () => {
         return (swap && swap['status'] === 'PENDING')
     }
 
-    const doSwapClicked = () => {
-        api.doSwap(wallet, swapId).catch(error => { setErrorUi(error) })
+    const withdrawClicked = () => {
+        api.cancelSwap(wallet, swapId).catch(error => { setErrorUi(error) })
     }
 
-    const cancelSwapClicked = () => {
-        api.cancelSwap(wallet, swapId).catch(error => { setErrorUi(error) })
+    const depositClicked = () => {
+        api.fillOrder(wallet, swapId, taker['contract'], taker['amount']).catch(error => { setErrorUi(error) })
+    }
+
+    const swapPending = () => {
+        return swap && swap['status'] === 'PENDING'
     }
 
     const swapSuccess = () => {
@@ -77,6 +86,9 @@ const Swap = ({ match, wallet }) => {
     const swapCancel = () => {
         return swap && swap['status'] === 'CANCELLED'
     }
+
+    const isMaker = swapPending() && swap['maker_address'] === wallet
+    const isTaker = swapPending() && swap['maker_address'] !== wallet
 
     // Fatal error
     if (errorUi) {
@@ -92,64 +104,76 @@ const Swap = ({ match, wallet }) => {
     return (
         <>
             {swapSuccess() &&
-                <div className="overlay">
-                    <div className="overlayText">
-                        Swap successfull! <br />
-                        <a href={api.getTrackerEndpoint() + "/transaction/" + swap['transaction']} rel="noopener noreferrer" target="_blank">
-                            Check the transaction
-                </a>
-                    </div>
-                </div>
+                <Overlay redirect={"/"} content={`
+                    Swap successfull! <br />
+                    <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
+                    ` rel="noopener noreferrer" target="_blank">
+                        Check the transaction
+                    </a>
+                    `} />
             }
 
             {swapCancel() &&
-                <div className="overlay">
-                    <div className="overlayText">
-                        Swap cancelled. Your funds have been refunded. <br />
-                        <a href={api.getTrackerEndpoint() + "/transaction/" + swap['transaction']} rel="noopener noreferrer" target="_blank">
-                            Check the transaction
+                <Overlay redirect={"/"} content={`
+                    Swap cancelled. Your funds have been refunded. <br />
+                    <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
+                    ` rel="noopener noreferrer" target="_blank">
+                        Check the transaction
                     </a>
-                    </div>
-                </div>
+                    `} />
             }
 
-            {!orders && <>
-                <div className="overlay">
-                    <div className="overlayText">
-                        Loading, please wait...
-                    </div>
-                </div>
+            {(!maker || !taker) && <>
+                <Overlay content={"Loading, please wait..."} />
             </>}
 
-            {orders && <>
+            {isMaker && <InfoBox content={"Your swap has been created successfully! <br/>" +
+                "You may share this link with anyone you want to trade your tokens with : <br/>" +
+                "<a href='" + window.location.href + "'>" + window.location.href + "</a>"} />}
+
+            {isTaker && <InfoBox content={"You may deposit the amount of tokens displayed on the right (<strong>" +
+                IconConverter.toBigNumber(taker['amount']) / IconConverter.toBigNumber('10').exponentiatedBy(taker['token']['decimals']) +
+                " " + taker['token']['symbol'] + "</strong>), " +
+                "<br/>which will be traded instantly against the amount of tokens displayed on the left (<strong>" +
+                IconConverter.toBigNumber(maker['amount']) / IconConverter.toBigNumber('10').exponentiatedBy(maker['token']['decimals']) +
+                " " + maker['token']['symbol'] + "</strong>) to your address."} />}
+
+            {maker && taker && <>
                 <div className="split left">
                     <div className="centered">
-                        <OrderView wallet={wallet} order={orders[0]} />
+                        <div className="orderViewContainer">
+                            <OrderView wallet={wallet} order={maker} />
+                            {isMaker &&
+                                <div>
+                                    <button className="flatbutton actionButton" disabled={!cancellable()}
+                                        onClick={() => withdrawClicked()}>
+                                        Withdraw
+                                </button>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
-
 
                 <div className="split right">
                     <div className="centered">
-                        <OrderView wallet={wallet} order={orders[1]} />
+                        <div className="orderViewContainer">
+                            <OrderView wallet={wallet} order={taker} />
+                            {isTaker &&
+                                <div>
+                                    <button className="flatbutton actionButton" disabled={!cancellable()}
+                                        onClick={() => depositClicked()}>
+                                        Deposit
+                                </button>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
 
                 <div className="center">
-                    <button className="flatbutton bigbutton" disabled={!swappable()}
-                        onClick={() => doSwapClicked()}>
-                        Swap!
-                    </button>
+                    <div className="swapLogo"><img src={swapPicture} height="60" alt="logo" /></div>
                 </div>
-
-                {swap && swap['author'] === wallet &&
-                    <div className="bottom">
-                        <button className="flatbutton" disabled={!cancellable()}
-                            onClick={() => cancelSwapClicked()}>
-                            Cancel Swap
-                        </button>
-                    </div>
-                }
             </>}
         </>
     )

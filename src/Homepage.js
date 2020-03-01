@@ -19,6 +19,9 @@ const Homepage = ({ wallet }) => {
     const [swapId, setSwapId] = useState(null)
     const [waitForSwapCreation, setWaitForSwapCreation] = useState(false)
 
+    const maker = orders[0]
+    const taker = orders[1]
+
     !whitelist && api.getWhitelist().then(contract => {
         const promises = contract.map(contract => {
             return getTokenDetails(wallet, contract)
@@ -35,22 +38,21 @@ const Homepage = ({ wallet }) => {
 
     const createSwapClicked = () => {
         if (!swappable()) {
-            !orders[0].contract && setContractError(0, true);
-            !orders[1].contract && setContractError(1, true);
-            !orders[0].amount && setAmountError(0, true);
-            !orders[1].amount && setAmountError(1, true);
+            // Highlight form that hasn't been filled correctly
+            !maker.contract && setContractError(0, true);
+            !taker.contract && setContractError(1, true);
+            !maker.amount && setAmountError(0, true);
+            !taker.amount && setAmountError(1, true);
         } else {
             setWaitForSwapCreation(true)
-            api.getDecimals(orders[0].contract).then(decimals1 => {
-                api.getDecimals(orders[1].contract).then(decimals2 => {
-                    const digits1 = IconConverter.toBigNumber('10').exponentiatedBy(decimals1)
-                    const digits2 = IconConverter.toBigNumber('10').exponentiatedBy(decimals2)
+            api.getDecimals(maker.contract).then(decimals_maker => {
+                api.getDecimals(taker.contract).then(decimals_taker => {
                     api.createSwap(
                         wallet,
-                        orders[0].contract,
-                        orders[0].amount * digits1,
-                        orders[1].contract,
-                        orders[1].amount * digits2)
+                        maker.contract,
+                        maker.amount * IconConverter.toBigNumber('10').exponentiatedBy(decimals_maker),
+                        taker.contract,
+                        taker.amount * IconConverter.toBigNumber('10').exponentiatedBy(decimals_taker))
                         .then(swapInfo => {
                             if (swapInfo) {
                                 setSwapId(swapInfo['swapId'])
@@ -66,7 +68,7 @@ const Homepage = ({ wallet }) => {
     }
 
     const swappable = () => {
-        return orders[0].contract && orders[1].contract && orders[0].amount && orders[1].contract
+        return maker.contract && taker.contract && orders[0].amount && taker.contract
     }
 
     const setContract = (index, value) => {

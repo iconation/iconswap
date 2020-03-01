@@ -1,4 +1,11 @@
 
+.headerToken {
+    margin-bottom: 20px;
+}
+
+.OrderStatus {
+}
+
 /**
  * Extracted from: SweetAlert
  * Modified by: Istiak Tridip
@@ -8,7 +15,6 @@
     height: 115px;
     margin: 0 auto;
 }
-
 
 check-icon::before {
     top: 3px;
@@ -55,13 +61,11 @@ check-icon::before, check-icon::after {
     display: block;
     border-radius: 2px;
     position: absolute;
-    z-index: 10;
 }
 
 .icon-circle {
     top: -4px;
     left: -4px;
-    z-index: 10;
     width: 80px;
     height: 80px;
     border-radius: 50%;
@@ -74,7 +78,6 @@ check-icon::before, check-icon::after {
     top: 8px;
     width: 5px;
     left: 26px;
-    z-index: 1;
     height: 85px;
     position: absolute;
     transform: rotate(-45deg);
@@ -159,6 +162,8 @@ check-icon::before, check-icon::after {
 /* === dots === */
 .loadingDots {
     font-size: 40px;
+    margin-top: -30px;
+    margin-bottom: 20px;
 }
 
 @keyframes blink {

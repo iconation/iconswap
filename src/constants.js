@@ -8,9 +8,9 @@ export const Networks = Object.freeze({
 export const WALLET_LOCAL_STORAGE_KEY = 'wallet'
 
 // SCORE Configuration
-export const SCORE_ENDPOINT = 'cx875745968f7e01104bd7b3deafc2492851801440'
+export const SCORE_ENDPOINT = 'cx73d22bf8608407339b8531f6c79e391baf7a6225'
 export const SCORE_NETWORK = Networks.YEOUIDO
-// export const SCORE_ENDPOINT = "cx17b53a38661427590e0e5022e0d452a9f7fc4432"
+// export const SCORE_ENDPOINT = "cx9c08deb7f3f6bbc4a66e9b34d04c1d05a54708d3"
 // export const SCORE_NETWORK = Networks.LOCALHOST
 
 // ICX Configuration

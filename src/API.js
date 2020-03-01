@@ -118,22 +118,14 @@ class API {
     }
 
     getSwap(swapId) {
-        return this.__call(this._scoreAddress, 'get_swap', { swapid: swapId }).then(swap => {
+        return this.__call(this._scoreAddress, 'get_swap', { swap_id: swapId }).then(swap => {
             return swap
         })
     }
 
     getOrder(orderId) {
-        return this.__call(this._scoreAddress, 'get_order', { orderid: orderId }).then(swap => {
+        return this.__call(this._scoreAddress, 'get_order', { order_id: orderId }).then(swap => {
             return swap
-        })
-    }
-
-    refundOrder(walletAddress, order) {
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'refund_order', 0, {
-            'orderid': order['id']
-        }).then(txHash => {
-            return txHash
         })
     }
 
@@ -148,67 +140,94 @@ class API {
         })
     }
 
-    fulfillIcxOrder(walletAddress, order) {
-        const value = IconService.IconConverter.toHex(order['amount'])
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'fulfill_icx_order', value, { orderid: order['id'] }).then(txHash => {
-            return txHash
-        })
-    }
-
-    _toBytes(data) {
-        const hex = IconService.IconConverter.toHex(data)
-        if (hex.length % 2 === 1) {
-            return '0x0' + hex.replace('0x', '')
+    fillOrder(walletAddress, swapId, taker_contract, taker_amount) {
+        swapId = IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(swapId))
+        if (taker_contract === ICX_TOKEN_CONTRACT) {
+            const value = IconService.IconConverter.toHex(taker_amount)
+            return this.__iconexCallTransaction(
+                walletAddress,
+                this._scoreAddress,
+                'fill_icx_order',
+                value, { swap_id: swapId }
+            ).then(tx => {
+                return tx
+            })
+        } else {
+            const value = IconService.IconConverter.toHex(taker_amount)
+            const data = {
+                'action': 'fill_irc2_order',
+                'swap_id': swapId
+            }
+            const params = {
+                '_to': this._scoreAddress,
+                '_value': value,
+                '_data': IconService.IconConverter.toHex(JSON.stringify(data))
+            }
+            return this.__iconexCallTransaction(
+                walletAddress,
+                taker_contract,
+                'transfer',
+                0,
+                params
+            ).then(tx => {
+                return tx
+            })
         }
-        return hex
-    }
-
-    fulfillIRC2Order(walletAddress, order) {
-        const value = IconService.IconConverter.toHex(order['amount'])
-        const params = {
-            '_to': this._scoreAddress,
-            '_value': value,
-            '_data': this._toBytes(order['id'])
-        }
-
-        return this.__iconexCallTransaction(walletAddress, order['contract'], 'transfer', 0, params).then(txHash => {
-            return txHash
-        })
-    }
-
-    doSwap(walletAddress, swapId) {
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'do_swap', 0, { swapid: swapId }).then(txHash => {
-            return txHash
-        })
     }
 
     cancelSwap(walletAddress, swapId) {
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap', 0, { swapid: swapId }).then(txHash => {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap', 0, { swap_id: swapId }).then(txHash => {
             return txHash
         })
     }
 
-    createSwap(walletAddress, contract1, amount1, contract2, amount2) {
-        const params = {
-            contract1: contract1,
-            amount1: IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(amount1)),
-            contract2: contract2,
-            amount2: IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(amount2))
+    createSwap(walletAddress, maker_contract, maker_amount, taker_contract, taker_amount) {
+        const getSwapIdFromTx = async (tx) => {
+            if (!tx) return null;
+            const txHash = tx['result']
+            const txResult = await this.__txResult(txHash)
+            const eventLogs = txResult['eventLogs'][0]
+            if (eventLogs['indexed'][0] !== SwapCreatedEvent) {
+                throw WrongEventSignature(eventLogs['indexed']);
+            }
+            const swapId = parseInt(eventLogs['indexed'][1], 16)
+            const maker = parseInt(eventLogs['data'][0], 16)
+            const taker = parseInt(eventLogs['data'][1], 16)
+            return { swapId: swapId, maker: maker, taker: taker }
         }
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'create_swap', 0, params)
-            .then(async tx => {
-                if (!tx) return null;
-                const txHash = tx['result']
-                const txResult = await this.__txResult(txHash)
-                const eventLogs = txResult['eventLogs'][0]
-                if (eventLogs['indexed'][0] !== SwapCreatedEvent) {
-                    throw WrongEventSignature(eventLogs['indexed']);
-                }
-                const swapId = parseInt(eventLogs['indexed'][1], 16)
-                const order1 = parseInt(eventLogs['data'][0], 16)
-                const order2 = parseInt(eventLogs['data'][1], 16)
-                return { swapId: swapId, order1: order1, order2: order2 }
+
+        if (maker_contract === ICX_TOKEN_CONTRACT) {
+            const params = {
+                taker_contract: taker_contract,
+                taker_amount: IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(taker_amount)),
+            }
+            return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'create_icx_swap', maker_amount, params)
+                .then(async tx => {
+                    return getSwapIdFromTx(tx)
+                })
+        } else {
+            console.log(maker_amount)
+            console.log(maker_contract)
+            console.log(taker_amount)
+            console.log(taker_contract)
+            const value = IconService.IconConverter.toHex(maker_amount)
+            console.log(value)
+            const data = {
+                'action': 'create_irc2_swap',
+                'taker_contract': taker_contract,
+                'taker_amount': IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(taker_amount)),
+            }
+            console.log(data)
+            const params = {
+                '_to': this._scoreAddress,
+                '_value': value,
+                '_data': IconService.IconConverter.toHex(JSON.stringify(data))
+            }
+            console.log(params)
+            return this.__iconexCallTransaction(walletAddress, maker_contract, 'transfer', 0, params).then(async tx => {
+                return getSwapIdFromTx(tx)
             })
+        }
     }
 
     // IRC2 Token Interface ============================================================
