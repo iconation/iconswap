@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/iconswap/static/css/main.74c50112.chunk.css",
-    "main.js": "/iconswap/static/js/main.cc8156cd.chunk.js",
-    "main.js.map": "/iconswap/static/js/main.cc8156cd.chunk.js.map",
+    "main.js": "/iconswap/static/js/main.78c7994a.chunk.js",
+    "main.js.map": "/iconswap/static/js/main.78c7994a.chunk.js.map",
     "runtime-main.js": "/iconswap/static/js/runtime-main.caaeb70b.js",
     "runtime-main.js.map": "/iconswap/static/js/runtime-main.caaeb70b.js.map",
     "static/js/2.fa6658fb.chunk.js": "/iconswap/static/js/2.fa6658fb.chunk.js",
     "static/js/2.fa6658fb.chunk.js.map": "/iconswap/static/js/2.fa6658fb.chunk.js.map",
     "index.html": "/iconswap/index.html",
-    "precache-manifest.5a510a184e001e499cc243efffcdf950.js": "/iconswap/precache-manifest.5a510a184e001e499cc243efffcdf950.js",
+    "precache-manifest.840b14b9772d0d80f53e842c9af61df9.js": "/iconswap/precache-manifest.840b14b9772d0d80f53e842c9af61df9.js",
     "service-worker.js": "/iconswap/service-worker.js",
     "static/css/main.74c50112.chunk.css.map": "/iconswap/static/css/main.74c50112.chunk.css.map",
     "static/js/2.fa6658fb.chunk.js.LICENSE.txt": "/iconswap/static/js/2.fa6658fb.chunk.js.LICENSE.txt",
@@ -18,6 +18,6 @@
     "static/js/runtime-main.caaeb70b.js",
     "static/js/2.fa6658fb.chunk.js",
     "static/css/main.74c50112.chunk.css",
-    "static/js/main.cc8156cd.chunk.js"
+    "static/js/main.78c7994a.chunk.js"
   ]
 }
