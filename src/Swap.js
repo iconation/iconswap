@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { api } from './API'
-import { getTokenDetails } from './utils'
 import OrderView from './OrderView'
 import Overlay from './Overlay'
 import InfoBox from './InfoBox'
@@ -30,11 +29,11 @@ const Swap = ({ match, wallet }) => {
 
         const refreshOrders = (makerOrderId, takerOrderId) => {
             return api.getOrder(makerOrderId).then(maker => {
-                return getTokenDetails(wallet, maker['contract']).then(details => {
+                return api.getTokenDetails(wallet, maker['contract']).then(details => {
                     maker['token'] = details
 
                     return api.getOrder(takerOrderId).then(taker => {
-                        return getTokenDetails(wallet, taker['contract']).then(details => {
+                        return api.getTokenDetails(wallet, taker['contract']).then(details => {
                             taker['token'] = details
                             setOrders([maker, taker])
                         })
@@ -104,6 +103,7 @@ const Swap = ({ match, wallet }) => {
     return (
         <>
             {swapSuccess() &&
+                /*
                 <Overlay redirect={"/"} content={`
                     Swap successfull! <br />
                     <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
@@ -111,23 +111,28 @@ const Swap = ({ match, wallet }) => {
                         Check the transaction
                     </a>
                     `} />
+                */
+                <InfoBox type={"success"} content={`<strong>The tokens have been traded successful!</strong> <br/>
+                    See the transaction on the tracker : <br/>
+                    <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
+                    ` rel="noopener noreferrer" target="_blank">0x` + swap['transaction'] + `</a>
+                    `} />
             }
 
             {swapCancel() &&
-                <Overlay redirect={"/"} content={`
-                    Swap cancelled. Your funds have been refunded. <br />
-                    <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
-                    ` rel="noopener noreferrer" target="_blank">
-                        Check the transaction
-                    </a>
-                    `} />
+                <InfoBox type={"error"} content={`
+                The swap doesn't exist anymore because it has been cancelled. <br />
+                See the transaction on the tracker : <br/>
+                <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
+                    ` rel="noopener noreferrer" target="_blank">0x` + swap['transaction'] + `</a>
+                `} />
             }
 
             {(!maker || !taker) && <>
                 <Overlay content={"Loading, please wait..."} />
             </>}
 
-            {isMaker && <InfoBox content={"Your swap has been created successfully! <br/>" +
+            {isMaker && <InfoBox content={"<strong>Your swap has been created successfully!</strong> <br/>" +
                 "You may share this link with anyone you want to trade your tokens with : <br/>" +
                 "<a href='" + window.location.href + "'>" + window.location.href + "</a>"} />}
 

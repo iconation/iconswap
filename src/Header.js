@@ -20,6 +20,10 @@ const Header = ({ wallet, setWallet }) => {
         history.push("/account/orders");
     }
 
+    const createSwapClick = () => {
+        history.push("/");
+    }
+
     const isAdmin = () => {
         return wallet === 'hxcc8c9d91d0db660f91d8041af702d79edcb02958'
     }
@@ -51,30 +55,28 @@ const Header = ({ wallet, setWallet }) => {
     }
 
     return (
-        <>
-
-
-            < div id="header">
-                <div id="headercontentleft">
-                    <Link to="/"><img src={logo} height="60" alt="logo" /></Link>
-                    <Link to="/" id="logotexthref"><div id="logotext">ICONSwap</div></Link>
-                    <div id="headerBubble">Status: Beta</div>
-                    <div id="headerBubble">Network: {api.getNetworkName()}</div>
-                </div>
-                {wallet && <>
-                    <div id="headercontentright">
-                        <button className="headerButton" onClick={() => { myOrdersClick() }}>My Orders</button>
-                        <button className="headerButton" onClick={() => { disconnectClick() }}>Disconnect</button>
-                        {isAdmin() && <><br />
-                            <input type="text" id="toAddress"></input>
-                            <button onClick={() => { sendTestNetICX() }}>Send ICX</button>
-                            <button onClick={() => { sendTestNetTAP() }}>Send TAP</button>
-                        </>
-                        }
-                    </div>
-                </>}
+        <div id="header">
+            <div id="headercontentleft">
+                <Link to="/"><img src={logo} height="60" alt="logo" /></Link>
+                <Link to="/" id="logotexthref"><div id="logotext">ICONSwap</div></Link>
+                <div id="headerBubble">Status: Beta</div>
+                <div id="headerBubble">Network: {api.getNetworkName()}</div>
             </div>
-        </>)
+            {wallet && <>
+                <div id="headercontentright">
+                    <button className="flatbutton" onClick={() => { createSwapClick() }}>Create Swap</button>
+                    <button className="flatbutton" onClick={() => { myOrdersClick() }}>My Orders</button>
+                    <button className="flatbutton" onClick={() => { disconnectClick() }}>Disconnect</button>
+                    {isAdmin() && <><br />
+                        <input type="text" id="toAddress"></input>
+                        <button onClick={() => { sendTestNetICX() }}>Send ICX</button>
+                        <button onClick={() => { sendTestNetTAP() }}>Send TAP</button>
+                    </>
+                    }
+                </div>
+            </>}
+        </div>
+    )
 }
 
 export default Header

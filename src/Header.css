@@ -9,6 +9,7 @@
     width: 100%;
     background-color: #2d8386;
     z-index: 10;
+    height: 100px;
 }
 
 #headercontentleft {
@@ -22,7 +23,7 @@
 #headercontentright {
     text-align: right;
     padding: 15px;
-    width: 30%;
+    width: 100%;
 }
 
 #logotext {
@@ -41,21 +42,6 @@
     padding: 5px;
     border-radius: 10px;
     color: white;
-}
-
-.headerButton {
-    background-color: #0d6366;
-    background-repeat:no-repeat;
-    outline:none;
-    border: #2d8386 1px solid;
-    color: white;
-    padding: 10px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 20px;
-    border-radius: 12px;
-    cursor:pointer;
 }
 
 .diconnect:hover {

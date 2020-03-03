@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { IconConverter } from 'icon-sdk-js'
 import { api } from './API'
-import { getTokenDetails } from './utils'
 import OrderChoser from './OrderChoser'
 import './Homepage.css'
 import swapPicture from './static/img/swap.png'
@@ -25,7 +24,7 @@ const Homepage = ({ wallet }) => {
 
     !whitelist && api.getWhitelist().then(contract => {
         const promises = contract.map(contract => {
-            return getTokenDetails(wallet, contract)
+            return api.getTokenDetails(wallet, contract)
         })
 
         Promise.all(promises).then(whitelist => {

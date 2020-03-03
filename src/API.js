@@ -129,6 +129,36 @@ class API {
         })
     }
 
+    getTokenDetails(wallet, contract) {
+        return api.__getBalance(wallet, contract).then(balance => {
+            if (contract === ICX_TOKEN_CONTRACT) {
+                return new Promise((resolve, reject) => {
+                    resolve({
+                        name: 'ICX',
+                        symbol: 'ICX',
+                        contract: contract,
+                        decimals: ICX_TOKEN_DECIMALS,
+                        balance: balance
+                    })
+                })
+            }
+            return api.tokenName(contract).then(name => {
+                return api.tokenSymbol(contract).then(symbol => {
+                    return api.getDecimals(contract).then(decimals => {
+                        return {
+                            name: name,
+                            symbol: symbol,
+                            contract: contract,
+                            decimals: parseInt(decimals, 16),
+                            balance: balance
+                        }
+                    })
+                })
+            })
+        })
+    }
+
+
     getDecimals(contract) {
         if (contract === ICX_TOKEN_CONTRACT) {
             return new Promise((resolve, reject) => {
@@ -140,8 +170,15 @@ class API {
         })
     }
 
-    getOpenOrdersByAddress(walletAddress) {
-        return this.__call(this._scoreAddress, 'get_open_orders_by_address', { address: walletAddress })
+    getOpenedOrdersByAddress(walletAddress) {
+        return this.__call(this._scoreAddress, 'get_opened_orders_by_address', { address: walletAddress })
+            .then(orders => {
+                return orders
+            })
+    }
+
+    getFilledOrdersByAddress(walletAddress) {
+        return this.__call(this._scoreAddress, 'get_filled_orders_by_address', { address: walletAddress })
             .then(orders => {
                 return orders
             })
@@ -228,6 +265,13 @@ class API {
                 return getSwapIdFromTx(tx)
             })
         }
+    }
+
+    balanceToFloat(balance, contract) {
+        return this.getDecimals(contract).then(decimals => {
+            const digits = IconService.IconConverter.toBigNumber('10').exponentiatedBy(decimals)
+            return balance / digits
+        })
     }
 
     // IRC2 Token Interface ============================================================
@@ -331,6 +375,8 @@ class API {
             })
         })
     }
+
+
     __getBalance(address, contract) {
         if (contract === ICX_TOKEN_CONTRACT) {
             return this.__getIcxBalance(address)

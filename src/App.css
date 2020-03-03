@@ -12,7 +12,7 @@
 
  /* Split the screen in half */
  .split {
-  height: 100%;
+  height: 100vh;
   width: 50%;
   position: fixed;
   top: 0;
@@ -72,22 +72,22 @@
 }
 
 .flatbutton {
-  background: linear-gradient(to bottom, #0d6366, #2d8386);
-  box-shadow: -1px 2px 3px 1px rgba(0, 0, 0, 0), -1px 2px 3px rgba(0, 0, 0, 0.3);
-  outline:none;
-  border: #0d6366 1px solid;
-  color: white;
-  padding: 10px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 20px;
-  border-radius: 12px;
-  cursor:pointer;
+    background-color: #0d6366;
+    background-repeat:no-repeat;
+    outline:none;
+    border: #2d8386 1px solid;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    border-radius: 12px;
+    cursor:pointer;
 }
 
 .flatbutton:hover {
-  background: linear-gradient(to bottom, #1d7376, #3d9396);
+  background-color: #1d7376;
   outline:none;
 }
 

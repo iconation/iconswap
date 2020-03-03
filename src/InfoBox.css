@@ -1,11 +1,12 @@
 .alert-box {
     position: fixed;
-    top: 100px;
+    top: 150px;
     left:50%;
     transform: translate(-50%, 0%);
     color:#555;
     border-radius:10px;
-    font-family:Tahoma,Geneva,Arial,sans-serif;font-size:11px;
+    font-family:Tahoma,Geneva,Arial,sans-serif;
+    font-size:15px;
     padding:10px;
     z-index: 2;
     margin:10px;
@@ -14,7 +15,7 @@
     align-items: stretch;
 }
 
-.noticeImg {
+.Img {
     width: 16px;
     height: 16px;
     text-align: center;
