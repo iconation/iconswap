@@ -1,0 +1,65 @@
+#login-screen-root {
+    background-color: #1ab7bc;
+    height: 100vh;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    overflow-x: hidden;
+}
+
+.login-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    border-radius: .25rem;
+    transform: translate(-50%,-50%);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 40px;
+}
+
+.login-welcome-message {
+    font-size: 25px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.login-welcome-explain {
+    font-size: 15px;
+    color: #fff;
+}
+
+.login-connect-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.svg-text-button {
+    margin-top: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.button-svg-container {
+    display: flex;
+    padding: 10px;
+    flex-direction: col;
+    font-weight: 500;
+}
+
+.login-field {
+    width: 500px;
+    margin-top: 50px;
+    padding: 50px;
+    box-shadow: -2px 2px 8px 1px rgba(0, 0, 0, 0), 0px 0px 10px rgba(0, 0, 0, 0.1) inset
+}
+
+.login-iconex {
+    text-align: left;
+}
+
+.iconex-connect-button {
+    margin-top: 30px;
+}

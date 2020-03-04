@@ -16,7 +16,7 @@ const Header = ({ wallet, setWallet }) => {
         setWallet(null)
     }
 
-    const myOrdersClick = () => {
+    const mySwapsClicked = () => {
         history.push("/account/orders");
     }
 
@@ -64,9 +64,9 @@ const Header = ({ wallet, setWallet }) => {
             </div>
             {wallet && <>
                 <div id="headercontentright">
-                    <button className="flatbutton" onClick={() => { createSwapClick() }}>Create Swap</button>
-                    <button className="flatbutton" onClick={() => { myOrdersClick() }}>My Orders</button>
-                    <button className="flatbutton" onClick={() => { disconnectClick() }}>Disconnect</button>
+                    <button className="big-button" onClick={() => { createSwapClick() }}>Create Swap</button>
+                    <button className="big-button" onClick={() => { mySwapsClicked() }}>My Swaps</button>
+                    <button className="big-button" onClick={() => { disconnectClick() }}>Disconnect</button>
                     {isAdmin() && <><br />
                         <input type="text" id="toAddress"></input>
                         <button onClick={() => { sendTestNetICX() }}>Send ICX</button>

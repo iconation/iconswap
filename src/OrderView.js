@@ -31,7 +31,7 @@ const OrderView = ({ order }) => {
                         <div className="icon-fix"></div>
                     </div>
                 </div>
-                <div className="OrderStatus">Order deposited</div>
+                <div className="OrderStatus">Funds successfully deposited</div>
             </>
             }
 

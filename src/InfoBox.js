@@ -15,6 +15,7 @@ const InfoBox = ({ content, type }) => {
         case "notice": imgobj = notice; break;
         case "success": imgobj = success; break;
         case "error": imgobj = error; break;
+        default: break;
     }
 
     return (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { api } from './API'
 import OrderView from './OrderView'
-import Overlay from './Overlay'
+import LoadingOverlay from './LoadingOverlay'
 import InfoBox from './InfoBox'
 import './Swap.css';
 import swapPicture from './static/img/swap.png'
@@ -50,6 +50,8 @@ const Swap = ({ match, wallet }) => {
                 }).catch((error) => {
                     setErrorUi(error)
                 })
+            }).catch(error => {
+                setErrorUi(error)
             })
         }
 
@@ -89,96 +91,81 @@ const Swap = ({ match, wallet }) => {
     const isMaker = swapPending() && swap['maker_address'] === wallet
     const isTaker = swapPending() && swap['maker_address'] !== wallet
 
-    // Fatal error
-    if (errorUi) {
-        return (
-            <div className="overlay">
-                <div className="overlayText">
-                    An error occured : {errorUi}
-                </div>
-            </div>
-        )
-    }
+    const over = (maker && taker) !== null
+    const loadingText = 'Loading Swap...'
 
     return (
         <>
-            {swapSuccess() &&
-                /*
-                <Overlay redirect={"/"} content={`
-                    Swap successfull! <br />
-                    <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
-                    ` rel="noopener noreferrer" target="_blank">
-                        Check the transaction
-                    </a>
-                    `} />
-                */
-                <InfoBox type={"success"} content={`<strong>The tokens have been traded successful!</strong> <br/>
+            <LoadingOverlay over={over} text={loadingText} />
+            {errorUi && <InfoBox type={"error"} content={"An error occured : " + errorUi} />}
+
+            {over && <>
+                {swapSuccess() &&
+                    <InfoBox type={"success"} content={`<strong>The tokens have been traded successful!</strong> <br/>
                     See the transaction on the tracker : <br/>
                     <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
-                    ` rel="noopener noreferrer" target="_blank">0x` + swap['transaction'] + `</a>
+                        ` rel="noopener noreferrer" target="_blank">0x` + swap['transaction'] + `</a>
                     `} />
-            }
+                }
 
-            {swapCancel() &&
-                <InfoBox type={"error"} content={`
+                {swapCancel() &&
+                    <InfoBox type={"error"} content={`
                 The swap doesn't exist anymore because it has been cancelled. <br />
                 See the transaction on the tracker : <br/>
                 <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
-                    ` rel="noopener noreferrer" target="_blank">0x` + swap['transaction'] + `</a>
+                        ` rel="noopener noreferrer" target="_blank">0x` + swap['transaction'] + `</a>
                 `} />
-            }
+                }
 
-            {(!maker || !taker) && <>
-                <Overlay content={"Loading, please wait..."} />
-            </>}
 
-            {isMaker && <InfoBox content={"<strong>Your swap has been created successfully!</strong> <br/>" +
-                "You may share this link with anyone you want to trade your tokens with : <br/>" +
-                "<a href='" + window.location.href + "'>" + window.location.href + "</a>"} />}
+                {isMaker && <InfoBox content={"<strong>Your swap has been created successfully!</strong> <br/>" +
+                    "You may share this link with anyone you want to trade your tokens with : <br/>" +
+                    "<strong><a href='" + window.location.href + "'>" + window.location.href + "</a></strong>"} />}
 
-            {isTaker && <InfoBox content={"You may deposit the amount of tokens displayed on the right (<strong>" +
-                IconConverter.toBigNumber(taker['amount']) / IconConverter.toBigNumber('10').exponentiatedBy(taker['token']['decimals']) +
-                " " + taker['token']['symbol'] + "</strong>), " +
-                "<br/>which will be traded instantly against the amount of tokens displayed on the left (<strong>" +
-                IconConverter.toBigNumber(maker['amount']) / IconConverter.toBigNumber('10').exponentiatedBy(maker['token']['decimals']) +
-                " " + maker['token']['symbol'] + "</strong>) to your address."} />}
+                {isTaker && <InfoBox content={"You may deposit the amount of tokens displayed on the right (<strong>" +
+                    IconConverter.toBigNumber(taker['amount']) / IconConverter.toBigNumber('10').exponentiatedBy(taker['token']['decimals']) +
+                    " " + taker['token']['symbol'] + "</strong>), " +
+                    "<br/>which will be traded instantly against the amount of tokens displayed on the left (<strong>" +
+                    IconConverter.toBigNumber(maker['amount']) / IconConverter.toBigNumber('10').exponentiatedBy(maker['token']['decimals']) +
+                    " " + maker['token']['symbol'] + "</strong>) to your address."} />}
 
-            {maker && taker && <>
-                <div className="split left">
-                    <div className="centered">
-                        <div className="orderViewContainer">
-                            <OrderView wallet={wallet} order={maker} />
-                            {isMaker &&
-                                <div>
-                                    <button className="flatbutton actionButton" disabled={!cancellable()}
-                                        onClick={() => withdrawClicked()}>
-                                        Withdraw
+                {maker && taker && <>
+                    <div className="split left">
+                        <div className="centered">
+                            <div className="orderViewContainer">
+                                <OrderView wallet={wallet} order={maker} />
+                                {isMaker &&
+                                    <div>
+                                        <button className="big-button actionButton" disabled={!cancellable()}
+                                            onClick={() => withdrawClicked()}>
+                                            Withdraw
                                 </button>
-                                </div>
-                            }
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="split right">
-                    <div className="centered">
-                        <div className="orderViewContainer">
-                            <OrderView wallet={wallet} order={taker} />
-                            {isTaker &&
-                                <div>
-                                    <button className="flatbutton actionButton" disabled={!cancellable()}
-                                        onClick={() => depositClicked()}>
-                                        Deposit
+                    <div className="split right">
+                        <div className="centered">
+                            <div className="orderViewContainer">
+                                <OrderView wallet={wallet} order={taker} />
+                                {isTaker &&
+                                    <div>
+                                        <button className="big-button actionButton" disabled={!cancellable()}
+                                            onClick={() => depositClicked()}>
+                                            Deposit
                                 </button>
-                                </div>
-                            }
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="center">
-                    <div className="swapLogo"><img src={swapPicture} height="60" alt="logo" /></div>
-                </div>
+                    <div className="center">
+                        <div className="swapLogo"><img src={swapPicture} height="60" alt="logo" /></div>
+                    </div>
+                </>}
             </>}
         </>
     )

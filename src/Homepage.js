@@ -5,6 +5,8 @@ import OrderChoser from './OrderChoser'
 import './Homepage.css'
 import swapPicture from './static/img/swap.png'
 import { useHistory } from 'react-router-dom'
+import InfoBox from './InfoBox'
+import LoadingOverlay from './LoadingOverlay'
 
 const Homepage = ({ wallet }) => {
     const emptyOrder = {
@@ -16,6 +18,7 @@ const Homepage = ({ wallet }) => {
     const [orders, setOrders] = useState([{ ...emptyOrder }, { ...emptyOrder }])
     const [whitelist, setWhitelist] = useState(null)
     const [waitForSwapCreation, setWaitForSwapCreation] = useState(false)
+    const [errorUi, setErrorUi] = useState(null)
 
     const maker = orders[0]
     const taker = orders[1]
@@ -33,6 +36,8 @@ const Homepage = ({ wallet }) => {
                 return map
             }, {})
             setWhitelist(whitelist)
+        }).catch((error) => {
+            setErrorUi(error)
         })
     })
 
@@ -52,17 +57,18 @@ const Homepage = ({ wallet }) => {
                         maker.contract,
                         maker.amount * IconConverter.toBigNumber('10').exponentiatedBy(decimals_maker),
                         taker.contract,
-                        taker.amount * IconConverter.toBigNumber('10').exponentiatedBy(decimals_taker))
-                        .then(swapInfo => {
-                            if (swapInfo) {
-                                history.push("/swap/" + swapInfo['swapId']);
-                            }
-                        }).catch((reason) => {
-                            console.log(reason)
-                        }).finally(() => {
+                        taker.amount * IconConverter.toBigNumber('10').exponentiatedBy(decimals_taker)
+                    ).then(swapInfo => {
+                        if (swapInfo) {
+                            history.push("/swap/" + swapInfo['swapId']);
                             setWaitForSwapCreation(false)
-                        })
+                        }
+                    }).finally(() => {
+                        setWaitForSwapCreation(false)
+                    })
                 })
+            }).catch((error) => {
+                setErrorUi(error)
             })
         }
     }
@@ -96,58 +102,50 @@ const Homepage = ({ wallet }) => {
         setOrders(newOrders)
     }
 
+    const loadingText = waitForSwapCreation ? 'Creating Swap, please wait...' : 'Loading wallet...'
+    const over = (whitelist !== null)
+
     return (
         <>
-            {!whitelist && <>
-                <div className="overlay">
-                    <div className="overlayText">
-                        Loading, please wait...
+            <LoadingOverlay over={over && !waitForSwapCreation} text={loadingText} />
+            {errorUi && <InfoBox type={"error"} content={"An error occured : " + errorUi} />}
+
+            {over && <>
+                <div className="split left">
+                    <div className="centered">
+                        <OrderChoser
+                            whitelist={whitelist}
+                            setContract={setContract}
+                            setAmount={setAmount}
+                            titleText={"I am offering"}
+                            orders={orders}
+                            index={0} />
                     </div>
                 </div>
-            </>}
 
-            {waitForSwapCreation && <>
-                <div className="overlay">
-                    <div className="overlayText">
-                        Creating Swap, please wait...
+                <div className="split right">
+                    <div className="centered">
+                        <OrderChoser
+                            whitelist={whitelist}
+                            setContract={setContract}
+                            setAmount={setAmount}
+                            titleText={"I am receiving"}
+                            orders={orders}
+                            index={1} />
                     </div>
                 </div>
+
+                {whitelist && <div className="center">
+                    <div className="swapLogo"><img src={swapPicture} height="60" alt="logo" /></div>
+                </div>}
+
+                {whitelist && <div className="centerbot">
+                    <button className={"big-button bigbutton"}
+                        onClick={() => createSwapClicked()}>
+                        Create Swap
+                </button>
+                </div>}
             </>}
-
-            <div className="split left">
-                <div className="centered">
-                    <OrderChoser
-                        whitelist={whitelist}
-                        setContract={setContract}
-                        setAmount={setAmount}
-                        titleText={"I am offering"}
-                        orders={orders}
-                        index={0} />
-                </div>
-            </div>
-
-            <div className="split right">
-                <div className="centered">
-                    <OrderChoser
-                        whitelist={whitelist}
-                        setContract={setContract}
-                        setAmount={setAmount}
-                        titleText={"I am receiving"}
-                        orders={orders}
-                        index={1} />
-                </div>
-            </div>
-
-            {whitelist && <div className="center">
-                <div className="swapLogo"><img src={swapPicture} height="60" alt="logo" /></div>
-            </div>}
-
-            {whitelist && <div className="centerbot">
-                <button className={"flatbutton bigbutton"}
-                    onClick={() => createSwapClicked()}>
-                    Create Swap
-             </button>
-            </div>}
         </>
     )
 }

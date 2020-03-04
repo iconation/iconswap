@@ -82,7 +82,6 @@
   color: black;
   opacity: 0;
   pointer-events: none;
-  transition: 0.1s all ease-in-out;
 }
 
 .error {

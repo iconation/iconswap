@@ -27,9 +27,6 @@
     margin: 20px;
 }
 
-.container-swaps-item-container {
-}
-
 .swaps-table {
     min-width: 40vw;
     font-size: 15px;
@@ -41,4 +38,12 @@
 .container-swaps-item {
     width: 100%;
     padding: 20px;
+}
+
+.open-orders-actions {
+    /*
+    display: flex;
+    flex-direction: row;
+    margin: auto;
+    */
 }

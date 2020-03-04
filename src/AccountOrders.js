@@ -3,11 +3,13 @@ import { api } from './API'
 import './AccountOrders.css'
 import './Table.css'
 import { useHistory } from 'react-router-dom'
-
+import LoadingOverlay from './LoadingOverlay'
+import InfoBox from './InfoBox'
 
 const AccountOrders = ({ wallet }) => {
     const [openSwaps, setOpenSwaps] = useState(null)
     const [filledSwaps, setFilledSwaps] = useState(null)
+    const [errorUi, setErrorUi] = useState(null)
     const history = useHistory();
 
     const convertTsToDate = (timestamp) => {
@@ -71,75 +73,86 @@ const AccountOrders = ({ wallet }) => {
         history.push("/swap/" + swap['id'])
     }
 
+    /*
+    const onClickWithdraw = (swap) => {
+        api.cancelSwap(wallet, swap['id']).catch(error => { setErrorUi(error) })
+    }
+    */
+
+    const over = (openSwaps !== null && filledSwaps !== null)
+    const loadingText = 'Loading account...'
+
     return (<>
 
-        {!(openSwaps && filledSwaps) && <>
-            <div className="overlay">
-                <div className="overlayText">
-                    Loading, please wait...
-                </div>
-            </div>
-        </>}
+        <LoadingOverlay over={over} text={loadingText} />
+        {errorUi && <InfoBox type={"error"} content={"An error occured : " + errorUi} />}
 
         <div id="account-orders-root">
-            <div id="account-orders-container">
-                <div className="container-swaps-item">
-                    <div className="container-swaps-item-container">
-                        <div className="account-orders-title">Opened Swaps</div>
+            {over && <>
+                <div id="account-orders-container">
+                    <div className="container-swaps-item">
+                        <div className="container-swaps-item-container">
+                            <div className="account-orders-title">Opened Swaps</div>
 
-                        <table className="swaps-table" cellSpacing='0'>
+                            <table className="swaps-table" cellSpacing='0'>
 
-                            <thead>
-                                <tr>
-                                    <th>Offer</th>
-                                    <th>Receive</th>
-                                    <th>Creation</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {openSwaps && Object.keys(openSwaps).map(order => (
-                                    <tr key={order}>
-                                        <td>{openSwaps[order]['maker']['amountDisplay'] + " " + openSwaps[order]['maker']['token']['symbol']}</td>
-                                        <td>{openSwaps[order]['taker']['amountDisplay'] + " " + openSwaps[order]['taker']['token']['symbol']}</td>
-                                        <td>{openSwaps[order]['timestamp']}</td>
-                                        <td><button onClick={() => { onClickView(openSwaps[order]) }}>View</button></td>
+                                <thead>
+                                    <tr>
+                                        <th>Offer</th>
+                                        <th>Receive</th>
+                                        <th>Creation</th>
+                                        <th>Action</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+
+                                <tbody>
+                                    {openSwaps && Object.keys(openSwaps).map(order => (
+                                        <tr key={order}>
+                                            <td>{openSwaps[order]['maker']['amountDisplay'] + " " + openSwaps[order]['maker']['token']['symbol']}</td>
+                                            <td>{openSwaps[order]['taker']['amountDisplay'] + " " + openSwaps[order]['taker']['token']['symbol']}</td>
+                                            <td>{openSwaps[order]['timestamp']}</td>
+                                            <td className={"open-orders-actions"}>
+                                                <button onClick={() => { onClickView(openSwaps[order]) }}>View</button>
+                                                {/*<button onClick={() => { onClickWithdraw(openSwaps[order]) }}>Withdraw</button>*/}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div className="container-swaps-item">
+                        <div className="container-swaps-item-container">
+                            <div className="account-orders-title">Filled Swaps</div>
+
+                            <table className="swaps-table" cellSpacing='0'>
+
+                                <thead>
+                                    <tr>
+                                        <th>Offer</th>
+                                        <th>Receive</th>
+                                        <th>Creation</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {filledSwaps && Object.keys(filledSwaps).map(order => (
+                                        <tr key={order}>
+                                            <td>{filledSwaps[order]['maker']['amountDisplay'] + " " + filledSwaps[order]['maker']['token']['symbol']}</td>
+                                            <td>{filledSwaps[order]['taker']['amountDisplay'] + " " + filledSwaps[order]['taker']['token']['symbol']}</td>
+                                            <td>{filledSwaps[order]['timestamp']}</td>
+                                            <td>
+                                                <button onClick={() => { onClickView(filledSwaps[order]) }}>View</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <div className="container-swaps-item">
-                    <div className="container-swaps-item-container">
-                        <div className="account-orders-title">Filled Swaps</div>
-
-                        <table className="swaps-table" cellSpacing='0'>
-
-                            <thead>
-                                <tr>
-                                    <th>Offer</th>
-                                    <th>Receive</th>
-                                    <th>Creation</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {filledSwaps && Object.keys(filledSwaps).map(order => (
-                                    <tr key={order}>
-                                        <td>{filledSwaps[order]['maker']['amountDisplay'] + " " + filledSwaps[order]['maker']['token']['symbol']}</td>
-                                        <td>{filledSwaps[order]['taker']['amountDisplay'] + " " + filledSwaps[order]['taker']['token']['symbol']}</td>
-                                        <td>{filledSwaps[order]['timestamp']}</td>
-                                        <td><button onClick={() => { onClickView(filledSwaps[order]) }}>View</button></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            </>}
         </div>
     </>)
 }

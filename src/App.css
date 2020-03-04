@@ -8,6 +8,12 @@
 
 #body {
   font-size: 20px;
+    background-color: #1ab7bc;
+    height: 100vh;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    overflow-x: hidden;
 }
 
  /* Split the screen in half */
@@ -71,8 +77,8 @@
   font-size: 30px !important;
 }
 
-.flatbutton {
-    background-color: #0d6366;
+.big-button {
+    background-color: #1d7376;
     background-repeat:no-repeat;
     outline:none;
     border: #2d8386 1px solid;
@@ -82,20 +88,82 @@
     text-decoration: none;
     display: inline-block;
     font-size: 20px;
-    border-radius: 12px;
+    border-radius: 8px;
     cursor:pointer;
 }
 
-.flatbutton:hover {
-  background-color: #1d7376;
+.big-button:hover {
+  background-color: #2d8386;
   outline:none;
+  box-shadow: -1px 1px 3px 1px rgba(0, 0, 0, 0), -1px 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.flatbutton:disabled {
+.big-button:disabled {
   background: linear-gradient(to bottom, #cccccc, #aaaaaa);
   box-shadow: -1px 1px 3px 1px rgba(0, 0, 0, 0), -1px 1px 3px rgba(0, 0, 0, 0.3);
   outline:none;
   border: #888888 1px solid;
   opacity: 1.0; 
   cursor: not-allowed;
+}
+
+.small-button {
+    background-color: #1d7376;
+    background-repeat:no-repeat;
+    outline:none;
+    border: #2d8386 1px solid;
+    color: white;
+    padding: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    border-radius: 6px;
+    margin: 5px;
+    cursor:pointer;
+}
+
+.small-button:hover {
+  background-color: #2d8386;
+  outline:none;
+  box-shadow: -1px 1px 3px 1px rgba(0, 0, 0, 0), -1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.small-button:disabled {
+  background: linear-gradient(to bottom, #eee, #ccc);
+  box-shadow: none;
+  outline:none;
+  border: #aaa 1px solid;
+  opacity: 1.0; 
+  cursor: not-allowed;
+  color: #888;
+}
+
+/* tooltips */
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -60px;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
 }
