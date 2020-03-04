@@ -67,3 +67,22 @@
 .order-filled-sell {
     color: red;
 }
+
+.filled-swaps-legend {
+    font-size: 14px;
+    text-align: left;
+    background-color: #fafafa;
+    border: 1px solid rgba(0, 0, 0, .1);
+    border-radius: .25rem;
+    margin-top: 20px;
+}
+
+.filled-swaps-legend-container {
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+}
+
+.filled-swaps-legend-container>p {
+    margin-left: 10px;
+}

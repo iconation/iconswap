@@ -145,9 +145,9 @@ const AccountOrders = ({ wallet }) => {
                                     <tbody>
                                         {filledSwaps && Object.keys(filledSwaps).map(order => console.log(filledSwaps[order]['maker']['provider']) || (
                                             <tr key={order}>
-                                                <td className={(filledSwaps[order]['maker']['provider'] === wallet ? "order-filled-buy" : "order-filled-sell")}>
+                                                <td className={(filledSwaps[order]['maker']['provider'] === wallet ? "order-filled-sell" : "order-filled-buy")}>
                                                     {filledSwaps[order]['maker']['amountDisplay'] + " " + filledSwaps[order]['maker']['token']['symbol']}</td>
-                                                <td className={(filledSwaps[order]['taker']['provider'] === wallet ? "order-filled-buy" : "order-filled-sell")}>
+                                                <td className={(filledSwaps[order]['taker']['provider'] === wallet ? "order-filled-sell" : "order-filled-buy")}>
                                                     {filledSwaps[order]['taker']['amountDisplay'] + " " + filledSwaps[order]['taker']['token']['symbol']}</td>
                                                 <td>{filledSwaps[order]['timestamp_swap']}</td>
                                                 <td>
@@ -159,10 +159,17 @@ const AccountOrders = ({ wallet }) => {
                                 </table>
                             </div>
                         </div>
+
+                        <div className={"filled-swaps-legend"}>
+                            <div className={"filled-swaps-legend-container"}>
+                                <p><font color="green">● Bought</font></p>
+                                <p><font color="red">● Sold</font></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </>}
-        </div>
+        </div >
     </>)
 }
 
