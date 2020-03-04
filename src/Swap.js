@@ -15,6 +15,8 @@ const Swap = ({ match, wallet }) => {
     const [ready, setReady] = useState(false)
     const [errorUi, setErrorUi] = useState(null)
     const [intervalHandle, setIntervalHandle] = useState(null)
+    const [loadingText, setLoadingText] = useState('Loading Swap...')
+    const [withdrawingInProgress, setWithdrawingInProgress] = useState(false)
 
     const maker = orders[0]
     const taker = orders[1]
@@ -69,7 +71,10 @@ const Swap = ({ match, wallet }) => {
     }
 
     const withdrawClicked = () => {
-        api.cancelSwap(wallet, swapId).catch(error => { setErrorUi(error) })
+        api.cancelSwap(wallet, swapId).then(() => {
+            setWithdrawingInProgress(true)
+            setLoadingText('Withdrawing funds...')
+        }).catch(error => { setErrorUi(error) })
     }
 
     const depositClicked = () => {
@@ -95,8 +100,9 @@ const Swap = ({ match, wallet }) => {
     const isMaker = swapPending() && swap['maker_address'] === wallet
     const isTaker = swapPending() && swap['maker_address'] !== wallet
 
-    const over = (maker && taker) !== null
-    const loadingText = 'Loading Swap...'
+    withdrawingInProgress && swapCancel() && setWithdrawingInProgress(false)
+
+    const over = ((maker && taker) !== null) && (!withdrawingInProgress)
 
     return (
         <>
@@ -112,8 +118,8 @@ const Swap = ({ match, wallet }) => {
                 }
 
                 {swapCancel() &&
-                    <InfoBox type={"error"} content={`
-                The swap doesn't exist anymore because it has been cancelled. <br />
+                    <InfoBox type={"notice"} content={`
+                The swap has been cancelled and all funds were refunded. <br />
                 See the transaction on the tracker : <br/>
                 <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
                         ` rel="noopener noreferrer" target="_blank">0x` + swap['transaction'] + `</a>

@@ -143,7 +143,7 @@ const AccountOrders = ({ wallet }) => {
                                     </thead>
 
                                     <tbody>
-                                        {filledSwaps && Object.keys(filledSwaps).map(order => console.log(filledSwaps[order]['maker']['provider']) || (
+                                        {filledSwaps && Object.keys(filledSwaps).map(order => (
                                             <tr key={order}>
                                                 <td className={(filledSwaps[order]['maker']['provider'] === wallet ? "order-filled-sell" : "order-filled-buy")}>
                                                     {filledSwaps[order]['maker']['amountDisplay'] + " " + filledSwaps[order]['maker']['token']['symbol']}</td>
