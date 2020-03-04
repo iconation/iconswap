@@ -8,7 +8,7 @@
 
 #body {
   font-size: 20px;
-    background-color: #1ab7bc;
+    background: linear-gradient(to bottom, #1ab7bc, #0aa7ac);
     height: 100vh;
     width: 100%;
     position: fixed;
@@ -28,13 +28,13 @@
 /* Control the left side */
 .left {
   left: 0;
-  background-color: #1ab7bc;
+  background: linear-gradient(to bottom, #1ab7bc, #0aa7ac);
 }
 
 /* Control the right side */
 .right {
   right: 0;
-  background-color: #fff;
+  background: linear-gradient(to bottom, #fff, #eaeaea);
 }
 
 /* If you want the content centered horizontally and vertically */

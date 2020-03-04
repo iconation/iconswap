@@ -16,6 +16,7 @@
 
 .order-choser-title-white {
   color: #fff;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
 }
 
 .order-choser-values {
