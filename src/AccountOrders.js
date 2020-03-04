@@ -143,10 +143,12 @@ const AccountOrders = ({ wallet }) => {
                                     </thead>
 
                                     <tbody>
-                                        {filledSwaps && Object.keys(filledSwaps).map(order => (
+                                        {filledSwaps && Object.keys(filledSwaps).map(order => console.log(filledSwaps[order]['maker']['provider']) || (
                                             <tr key={order}>
-                                                <td>{filledSwaps[order]['maker']['amountDisplay'] + " " + filledSwaps[order]['maker']['token']['symbol']}</td>
-                                                <td>{filledSwaps[order]['taker']['amountDisplay'] + " " + filledSwaps[order]['taker']['token']['symbol']}</td>
+                                                <td className={(filledSwaps[order]['maker']['provider'] === wallet ? "order-filled-buy" : "order-filled-sell")}>
+                                                    {filledSwaps[order]['maker']['amountDisplay'] + " " + filledSwaps[order]['maker']['token']['symbol']}</td>
+                                                <td className={(filledSwaps[order]['taker']['provider'] === wallet ? "order-filled-buy" : "order-filled-sell")}>
+                                                    {filledSwaps[order]['taker']['amountDisplay'] + " " + filledSwaps[order]['taker']['token']['symbol']}</td>
                                                 <td>{filledSwaps[order]['timestamp_swap']}</td>
                                                 <td>
                                                     <button onClick={() => { onClickView(filledSwaps[order]) }}>View</button>
