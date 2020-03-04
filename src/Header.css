@@ -1,29 +1,33 @@
 #header {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0px 1px 2px #27272780;
+    background-color: #2d8386;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #2d8386;
     z-index: 10;
-    height: 100px;
+    height: 80px;
 }
 
-#headercontentleft {
+#header-content-left {
     display: flex;
-    align-items: center;
+    flex-direction: row;
     justify-content: left;
-    padding: 15px;
-    width:50%;
+    width: 100%;
+    align-items: center;
+    margin-left: 1vw;
 }
 
-#headercontentright {
-    text-align: right;
-    padding: 15px;
+#header-content-right {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: right;
     width: 100%;
+    align-items: center;
+    margin-right: 1vw;
 }
 
 #logotext {
@@ -32,11 +36,11 @@
     color: white;
 }
 
-#logotexthref {
+#logo-text-href {
     text-decoration: none;
 }
 
-#headerBubble {
+.header-bubble {
     background: #249195;
     margin-left: 20px;
     padding: 5px;
@@ -58,4 +62,9 @@
     opacity: 1.0; 
     cursor: not-allowed;
     box-shadow: 0px 0px 0px #27272780;
+}
+
+.header-buttons {
+    margin-left: 10px;
+    margin-right: 10px;
 }

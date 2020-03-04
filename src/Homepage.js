@@ -7,6 +7,7 @@ import swapPicture from './static/img/swap.png'
 import { useHistory } from 'react-router-dom'
 import InfoBox from './InfoBox'
 import LoadingOverlay from './LoadingOverlay'
+import SwapSvg from './static/svg/SwapSvg.js'
 
 const Homepage = ({ wallet }) => {
     const emptyOrder = {
@@ -139,11 +140,11 @@ const Homepage = ({ wallet }) => {
                     <div className="swapLogo"><img src={swapPicture} height="60" alt="logo" /></div>
                 </div>}
 
-                {whitelist && <div className="centerbot">
-                    <button className={"big-button bigbutton"}
-                        onClick={() => createSwapClicked()}>
-                        Create Swap
-                </button>
+                {whitelist && <div className="center-bot">
+                    <button className="big-button button-svg-container" onClick={() => { createSwapClicked() }}>
+                        <SwapSvg />
+                        <div className="svg-text-button">Create Swap</div>
+                    </button>
                 </div>}
             </>}
         </>

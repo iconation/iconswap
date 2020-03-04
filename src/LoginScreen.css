@@ -38,15 +38,8 @@
 
 .svg-text-button {
     margin-top: 3px;
-    padding-left: 10px;
+    padding-left: 15px;
     padding-right: 10px;
-}
-
-.button-svg-container {
-    display: flex;
-    padding: 10px;
-    flex-direction: col;
-    font-weight: 500;
 }
 
 .login-field {

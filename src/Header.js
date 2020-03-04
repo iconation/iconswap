@@ -1,6 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import logo from './static/img/logo.png'
+import PowerOffSvg from './static/svg/PowerOffSvg.js'
+import SwapSvg from './static/svg/SwapSvg.js'
+import AccountSvg from './static/svg/AccountSvg.js'
 import { WALLET_LOCAL_STORAGE_KEY } from './constants'
 import './Header.css'
 import { api } from './API'
@@ -16,7 +19,7 @@ const Header = ({ wallet, setWallet }) => {
         setWallet(null)
     }
 
-    const mySwapsClicked = () => {
+    const AccountClick = () => {
         history.push("/account/orders");
     }
 
@@ -56,17 +59,31 @@ const Header = ({ wallet, setWallet }) => {
 
     return (
         <div id="header">
-            <div id="headercontentleft">
+            <div id="header-content-left">
                 <Link to="/"><img src={logo} height="60" alt="logo" /></Link>
-                <Link to="/" id="logotexthref"><div id="logotext">ICONSwap</div></Link>
-                <div id="headerBubble">Status: Beta</div>
-                <div id="headerBubble">Network: {api.getNetworkName()}</div>
+                <Link to="/" id="logo-text-href"><div id="logotext">ICONSwap</div></Link>
+                <div className="header-bubble">Status: Beta</div>
+                <div className="header-bubble">Network: {api.getNetworkName()}</div>
             </div>
+
             {wallet && <>
-                <div id="headercontentright">
-                    <button className="big-button" onClick={() => { createSwapClick() }}>Create Swap</button>
-                    <button className="big-button" onClick={() => { mySwapsClicked() }}>My Swaps</button>
-                    <button className="big-button" onClick={() => { disconnectClick() }}>Disconnect</button>
+                <div id="header-content-right">
+
+                    <button className="big-button button-svg-container header-buttons" onClick={() => { disconnectClick() }}>
+                        <PowerOffSvg />
+                        <div className="svg-text-button">Disconnect</div>
+                    </button>
+
+                    <button className="big-button button-svg-container header-buttons" onClick={() => { AccountClick() }}>
+                        <AccountSvg />
+                        <div className="svg-text-button">Account</div>
+                    </button>
+
+                    <button className="big-button button-svg-container header-buttons" onClick={() => { createSwapClick() }}>
+                        <SwapSvg />
+                        <div className="svg-text-button">Create Swap</div>
+                    </button>
+
                     {isAdmin() && <><br />
                         <input type="text" id="toAddress"></input>
                         <button onClick={() => { sendTestNetICX() }}>Send ICX</button>

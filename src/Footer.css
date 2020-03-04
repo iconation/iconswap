@@ -16,8 +16,9 @@
     padding-right: 100px;
 }
 
-#iconation-footer-item {
+.iconation-footer-item {
     height: 30px;
     line-height: 30px;
     padding-right: 10px;
+    font-weight: 500;
 }

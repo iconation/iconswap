@@ -50,14 +50,19 @@ const OrderChoser = ({ whitelist, setContract, setAmount, titleText, index, orde
         setContract(index, contract)
     }
 
+    let titleTextClassName = "bigtext order-choser-title"
+    if (index === OFFERING_INDEX) {
+        titleTextClassName += " order-choser-title-white"
+    }
+
     return (
         <>
-            {whitelist && <div id="OrderChoserRoot">
-                <div className="ChoserTitle">{titleText}</div>
+            {whitelist && <div id="order-choser-root">
+                <div className={titleTextClassName}>{titleText}</div>
 
-                <div className="ChoserValues">
-                    <div className="TokenChosers">
-                        <div className="balanceSelect">
+                <div className="order-choser-values">
+                    <div className="order-choser-tokens">
+                        <div className="order-choser-balance-select">
                             <Select
                                 error={orders[index].contractError}
                                 styles={customStyles}
@@ -70,7 +75,7 @@ const OrderChoser = ({ whitelist, setContract, setAmount, titleText, index, orde
                             />
                         </div>
                         {index === OFFERING_INDEX && contract &&
-                            <input className="balanceInput" disabled
+                            <input className="order-choser-balance" disabled
                                 value={contract ?
                                     'Balance : '
                                     + whitelist[contract].balance + ' '

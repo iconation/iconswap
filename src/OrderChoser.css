@@ -1,20 +1,24 @@
-#OrderChoserRoot {
+#order-choser-root {
   margin: auto;
   padding: 30px;
   width: 80%;
-  box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.2);
+  border-radius: .25rem;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-.ChoserTitle {
+.order-choser-title {
     width: 100%;
-    font-size: 40px;
     border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
     padding-bottom: 10px;
     margin-bottom: 30px;
 }
 
-.ChoserValues {
+.order-choser-title-white {
+  color: #fff;
+}
+
+.order-choser-values {
   width: 90%;
   margin: auto;
   display: flex;
@@ -22,12 +26,12 @@
   justify-content: center;
 }
 
-.TokenChosers {
+.order-choser-tokens {
   display: flex;
   flex-direction: row;
 }
 
-.balanceInput {
+.order-choser-balance {
   width: 100%;
   margin-left: 20px;
   border-radius: 4px;
@@ -35,6 +39,6 @@
   text-align: center;
 }
 
-.balanceSelect {
+.order-choser-balance-select {
   width: 100%;
 }

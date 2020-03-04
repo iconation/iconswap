@@ -88,6 +88,10 @@ const Swap = ({ match, wallet }) => {
         return swap && swap['status'] === 'CANCELLED'
     }
 
+    const orderEmpty = (order) => {
+        return order && order['status'] === 'EMPTY'
+    }
+
     const isMaker = swapPending() && swap['maker_address'] === wallet
     const isTaker = swapPending() && swap['maker_address'] !== wallet
 
@@ -97,7 +101,6 @@ const Swap = ({ match, wallet }) => {
     return (
         <>
             <LoadingOverlay over={over} text={loadingText} />
-            {errorUi && <InfoBox type={"error"} content={"An error occured : " + errorUi} />}
 
             {over && <>
                 {swapSuccess() &&
@@ -132,14 +135,14 @@ const Swap = ({ match, wallet }) => {
                 {maker && taker && <>
                     <div className="split left">
                         <div className="centered">
-                            <div className="orderViewContainer">
+                            <div className={"order-view-container " + (orderEmpty(maker) ? 'order-view-container-pulse' : '')}>
                                 <OrderView wallet={wallet} order={maker} />
                                 {isMaker &&
                                     <div>
-                                        <button className="big-button actionButton" disabled={!cancellable()}
+                                        <button className="big-button order-view-action-buttons" disabled={!cancellable()}
                                             onClick={() => withdrawClicked()}>
                                             Withdraw
-                                </button>
+                                        </button>
                                     </div>
                                 }
                             </div>
@@ -148,11 +151,11 @@ const Swap = ({ match, wallet }) => {
 
                     <div className="split right">
                         <div className="centered">
-                            <div className="orderViewContainer">
+                            <div className={"order-view-container " + (orderEmpty(taker) ? 'order-view-container-pulse' : '')}>
                                 <OrderView wallet={wallet} order={taker} />
                                 {isTaker &&
                                     <div>
-                                        <button className="big-button actionButton" disabled={!cancellable()}
+                                        <button className="big-button order-view-action-buttons" disabled={!cancellable()}
                                             onClick={() => depositClicked()}>
                                             Deposit
                                 </button>
@@ -167,6 +170,8 @@ const Swap = ({ match, wallet }) => {
                     </div>
                 </>}
             </>}
+
+            {errorUi && <InfoBox type={"error"} content={"An error occured : " + errorUi} />}
         </>
     )
 }

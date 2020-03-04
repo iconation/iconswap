@@ -1,5 +1,5 @@
 import IconService from 'icon-sdk-js'
-import { SCORE_NETWORK, SCORE_ENDPOINT, Networks, ICX_TOKEN_CONTRACT, ICX_TOKEN_DECIMALS } from './constants'
+import { SCORE_NETWORK, SCORE_ENDPOINT, Networks, ICX_TOKEN_CONTRACT, ICX_TOKEN_DECIMALS, MAX_ITERATION_LOOP } from './constants'
 
 // ================================================
 //  Constants
@@ -170,15 +170,34 @@ class API {
         })
     }
 
-    getOpenedOrdersByAddress(walletAddress) {
-        return this.__call(this._scoreAddress, 'get_opened_orders_by_address', { address: walletAddress })
+    async __callWithOffset(contract, method, params) {
+        let result = {}
+        let offset = 0
+
+        while (true) {
+            params['offset'] = IconService.IconConverter.toHex(offset)
+            const orders = await this.__call(contract, method, params)
+
+            offset += MAX_ITERATION_LOOP
+            if (Object.keys(orders).length === 0) {
+                break
+            }
+
+            result = Object.assign({}, result, orders)
+        }
+
+        return result
+    }
+
+    getPendingOrdersByAddress(walletAddress) {
+        return this.__callWithOffset(this._scoreAddress, 'get_pending_orders_by_address', { address: walletAddress })
             .then(orders => {
                 return orders
             })
     }
 
     getFilledOrdersByAddress(walletAddress) {
-        return this.__call(this._scoreAddress, 'get_filled_orders_by_address', { address: walletAddress })
+        return this.__callWithOffset(this._scoreAddress, 'get_filled_orders_by_address', { address: walletAddress })
             .then(orders => {
                 return orders
             })
