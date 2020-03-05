@@ -88,7 +88,7 @@ const AccountOrders = ({ wallet }) => {
     return (<>
 
         <LoadingOverlay over={over} text={loadingText} />
-        {errorUi && <InfoBox type={"error"} content={"An error occured : " + errorUi} />}
+        {errorUi && <InfoBox setErrorUi={setErrorUi} type={"error"} content={"An error occured : " + errorUi} />}
 
         <div id="account-orders-root">
             {over && <>

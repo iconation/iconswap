@@ -109,7 +109,7 @@ const Homepage = ({ wallet }) => {
     return (
         <>
             <LoadingOverlay over={over && !waitForSwapCreation} text={loadingText} />
-            {errorUi && <InfoBox type={"error"} content={"An error occured : " + errorUi} />}
+            {errorUi && <InfoBox setErrorUi={setErrorUi} type={"error"} content={"An error occured : " + errorUi} />}
 
             {over && <>
                 <div className="split left">

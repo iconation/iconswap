@@ -17,6 +17,7 @@ const Swap = ({ match, wallet }) => {
     const [intervalHandle, setIntervalHandle] = useState(null)
     const [loadingText, setLoadingText] = useState('Loading Swap...')
     const [withdrawingInProgress, setWithdrawingInProgress] = useState(false)
+    const [depositingInProgress, setDepositingInProgress] = useState(false)
 
     const maker = orders[0]
     const taker = orders[1]
@@ -74,11 +75,20 @@ const Swap = ({ match, wallet }) => {
         api.cancelSwap(wallet, swapId).then(() => {
             setWithdrawingInProgress(true)
             setLoadingText('Withdrawing funds...')
-        }).catch(error => { setErrorUi(error) })
+        }).catch(error => {
+            setWithdrawingInProgress(false)
+            setErrorUi(error)
+        })
     }
 
     const depositClicked = () => {
-        api.fillOrder(wallet, swapId, taker['contract'], taker['amount']).catch(error => { setErrorUi(error) })
+        api.fillOrder(wallet, swapId, taker['contract'], taker['amount']).then(() => {
+            setDepositingInProgress(true)
+            setLoadingText('Swapping in progress...')
+        }).catch(error => {
+            setDepositingInProgress(false)
+            setErrorUi(error)
+        })
     }
 
     const swapPending = () => {
@@ -101,8 +111,9 @@ const Swap = ({ match, wallet }) => {
     const isTaker = swapPending() && swap['maker_address'] !== wallet
 
     withdrawingInProgress && swapCancel() && setWithdrawingInProgress(false)
+    depositingInProgress && swapSuccess() && setDepositingInProgress(false)
 
-    const over = ((maker && taker) !== null) && (!withdrawingInProgress)
+    const over = ((maker && taker) !== null) && (!withdrawingInProgress) && (!depositingInProgress)
 
     return (
         <>
@@ -177,7 +188,7 @@ const Swap = ({ match, wallet }) => {
                 </>}
             </>}
 
-            {errorUi && <InfoBox type={"error"} content={"An error occured : " + errorUi} />}
+            {errorUi && <InfoBox type={"error"} content={"An error occured : " + errorUi} setErrorUi={setErrorUi} />}
         </>
     )
 }
