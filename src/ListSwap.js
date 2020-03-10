@@ -84,7 +84,7 @@ const Homepage = ({ wallet }) => {
                             successSwapsList[curSwapId] = swap
                             break;
 
-                        case 'CANCELLED':
+                        default:
                             break;
                     }
 
