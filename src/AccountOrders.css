@@ -7,6 +7,7 @@
 }
 
 #account-orders-container {
+    border-top:2px solid #fafafa22;
     position: fixed;
     left: 50%;
     transform: translate(-50%, 0%);
@@ -15,11 +16,12 @@
     background-color: rgba(255, 255, 255, 0.2);
     display: flex;
     flex-direction: row;
-    align-content: space-between;
+  justify-content: center;
     margin-top: 150px;
-    padding-left: 3vw;
-    padding-right: 3vw;
+    padding-left: 2vw;
+    padding-right: 2vw;
     padding-bottom: 5vh;
+    width: 90vw;
 }
 
 .account-orders-title {
@@ -41,23 +43,31 @@
 }
 
 .container-swaps-item {
-    width: 100%;
     padding: 20px;
 }
 
 .open-orders-actions {
-    /*
-    display: flex;
-    flex-direction: row;
-    margin: auto;
-    */
+    text-align: center;
+    height: 100%;
 }
 
 .swaps-table-view {
-    max-height: 60vh;
+    max-height: 50vh;
     overflow: auto;
     scroll-behavior: smooth;
     box-shadow: 10px 15px 20px -12px rgba(0,0,0,.25);
+}
+
+.open-orders-actions-button {
+    padding: 5px;
+    background: linear-gradient(to bottom, #fff, #eaeaea);
+    border: 1px solid rgba(0,0,0,.25);
+    border-radius: .35em;
+}
+
+.open-orders-actions-button:hover {
+    cursor: pointer;
+    border: 1px solid rgba(0,0,0,.5);
 }
 
 .order-filled-buy {

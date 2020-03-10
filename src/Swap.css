@@ -11,10 +11,9 @@
     padding: 30px;
     width: 50%;
     border-radius: 1.25rem;
-    box-shadow: 0 0 0 30px rgba(150,150,150, 0.1);
+    box-shadow: 0 0 0 10px rgba(0,0,0, 0.1);
     background-color: rgba(255, 255, 255, 0.2);
 }
-
 
 .order-view-container-pulse {
     animation: pulse 3s infinite;
@@ -34,4 +33,27 @@
     100% {
         box-shadow: 0 0 0 40px rgba(150,150,150, 0.0);
     }
+}
+
+.swap-info {
+    font-size: 14px;
+    background: linear-gradient(to bottom, #fff, #e0e0e0);
+    border: 1px solid #c0c0c0;
+    border-radius: 0.35em;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: left;
+    line-height: 20px;
+    border-radius: .25rem;
+    box-shadow: 0 0 0 10px rgba(0,0,0, 0.1);
+}
+
+.swap-info-header {
+    font-size: 15px;
+    font-weight: 700;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    text-align: center;
 }

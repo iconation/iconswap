@@ -1,11 +1,12 @@
-import React, { useState } from 'react'
+import React from 'react'
 import './LoginScreen.css';
 import { api } from './API'
 import { WALLET_LOCAL_STORAGE_KEY } from './constants'
 
 const LoginScreen = ({ setWallet }) => {
 
-    const [loginType, setLoginType] = useState('ICONEX')
+    // const [loginType, setLoginType] = useState('ICONEX')
+    const loginType = 'ICONEX'
 
     const loginIconex = () => {
         api.iconexAskAddress().then(address => {

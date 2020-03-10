@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import './InfoBox.css';
 import notice from './static/img/notice.png'
 import success from './static/img/success.png'

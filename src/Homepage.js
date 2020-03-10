@@ -112,6 +112,7 @@ const Homepage = ({ wallet }) => {
             {errorUi && <InfoBox setErrorUi={setErrorUi} type={"error"} content={"An error occured : " + errorUi} />}
 
             {over && <>
+
                 <div className="split left">
                     <div className="centered">
                         <OrderChoser
@@ -136,11 +137,11 @@ const Homepage = ({ wallet }) => {
                     </div>
                 </div>
 
-                {whitelist && <div className="center">
-                    <div className="swapLogo"><img src={swapPicture} height="60" alt="logo" /></div>
+                {whitelist && <div className="center swap-logo">
+                    <img src={swapPicture} height="60" alt="logo" />
                 </div>}
 
-                {whitelist && <div className="center-bot">
+                {whitelist && <div className="center-bottom">
                     <button className="big-button button-svg-container" onClick={() => { createSwapClicked() }}>
                         <SwapSvg />
                         <div className="svg-text-button">Create Swap</div>

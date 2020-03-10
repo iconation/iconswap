@@ -289,7 +289,7 @@ class API {
     balanceToFloat(balance, contract) {
         return this.getDecimals(contract).then(decimals => {
             const digits = IconService.IconConverter.toBigNumber('10').exponentiatedBy(decimals)
-            return balance / digits
+            return IconService.IconConverter.toBigNumber(balance).dividedBy(digits).toString()
         })
     }
 

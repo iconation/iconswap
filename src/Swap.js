@@ -183,7 +183,14 @@ const Swap = ({ match, wallet }) => {
                     </div>
 
                     <div className="center">
-                        <div className="swapLogo"><img src={swapPicture} height="60" alt="logo" /></div>
+                        <div className="swap-info">
+                            <div className="swap-info-header">
+                                Swap Price
+                            </div>
+                            1 {maker['token']['symbol']} ≈ {parseFloat((taker['amount'] / maker['amount']).toFixed(5)).toString()} {taker['token']['symbol']}
+                            <br />
+                            1 {taker['token']['symbol']} ≈ {parseFloat((maker['amount'] / taker['amount']).toFixed(5)).toString()} {maker['token']['symbol']}
+                        </div>
                     </div>
                 </>}
             </>}

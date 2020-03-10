@@ -8,6 +8,7 @@
 }
 
 .login-container {
+    border-top:2px solid #fafafa22;
     position: fixed;
     top: 50%;
     left: 50%;

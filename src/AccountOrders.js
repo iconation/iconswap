@@ -1,16 +1,54 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { api } from './API'
 import './AccountOrders.css'
 import './Table.css'
 import { useHistory } from 'react-router-dom'
 import LoadingOverlay from './LoadingOverlay'
 import InfoBox from './InfoBox'
+import { IconConverter } from 'icon-sdk-js'
 
 const AccountOrders = ({ wallet }) => {
     const [openSwaps, setOpenSwaps] = useState(null)
     const [filledSwaps, setFilledSwaps] = useState(null)
     const [errorUi, setErrorUi] = useState(null)
+    const [loadingText, setLoadingText] = useState('Loading account...')
+    const [intervalHandle, setIntervalHandle] = useState(null)
+    const [withdrawingInProgress, setWithdrawingInProgress] = useState(null)
     const history = useHistory();
+
+    history.listen((location, action) => {
+        intervalHandle && clearInterval(intervalHandle)
+    })
+
+
+    useEffect(() => {
+
+        const swapCancel = (swap) => {
+            return swap && swap['status'] === 'CANCELLED'
+        }
+
+        const refreshSwap = (swap) => {
+            return api.getSwap(swap['id']).then(newSwap => {
+                if (swapCancel(newSwap)) {
+                    setWithdrawingInProgress(null);
+                    setOpenSwaps(null);
+                }
+            })
+        }
+
+        if (withdrawingInProgress) {
+            if (!intervalHandle) {
+                setIntervalHandle(setInterval(() => {
+                    refreshSwap(withdrawingInProgress)
+                }, 1000))
+            }
+        } else {
+            if (intervalHandle) {
+                clearInterval(intervalHandle)
+                setIntervalHandle(null)
+            }
+        }
+    }, [withdrawingInProgress, setOpenSwaps, setWithdrawingInProgress]);
 
     const convertTsToDate = (timestamp) => {
         function pad(n) { return n < 10 ? '0' + n : n }
@@ -76,14 +114,24 @@ const AccountOrders = ({ wallet }) => {
         history.push("/swap/" + swap['id'])
     }
 
-    /*
     const onClickWithdraw = (swap) => {
-        api.cancelSwap(wallet, swap['id']).catch(error => { setErrorUi(error) })
+        api.cancelSwap(wallet, swap['id']).then(() => {
+            setWithdrawingInProgress(swap)
+            setLoadingText('Withdrawing funds...')
+        }).catch(error => {
+            setWithdrawingInProgress(null)
+            setErrorUi(error)
+        })
     }
-    */
 
-    const over = (openSwaps !== null && filledSwaps !== null)
-    const loadingText = 'Loading account...'
+    const over = (openSwaps !== null && filledSwaps !== null) && (!withdrawingInProgress)
+
+    const getPrice = (o1, o2) => {
+        return parseFloat(
+            IconConverter.toBigNumber(o1['amount'])
+                .dividedBy(IconConverter.toBigNumber(o2['amount']))
+                .toFixed(8)).toString()
+    }
 
     return (<>
 
@@ -104,20 +152,36 @@ const AccountOrders = ({ wallet }) => {
                                         <tr>
                                             <th>Offer</th>
                                             <th>Receive</th>
+                                            <th>Price</th>
                                             <th>Creation</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
+
+                                    {
+
+                                    }
 
                                     <tbody>
                                         {openSwaps && Object.keys(openSwaps).map(order => (
                                             <tr key={order}>
                                                 <td>{openSwaps[order]['maker']['amountDisplay'] + " " + openSwaps[order]['maker']['token']['symbol']}</td>
                                                 <td>{openSwaps[order]['taker']['amountDisplay'] + " " + openSwaps[order]['taker']['token']['symbol']}</td>
+                                                <td>
+                                                    1 {openSwaps[order]['maker']['token']['symbol']} ≈&nbsp;
+                                                    {getPrice(openSwaps[order]['taker'], openSwaps[order]['maker'])}&nbsp;
+                                                    {openSwaps[order]['taker']['token']['symbol']}
+                                                    <br />
+                                                    1 {openSwaps[order]['taker']['token']['symbol']} ≈&nbsp;
+                                                    {getPrice(openSwaps[order]['maker'], openSwaps[order]['taker'])}&nbsp;
+                                                    {openSwaps[order]['maker']['token']['symbol']}
+                                                </td>
                                                 <td>{openSwaps[order]['timestamp_create']}</td>
                                                 <td className={"open-orders-actions"}>
-                                                    <button onClick={() => { onClickView(openSwaps[order]) }}>View</button>
-                                                    {/*<button onClick={() => { onClickWithdraw(openSwaps[order]) }}>Withdraw</button>*/}
+                                                    <button className={"open-orders-actions-button"}
+                                                        onClick={() => { onClickView(openSwaps[order]) }}>View</button>
+                                                    {<button className={"open-orders-actions-button"}
+                                                        onClick={() => { onClickWithdraw(openSwaps[order]) }}>Withdraw</button>}
                                                 </td>
                                             </tr>
                                         ))}
@@ -137,6 +201,7 @@ const AccountOrders = ({ wallet }) => {
                                         <tr>
                                             <th>Offer</th>
                                             <th>Receive</th>
+                                            <th>Price</th>
                                             <th>Filled</th>
                                             <th>Action</th>
                                         </tr>
@@ -149,9 +214,19 @@ const AccountOrders = ({ wallet }) => {
                                                     {filledSwaps[order]['maker']['amountDisplay'] + " " + filledSwaps[order]['maker']['token']['symbol']}</td>
                                                 <td className={(filledSwaps[order]['taker']['provider'] === wallet ? "order-filled-sell" : "order-filled-buy")}>
                                                     {filledSwaps[order]['taker']['amountDisplay'] + " " + filledSwaps[order]['taker']['token']['symbol']}</td>
+                                                <td>
+                                                    1 {filledSwaps[order]['maker']['token']['symbol']} ≈&nbsp;
+                                                    {getPrice(filledSwaps[order]['taker'], filledSwaps[order]['maker'])}&nbsp;
+                                                    {filledSwaps[order]['taker']['token']['symbol']}
+                                                    <br />
+                                                    1 {filledSwaps[order]['taker']['token']['symbol']} ≈&nbsp;
+                                                    {getPrice(filledSwaps[order]['maker'], filledSwaps[order]['taker'])}&nbsp;
+                                                    {filledSwaps[order]['maker']['token']['symbol']}
+                                                </td>
                                                 <td>{filledSwaps[order]['timestamp_swap']}</td>
                                                 <td>
-                                                    <button onClick={() => { onClickView(filledSwaps[order]) }}>View</button>
+                                                    <button className={"open-orders-actions-button"}
+                                                        onClick={() => { onClickView(filledSwaps[order]) }}>View</button>
                                                 </td>
                                             </tr>
                                         ))}

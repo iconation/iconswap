@@ -1,5 +1,6 @@
 * {
   font-family: "Montserrat", sans-serif;
+  margin: 0;
 }
 
 .App {
@@ -46,7 +47,7 @@
   transform: translate3d(-50%, 0, 0);
 }
 
-.center-bot {
+.center-bottom {
   position: fixed;
   bottom: 15%;
   left: 50%;
@@ -79,23 +80,22 @@
 }
 
 .big-button {
-    background-color: #1d7376;
+    background: linear-gradient(to bottom, #1d7376, #0d6a6a);
     background-repeat:no-repeat;
     outline:none;
-    border: #2d8386 1px solid;
+    border: #0d6366 1px solid;
     color: white;
     padding: 10px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    font-size: 16px;
     text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 20px;
-    border-radius: 8px;
+    border-radius: .45rem;
     cursor:pointer;
 }
 
 .big-button:hover {
-  background-color: #0d6366;
-  outline:none;
+  background: #0d6366;
 }
 
 .big-button:disabled {

@@ -16,9 +16,8 @@ const OrderView = ({ order }) => {
 
             <div className="headerToken">
                 <div className="bigtext">
-                    {IconConverter.toBigNumber(order['amount'])
-                        / IconConverter.toBigNumber('10').exponentiatedBy(order['token']['decimals'])
-                    } {order['token']['symbol']} ({order['token']['name']})
+                    {IconConverter.toBigNumber(order['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(order['token']['decimals'])).toString()}
+                    &nbsp;{order['token']['symbol']} ({order['token']['name']})
                 </div>
             </div>
 
