@@ -8,7 +8,7 @@ import { IconConverter } from 'icon-sdk-js'
 import { createBrowserHistory } from 'history';
 
 const Swap = ({ match, wallet }) => {
-    const swapId = match.params.id
+    const swapId = parseInt(match.params.id)
     const [orders, setOrders] = useState([null, null])
     const [swap, setSwap] = useState(null)
     const [ready, setReady] = useState(false)

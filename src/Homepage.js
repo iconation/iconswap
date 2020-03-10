@@ -7,7 +7,7 @@ import swapPicture from './static/img/swap.png'
 import { useHistory } from 'react-router-dom'
 import InfoBox from './InfoBox'
 import LoadingOverlay from './LoadingOverlay'
-import SwapSvg from './static/svg/SwapSvg.js'
+import { ReactComponent as SwapSvg } from './static/svg/Swap.svg'
 
 const Homepage = ({ wallet }) => {
     const emptyOrder = {
@@ -143,7 +143,7 @@ const Homepage = ({ wallet }) => {
 
                 {whitelist && <div className="center-bottom">
                     <button className="big-button button-svg-container" onClick={() => { createSwapClicked() }}>
-                        <SwapSvg />
+                        <div className="svg-icon-button"><SwapSvg /></div>
                         <div className="svg-text-button">Create Swap</div>
                     </button>
                 </div>}

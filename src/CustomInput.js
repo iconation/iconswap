@@ -19,8 +19,6 @@ const CustomInput = ({ error, label, locked, active, numericOnly, onChange }) =>
         setValue(value)
         onChange(value)
         setActive(value.length > 0)
-        if (value.length > 0) {
-        }
     }
 
     const handleKeyPress = (event) => {

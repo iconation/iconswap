@@ -1,14 +1,15 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import logo from './static/img/logo.png'
-import PowerOffSvg from './static/svg/PowerOffSvg.js'
-import SwapSvg from './static/svg/SwapSvg.js'
-import AccountSvg from './static/svg/AccountSvg.js'
 import { WALLET_LOCAL_STORAGE_KEY } from './constants'
 import './Header.css'
 import { api } from './API'
 import { IconConverter } from 'icon-sdk-js'
 import { useHistory } from 'react-router-dom';
+import { ReactComponent as SwapListing } from './static/svg/listing.svg'
+import { ReactComponent as PowerOffSvg } from './static/svg/PowerOff.svg'
+import { ReactComponent as AccountSvg } from './static/svg/Account.svg'
+import { ReactComponent as SwapSvg } from './static/svg/Swap.svg'
 
 const Header = ({ wallet, setWallet }) => {
 
@@ -25,6 +26,10 @@ const Header = ({ wallet, setWallet }) => {
 
     const createSwapClick = () => {
         history.push("/");
+    }
+
+    const listSwapsClick = () => {
+        history.push("/list");
     }
 
     const isAdmin = () => {
@@ -70,18 +75,23 @@ const Header = ({ wallet, setWallet }) => {
                 <div id="header-content-right">
 
                     <button className="big-button button-svg-container header-buttons" onClick={() => { disconnectClick() }}>
-                        <PowerOffSvg />
+                        <div className="svg-icon-button"><PowerOffSvg /></div>
                         <div className="svg-text-button">Disconnect</div>
                     </button>
 
                     <button className="big-button button-svg-container header-buttons" onClick={() => { AccountClick() }}>
-                        <AccountSvg />
+                        <div className="svg-icon-button"><AccountSvg /></div>
                         <div className="svg-text-button">Account</div>
                     </button>
 
                     <button className="big-button button-svg-container header-buttons" onClick={() => { createSwapClick() }}>
-                        <SwapSvg />
+                        <div className="svg-icon-button"><SwapSvg /></div>
                         <div className="svg-text-button">Create Swap</div>
+                    </button>
+
+                    <button className="big-button button-svg-container header-buttons" onClick={() => { listSwapsClick() }}>
+                        <div className="svg-icon-button"><SwapListing /></div>
+                        <div className="svg-text-button">List Swaps</div>
                     </button>
 
                     {isAdmin() && <><br />

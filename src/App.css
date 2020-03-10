@@ -50,8 +50,9 @@
 .center-bottom {
   position: fixed;
   bottom: 15%;
-  left: 50%;
-  transform: translate3d(-50%, 0, 0);
+  left: 49.7%;
+  transform: translate3d(-49.7%, 0, 0);
+
 }
 
 .bottom {
@@ -83,7 +84,7 @@
     background: linear-gradient(to bottom, #1d7376, #0d6a6a);
     background-repeat:no-repeat;
     outline:none;
-    border: #0d6366 1px solid;
+    border: #005356 1px solid;
     color: white;
     padding: 10px;
     padding-top: 7px;

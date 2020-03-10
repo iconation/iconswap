@@ -28,7 +28,8 @@ const AccountOrders = ({ wallet }) => {
         }
 
         const refreshSwap = (swap) => {
-            return api.getSwap(swap['id']).then(newSwap => {
+            console.log(swap['id'])
+            return api.getSwap(parseInt(swap['id'])).then(newSwap => {
                 if (swapCancel(newSwap)) {
                     setWithdrawingInProgress(null);
                     setOpenSwaps(null);
@@ -66,6 +67,7 @@ const AccountOrders = ({ wallet }) => {
     }
 
     const getAllSwapDetails = (swaps) => {
+        console.log(swaps)
         const promises = Object.entries(swaps).map(([key, swap]) => {
             swap['id'] = key
             return api.getOrder(swap['maker_order_id']).then(maker => {
@@ -157,10 +159,6 @@ const AccountOrders = ({ wallet }) => {
                                             <th>Action</th>
                                         </tr>
                                     </thead>
-
-                                    {
-
-                                    }
 
                                     <tbody>
                                         {openSwaps && Object.keys(openSwaps).map(order => (

@@ -1,4 +1,4 @@
-import IconService from 'icon-sdk-js'
+import IconService, { IconConverter } from 'icon-sdk-js'
 import { SCORE_NETWORK, SCORE_ENDPOINT, Networks, ICX_TOKEN_CONTRACT, ICX_TOKEN_DECIMALS, MAX_ITERATION_LOOP } from './constants'
 
 // ================================================
@@ -118,13 +118,13 @@ class API {
     }
 
     getSwap(swapId) {
-        return this.__call(this._scoreAddress, 'get_swap', { swap_id: swapId }).then(swap => {
+        return this.__call(this._scoreAddress, 'get_swap', { swap_id: IconConverter.toHex(swapId) }).then(swap => {
             return swap
         })
     }
 
     getOrder(orderId) {
-        return this.__call(this._scoreAddress, 'get_order', { order_id: orderId }).then(swap => {
+        return this.__call(this._scoreAddress, 'get_order', { order_id: IconConverter.toHex(orderId) }).then(swap => {
             return swap
         })
     }
@@ -175,7 +175,7 @@ class API {
         let offset = 0
 
         while (true) {
-            params['offset'] = IconService.IconConverter.toHex(offset)
+            params['offset'] = IconConverter.toHex(offset)
             const orders = await this.__call(contract, method, params)
 
             offset += MAX_ITERATION_LOOP
@@ -204,9 +204,9 @@ class API {
     }
 
     fillOrder(walletAddress, swapId, taker_contract, taker_amount) {
-        swapId = IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(swapId))
+        swapId = IconConverter.toHex(IconConverter.toBigNumber(swapId))
         if (taker_contract === ICX_TOKEN_CONTRACT) {
-            const value = IconService.IconConverter.toHex(taker_amount)
+            const value = IconConverter.toHex(taker_amount)
             return this.__iconexCallTransaction(
                 walletAddress,
                 this._scoreAddress,
@@ -216,7 +216,7 @@ class API {
                 return tx
             })
         } else {
-            const value = IconService.IconConverter.toHex(taker_amount)
+            const value = IconConverter.toHex(taker_amount)
             const data = {
                 'action': 'fill_irc2_order',
                 'swap_id': swapId
@@ -224,7 +224,7 @@ class API {
             const params = {
                 '_to': this._scoreAddress,
                 '_value': value,
-                '_data': IconService.IconConverter.toHex(JSON.stringify(data))
+                '_data': IconConverter.toHex(JSON.stringify(data))
             }
             return this.__iconexCallTransaction(
                 walletAddress,
@@ -262,23 +262,23 @@ class API {
         if (maker_contract === ICX_TOKEN_CONTRACT) {
             const params = {
                 taker_contract: taker_contract,
-                taker_amount: IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(taker_amount)),
+                taker_amount: IconConverter.toHex(IconConverter.toBigNumber(taker_amount)),
             }
             return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'create_icx_swap', maker_amount, params)
                 .then(async tx => {
                     return getSwapIdFromTx(tx)
                 })
         } else {
-            const value = IconService.IconConverter.toHex(maker_amount)
+            const value = IconConverter.toHex(maker_amount)
             const data = {
                 'action': 'create_irc2_swap',
                 'taker_contract': taker_contract,
-                'taker_amount': IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(taker_amount)),
+                'taker_amount': IconConverter.toHex(IconConverter.toBigNumber(taker_amount)),
             }
             const params = {
                 '_to': this._scoreAddress,
                 '_value': value,
-                '_data': IconService.IconConverter.toHex(JSON.stringify(data))
+                '_data': IconConverter.toHex(JSON.stringify(data))
             }
             return this.__iconexCallTransaction(walletAddress, maker_contract, 'transfer', 0, params).then(async tx => {
                 return getSwapIdFromTx(tx)
@@ -288,8 +288,8 @@ class API {
 
     balanceToFloat(balance, contract) {
         return this.getDecimals(contract).then(decimals => {
-            const digits = IconService.IconConverter.toBigNumber('10').exponentiatedBy(decimals)
-            return IconService.IconConverter.toBigNumber(balance).dividedBy(digits).toString()
+            const digits = IconConverter.toBigNumber('10').exponentiatedBy(decimals)
+            return IconConverter.toBigNumber(balance).dividedBy(digits).toString()
         })
     }
 
@@ -331,7 +331,7 @@ class API {
         const jsonRpcQuery = {
             jsonrpc: '2.0',
             method: 'icx_sendTransaction',
-            params: IconService.IconConverter.toRawTransaction(transaction),
+            params: IconConverter.toRawTransaction(transaction),
             id: 1234
         }
         return this.__iconexJsonRpc(jsonRpcQuery)
@@ -366,7 +366,7 @@ class API {
         const jsonRpcQuery = {
             jsonrpc: '2.0',
             method: 'icx_sendTransaction',
-            params: IconService.IconConverter.toRawTransaction(transaction),
+            params: IconConverter.toRawTransaction(transaction),
             id: 1234
         }
         return this.__iconexJsonRpc(jsonRpcQuery)
@@ -380,7 +380,7 @@ class API {
 
     // ======================================================================================
     __getIcxBalance(address) {
-        const digits = IconService.IconConverter.toBigNumber('10').exponentiatedBy(18)
+        const digits = IconConverter.toBigNumber('10').exponentiatedBy(18)
         return this._iconService.getBalance(address).execute().then(balance => {
             return balance / digits;
         })
@@ -389,7 +389,7 @@ class API {
     __getIRC2Balance(address, contract) {
         return this.__call(contract, 'balanceOf', { '_owner': address }).then(balance => {
             return this.getDecimals(contract).then(decimals => {
-                const digits = IconService.IconConverter.toBigNumber('10').exponentiatedBy(decimals)
+                const digits = IconConverter.toBigNumber('10').exponentiatedBy(decimals)
                 return balance / digits
             })
         })
@@ -432,11 +432,11 @@ class API {
                 let callTransactionBuilder = new IconService.IconBuilder.CallTransactionBuilder()
                     .from(wallet.getAddress())
                     .to(to)
-                    .value(IconService.IconConverter.toHex(IconService.IconAmount.of(value, IconService.IconAmount.Unit.ICX).toLoop()))
-                    .stepLimit(IconService.IconConverter.toBigNumber(stepLimit)) // 40000000
-                    .nid(IconService.IconConverter.toBigNumber(this._nid))
-                    .nonce(IconService.IconConverter.toBigNumber(1))
-                    .version(IconService.IconConverter.toBigNumber(3))
+                    .value(IconConverter.toHex(IconService.IconAmount.of(value, IconService.IconAmount.Unit.ICX).toLoop()))
+                    .stepLimit(IconConverter.toBigNumber(stepLimit)) // 40000000
+                    .nid(IconConverter.toBigNumber(this._nid))
+                    .nonce(IconConverter.toBigNumber(1))
+                    .version(IconConverter.toBigNumber(3))
                     .timestamp((new Date()).getTime() * 1000)
                     .method(method)
 
@@ -463,9 +463,9 @@ class API {
                 "version": "0x3",
                 "from": from,
                 "to": to,
-                "value": IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(value)),
-                "timestamp": IconService.IconConverter.toHex((new Date()).getTime() * 1000),
-                "nid": IconService.IconConverter.toHex(IconService.IconConverter.toBigNumber(this._nid)),
+                "value": IconConverter.toHex(IconConverter.toBigNumber(value)),
+                "timestamp": IconConverter.toHex((new Date()).getTime() * 1000),
+                "nid": IconConverter.toHex(IconConverter.toBigNumber(this._nid)),
                 "nonce": "0x1",
                 "dataType": "call",
                 "data": {
@@ -489,11 +489,11 @@ class API {
         let callTransactionBuilder = new IconService.IconBuilder.CallTransactionBuilder()
             .from(from)
             .to(to)
-            .value(IconService.IconConverter.toHex(value))
-            .stepLimit(IconService.IconConverter.toBigNumber(stepLimit))
-            .nid(IconService.IconConverter.toBigNumber(this._nid))
-            .nonce(IconService.IconConverter.toBigNumber(1))
-            .version(IconService.IconConverter.toBigNumber(3))
+            .value(IconConverter.toHex(value))
+            .stepLimit(IconConverter.toBigNumber(stepLimit))
+            .nid(IconConverter.toBigNumber(this._nid))
+            .nonce(IconConverter.toBigNumber(1))
+            .version(IconConverter.toBigNumber(3))
             .timestamp((new Date()).getTime() * 1000)
             .method(method)
 
@@ -509,10 +509,10 @@ class API {
         return new IconService.IconBuilder.IcxTransactionBuilder()
             .from(from)
             .to(to)
-            .value(IconService.IconConverter.toBigNumber(value))
-            .stepLimit(IconService.IconConverter.toBigNumber(stepLimit))
-            .nid(IconService.IconConverter.toBigNumber(this._nid))
-            .version(IconService.IconConverter.toBigNumber(3))
+            .value(IconConverter.toBigNumber(value))
+            .stepLimit(IconConverter.toBigNumber(stepLimit))
+            .nid(IconConverter.toBigNumber(this._nid))
+            .version(IconConverter.toBigNumber(3))
             .timestamp((new Date()).getTime() * 1000)
             .build()
     }
