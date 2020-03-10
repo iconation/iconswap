@@ -123,7 +123,7 @@ const Swap = ({ match, wallet }) => {
                 {swapSuccess() &&
                     <InfoBox type={"success"} content={`<strong>The tokens have been traded successful!</strong> <br/>
                     See the transaction on the tracker : <br/>
-                    <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
+                    <a href=` + api.getTrackerEndpoint() + "/transaction/0x" + swap['transaction'] +
                         ` rel="noopener noreferrer" target="_blank">0x` + swap['transaction'] + `</a>
                     `} />
                 }
@@ -132,7 +132,7 @@ const Swap = ({ match, wallet }) => {
                     <InfoBox type={"notice"} content={`
                 The swap has been cancelled and all funds were refunded. <br />
                 See the transaction on the tracker : <br/>
-                <a href=` + api.getTrackerEndpoint() + "/transaction/" + swap['transaction'] +
+                <a href=` + api.getTrackerEndpoint() + "/transaction/0x" + swap['transaction'] +
                         ` rel="noopener noreferrer" target="_blank">0x` + swap['transaction'] + `</a>
                 `} />
                 }
