@@ -4,7 +4,6 @@ import OrderView from './OrderView'
 import LoadingOverlay from './LoadingOverlay'
 import InfoBox from './InfoBox'
 import './Swap.css';
-import swapPicture from './static/img/swap.png'
 import { IconConverter } from 'icon-sdk-js'
 import { createBrowserHistory } from 'history';
 
@@ -143,10 +142,10 @@ const Swap = ({ match, wallet }) => {
                     "<strong><a href='" + window.location.href + "'>" + window.location.href + "</a></strong>"} />}
 
                 {isTaker && <InfoBox content={"You may deposit the amount of tokens displayed on the right (<strong>" +
-                    IconConverter.toBigNumber(taker['amount']) / IconConverter.toBigNumber('10').exponentiatedBy(taker['token']['decimals']) +
+                    IconConverter.toBigNumber(taker['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(taker['token']['decimals'])) +
                     " " + taker['token']['symbol'] + "</strong>), " +
                     "<br/>which will be traded instantly against the amount of tokens displayed on the left (<strong>" +
-                    IconConverter.toBigNumber(maker['amount']) / IconConverter.toBigNumber('10').exponentiatedBy(maker['token']['decimals']) +
+                    IconConverter.toBigNumber(maker['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(maker['token']['decimals'])) +
                     " " + maker['token']['symbol'] + "</strong>) to your address."} />}
 
                 {maker && taker && <>
