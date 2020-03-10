@@ -1,24 +1,28 @@
 {
   "files": {
-    "main.css": "/iconswap/static/css/main.0699c366.chunk.css",
-    "main.js": "/iconswap/static/js/main.c97e15c6.chunk.js",
-    "main.js.map": "/iconswap/static/js/main.c97e15c6.chunk.js.map",
+    "main.css": "/iconswap/static/css/main.1f42a2d8.chunk.css",
+    "main.js": "/iconswap/static/js/main.64ff8d11.chunk.js",
+    "main.js.map": "/iconswap/static/js/main.64ff8d11.chunk.js.map",
     "runtime-main.js": "/iconswap/static/js/runtime-main.caaeb70b.js",
     "runtime-main.js.map": "/iconswap/static/js/runtime-main.caaeb70b.js.map",
-    "static/js/2.af4c6f1a.chunk.js": "/iconswap/static/js/2.af4c6f1a.chunk.js",
-    "static/js/2.af4c6f1a.chunk.js.map": "/iconswap/static/js/2.af4c6f1a.chunk.js.map",
+    "static/js/2.bec4e3cf.chunk.js": "/iconswap/static/js/2.bec4e3cf.chunk.js",
+    "static/js/2.bec4e3cf.chunk.js.map": "/iconswap/static/js/2.bec4e3cf.chunk.js.map",
     "index.html": "/iconswap/index.html",
-    "precache-manifest.003d1d1d9d9b437be6b4184ea7794716.js": "/iconswap/precache-manifest.003d1d1d9d9b437be6b4184ea7794716.js",
+    "precache-manifest.cbf660cc9a8074a2a727ee19f5fed001.js": "/iconswap/precache-manifest.cbf660cc9a8074a2a727ee19f5fed001.js",
     "service-worker.js": "/iconswap/service-worker.js",
-    "static/css/main.0699c366.chunk.css.map": "/iconswap/static/css/main.0699c366.chunk.css.map",
-    "static/js/2.af4c6f1a.chunk.js.LICENSE.txt": "/iconswap/static/js/2.af4c6f1a.chunk.js.LICENSE.txt",
+    "static/css/main.1f42a2d8.chunk.css.map": "/iconswap/static/css/main.1f42a2d8.chunk.css.map",
+    "static/js/2.bec4e3cf.chunk.js.LICENSE.txt": "/iconswap/static/js/2.bec4e3cf.chunk.js.LICENSE.txt",
+    "static/media/Account.c2f4c664.svg": "/iconswap/static/media/Account.c2f4c664.svg",
+    "static/media/PowerOff.a76f746e.svg": "/iconswap/static/media/PowerOff.a76f746e.svg",
+    "static/media/Swap.e93073b6.svg": "/iconswap/static/media/Swap.e93073b6.svg",
     "static/media/iconation.png": "/iconswap/static/media/iconation.d221ee9e.png",
+    "static/media/listing.a06390f3.svg": "/iconswap/static/media/listing.a06390f3.svg",
     "static/media/logo.png": "/iconswap/static/media/logo.45b9800e.png"
   },
   "entrypoints": [
     "static/js/runtime-main.caaeb70b.js",
-    "static/js/2.af4c6f1a.chunk.js",
-    "static/css/main.0699c366.chunk.css",
-    "static/js/main.c97e15c6.chunk.js"
+    "static/js/2.bec4e3cf.chunk.js",
+    "static/css/main.1f42a2d8.chunk.css",
+    "static/js/main.64ff8d11.chunk.js"
   ]
 }
