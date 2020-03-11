@@ -119,6 +119,7 @@ class API {
 
     getSwap(swapId) {
         return this.__call(this._scoreAddress, 'get_swap', { swap_id: IconConverter.toHex(swapId) }).then(swap => {
+            swap['id'] = swapId
             return swap
         })
     }

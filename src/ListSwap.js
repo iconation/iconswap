@@ -66,7 +66,55 @@ const Homepage = ({ wallet }) => {
         })
     }
 
-    const getSwapsRangeSync = async (from) => {
+    const getSwapRangeAsync = (from) => {
+
+        const ITERATION_COUNT = 10;
+        let promises = []
+
+        for (let curSwapId = from; curSwapId < (from + ITERATION_COUNT); curSwapId++) {
+            promises.push(api.getSwap(curSwapId))
+        }
+
+        return promises
+    }
+
+    const getSwapsAsync = async (from) => {
+        const ITERATION_COUNT = 10;
+        let running = true
+
+        for (let curSwapId = from; running; curSwapId += ITERATION_COUNT) {
+            const promises = getSwapRangeAsync(curSwapId)
+            try {
+                const result = await Promise.all(promises)
+                result.forEach(swap => {
+                    swapsList[swap['id']] = swap
+                    addSwapToLists(swap)
+                })
+            } catch (error) {
+                await getSwapsSync(curSwapId)
+                running = false
+            }
+        }
+    }
+
+    const addSwapToLists = (swap) => {
+        switch (swap['status']) {
+            case 'PENDING':
+                pendingSwapsList[swap['id']] = swap
+                break;
+
+            case 'SUCCESS':
+                successSwapsList[swap['id']] = swap
+                break;
+
+            default:
+                break;
+        }
+
+        swapsList[swap['id']] = swap
+    }
+
+    const getSwapsSync = async (from) => {
         let running = true
 
         for (let curSwapId = from; running; curSwapId++) {
@@ -74,21 +122,7 @@ const Homepage = ({ wallet }) => {
             try {
                 const swap = await api.getSwap(curSwapId)
                 if (swap) {
-
-                    switch (swap['status']) {
-                        case 'PENDING':
-                            pendingSwapsList[curSwapId] = swap
-                            break;
-
-                        case 'SUCCESS':
-                            successSwapsList[curSwapId] = swap
-                            break;
-
-                        default:
-                            break;
-                    }
-
-                    swapsList[curSwapId] = swap
+                    addSwapToLists(swap)
                     setSwapsLoadingCount(curSwapId)
                 }
             } catch (error) {
@@ -102,7 +136,7 @@ const Homepage = ({ wallet }) => {
     }
 
     const getAllSwaps = async () => {
-        getSwapsRangeSync(1).then(() => {
+        getSwapsAsync(1).then(() => {
             setFinishedLoadingSwaps(true)
             getAllSwapDetails(pendingSwapsList).then(result => {
                 setFinishedLoadingPending(true)
