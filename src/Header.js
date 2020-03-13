@@ -31,6 +31,9 @@ const Header = ({ wallet, setWallet }) => {
     const listSwapsClick = () => {
         history.push("/list");
     }
+    const listSwaps2Click = () => {
+        history.push("/list2");
+    }
 
     const isAdmin = () => {
         return wallet === 'hxcc8c9d91d0db660f91d8041af702d79edcb02958'
@@ -92,6 +95,11 @@ const Header = ({ wallet, setWallet }) => {
                     <button className="big-button button-svg-container header-buttons" onClick={() => { listSwapsClick() }}>
                         <div className="svg-icon-button"><SwapListing /></div>
                         <div className="svg-text-button">List Swaps</div>
+                    </button>
+
+                    <button className="big-button button-svg-container header-buttons" onClick={() => { listSwaps2Click() }}>
+                        <div className="svg-icon-button"><SwapListing /></div>
+                        <div className="svg-text-button">List Swaps2</div>
                     </button>
 
                     {isAdmin() && <><br />

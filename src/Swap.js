@@ -58,7 +58,7 @@ const Swap = ({ match, wallet }) => {
         }
 
         refreshSwap()
-        if (ready) {
+        if (ready && !intervalHandle) {
             const interval = setInterval(() => {
                 refreshSwap()
             }, 1000)
@@ -81,9 +81,11 @@ const Swap = ({ match, wallet }) => {
     }
 
     const depositClicked = () => {
-        api.fillOrder(wallet, swapId, taker['contract'], taker['amount']).then(() => {
-            setDepositingInProgress(true)
-            setLoadingText('Swapping in progress...')
+        api.fillOrder(wallet, swapId, taker['contract'], taker['amount']).then((tx) => {
+            if (tx) {
+                setDepositingInProgress(true)
+                setLoadingText('Swapping in progress...')
+            }
         }).catch(error => {
             setDepositingInProgress(false)
             setErrorUi(error)

@@ -143,7 +143,7 @@ const AccountOrders = ({ wallet }) => {
                 <div id="account-orders-container">
                     <div className="container-swaps-item">
                         <div className="container-swaps-item-container">
-                            <div className="account-orders-title">Pending Swaps</div>
+                            <div className="account-orders-title">My Pending Swaps</div>
 
                             <div className="swaps-table-view">
                                 <table className="swaps-table" cellSpacing='0'>
@@ -188,7 +188,7 @@ const AccountOrders = ({ wallet }) => {
                     </div>
                     <div className="container-swaps-item">
                         <div className="container-swaps-item-container">
-                            <div className="account-orders-title">Filled Swaps</div>
+                            <div className="account-orders-title">My Filled Swaps</div>
 
                             <div className="swaps-table-view">
                                 <table className="swaps-table" cellSpacing='0'>

@@ -6,7 +6,7 @@ import { api } from './API'
 import { IconConverter } from 'icon-sdk-js'
 import './ListSwap.css'
 
-const Homepage = ({ wallet }) => {
+const ListSwap = ({ wallet }) => {
 
     const [errorUi, setErrorUi] = useState(null)
     const [swapsLoadingCount, setSwapsLoadingCount] = useState(0)
@@ -67,7 +67,6 @@ const Homepage = ({ wallet }) => {
     }
 
     const getSwapRangeAsync = (from) => {
-
         const ITERATION_COUNT = 10;
         let promises = []
 
@@ -89,6 +88,7 @@ const Homepage = ({ wallet }) => {
                 result.forEach(swap => {
                     swapsList[swap['id']] = swap
                     addSwapToLists(swap)
+                    setSwapsLoadingCount(swap['id'])
                 })
             } catch (error) {
                 await getSwapsSync(curSwapId)
@@ -272,4 +272,4 @@ const Homepage = ({ wallet }) => {
     )
 }
 
-export default Homepage
+export default ListSwap
