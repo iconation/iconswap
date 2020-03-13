@@ -19,6 +19,7 @@ const ListSwap = ({ wallet }) => {
     const [swapsList, setswapsList] = useState({})
     const [pendingSwapsList, setpendingSwapsList] = useState({})
     const [successSwapsList, setsuccessSwapsList] = useState({})
+    const ITERATION_COUNT = 200;
 
     const convertTsToDate = (timestamp) => {
         function pad(n) { return n < 10 ? '0' + n : n }
@@ -66,23 +67,22 @@ const ListSwap = ({ wallet }) => {
         })
     }
 
-    const getSwapRangeAsync = (from) => {
-        const ITERATION_COUNT = 10;
+    const getSwapRangeAsync = (from, iteration) => {
+
         let promises = []
 
-        for (let curSwapId = from; curSwapId < (from + ITERATION_COUNT); curSwapId++) {
+        for (let curSwapId = from; curSwapId < (from + iteration); curSwapId++) {
             promises.push(api.getSwap(curSwapId))
         }
 
         return promises
     }
 
-    const getSwapsAsync = async (from) => {
-        const ITERATION_COUNT = 10;
+    const getSwapsAsync = async (from, iteration = ITERATION_COUNT) => {
         let running = true
 
-        for (let curSwapId = from; running; curSwapId += ITERATION_COUNT) {
-            const promises = getSwapRangeAsync(curSwapId)
+        for (let curSwapId = from; running; curSwapId += iteration) {
+            const promises = getSwapRangeAsync(curSwapId, iteration)
             try {
                 const result = await Promise.all(promises)
                 result.forEach(swap => {
@@ -91,8 +91,12 @@ const ListSwap = ({ wallet }) => {
                     setSwapsLoadingCount(swap['id'])
                 })
             } catch (error) {
-                await getSwapsSync(curSwapId)
                 running = false
+                if (iteration > 2) {
+                    await getSwapsAsync(curSwapId, Math.trunc(iteration / 2))
+                } else {
+                    await getSwapsSync(curSwapId)
+                }
             }
         }
     }
@@ -135,15 +139,21 @@ const ListSwap = ({ wallet }) => {
         history.push("/swap/" + swap['id'])
     }
 
+    const filterOutSameContract = (list) => {
+        return list.filter(item => {
+            return item.maker.contract !== item.taker.contract
+        })
+    }
+
     const getAllSwaps = async () => {
         getSwapsAsync(1).then(() => {
             setFinishedLoadingSwaps(true)
             getAllSwapDetails(pendingSwapsList).then(result => {
                 setFinishedLoadingPending(true)
-                setPendingSwapsFull(result.reverse())
+                setPendingSwapsFull(filterOutSameContract(result.reverse()))
                 getAllSwapDetails(successSwapsList).then(result => {
                     setFinishedLoadingSuccess(true)
-                    setSuccessSwapsFull(result.reverse())
+                    setSuccessSwapsFull(filterOutSameContract(result.reverse()))
                 })
             })
         })
