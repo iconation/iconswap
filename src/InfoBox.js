@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './InfoBox.css';
 import notice from './static/img/notice.png'
 import success from './static/img/success.png'
 import error from './static/img/error.png'
 
 const InfoBox = ({ content, type, setErrorUi }) => {
+
+    const [closed, setClosed] = useState(false)
 
     if (!type) {
         type = "notice"
@@ -19,13 +21,17 @@ const InfoBox = ({ content, type, setErrorUi }) => {
     }
 
     const onClose = () => {
-        setErrorUi && setErrorUi(null)
+        if (setErrorUi) {
+            setErrorUi(null)
+        } else {
+            setClosed(true)
+        }
     }
 
-    return (
+    return (!closed &&
         <div className={"alert-box " + type}><img alt={type} className="alert-box-img" src={imgobj} /><span>{type}:&nbsp;</span>
             <div className="alert-box-content" dangerouslySetInnerHTML={{ __html: content }} />
-            {setErrorUi && <div className="alert-box-close" onClick={() => { onClose() }}>&times;</div>}
+            <div className="alert-box-close" onClick={() => { onClose() }}>&times;</div>
         </div>
     )
 }
