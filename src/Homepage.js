@@ -49,6 +49,10 @@ const Homepage = ({ wallet }) => {
             !taker.contract && setContractError(1, true);
             !maker.amount && setAmountError(0, true);
             !taker.amount && setAmountError(1, true);
+            if (maker.contract === taker.contract) {
+                setContractError(1, true)
+                setErrorUi("You cannot trade the same pair")
+            }
         } else {
             setWaitForSwapCreation(true)
             api.getDecimals(maker.contract).then(decimals_maker => {
@@ -75,7 +79,7 @@ const Homepage = ({ wallet }) => {
     }
 
     const swappable = () => {
-        return maker.contract && taker.contract && orders[0].amount && taker.contract
+        return maker.contract && taker.contract && orders[0].amount && taker.contract && maker.contract !== taker.contract
     }
 
     const setContract = (index, value) => {
