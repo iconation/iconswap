@@ -84,12 +84,7 @@ class API {
             name: 'MainNet',
             api: [
                 'https://ctz.solidwallet.io',
-                'https://ctz.blockmove.eu',
-                'http://ctz.icxstation.com:9000',
-                'http://13.58.103.19:9000',
-                'http://3.114.212.239:9000',
-                'http://52.47.90.20:9000',
-                'http://35.231.14.204:9000'
+                'https://ctz.blockmove.eu'
             ],
             tracker: 'https://tracker.icon.foundation',
             nid: 1
