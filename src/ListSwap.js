@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useHistory } from 'react-router-dom'
+// import { useHistory } from 'react-router-dom'
 import LoadingOverlay from './LoadingOverlay'
 import InfoBox from './InfoBox'
 import { api } from './API'
@@ -10,16 +10,18 @@ const ListSwap = ({ wallet }) => {
 
     const [errorUi, setErrorUi] = useState(null)
     const [swapsLoadingCount, setSwapsLoadingCount] = useState(0)
+    const [swapsLoadingPendingCount, setSwapsLoadingPendingCount] = useState([0, 0])
+    const [swapsLoadingSuccessCount, setSwapsLoadingSuccessCount] = useState([0, 0])
     const [finishedLoadingSwaps, setFinishedLoadingSwaps] = useState(null)
     const [finishedLoadingPending, setFinishedLoadingPending] = useState(null)
     const [finishedLoadingSuccess, setFinishedLoadingSuccess] = useState(null)
     const [pendingSwapsFull, setPendingSwapsFull] = useState(null)
     const [successSwapsFull, setSuccessSwapsFull] = useState(null)
-    const history = useHistory();
     const [swapsList, setswapsList] = useState({})
     const [pendingSwapsList, setpendingSwapsList] = useState({})
     const [successSwapsList, setsuccessSwapsList] = useState({})
     const ITERATION_COUNT = 100;
+    // const history = useHistory();
 
     const convertTsToDate = (timestamp) => {
         function pad(n) { return n < 10 ? '0' + n : n }
@@ -36,7 +38,7 @@ const ListSwap = ({ wallet }) => {
         return time;
     }
 
-    const getAllSwapDetails = (swaps) => {
+    const getAllSwapDetails = (swaps, progressCallback) => {
         const promises = Object.entries(swaps).map(([key, swap]) => {
             swap['id'] = key
             return api.getOrder(swap['maker_order_id']).then(maker => {
@@ -62,7 +64,7 @@ const ListSwap = ({ wallet }) => {
             })
         })
 
-        return Promise.all(promises).then(result => {
+        return api.progressPromiseAll(promises, progressCallback).then(result => {
             return result
         })
     }
@@ -88,8 +90,8 @@ const ListSwap = ({ wallet }) => {
                 result.forEach(swap => {
                     swapsList[swap['id']] = swap
                     addSwapToLists(swap)
-                    setSwapsLoadingCount(swap['id'])
                 })
+                setSwapsLoadingCount(result.slice(-1)[0]['id'])
             } catch (error) {
                 running = false
                 if (iteration > 2) {
@@ -136,7 +138,7 @@ const ListSwap = ({ wallet }) => {
     }
 
     const onClickView = (swap) => {
-        history.push("/swap/" + swap['id'])
+        window.open("/#/swap/" + swap['id'], '_blank')
     }
 
     const filterOutSameContract = (list) => {
@@ -146,12 +148,23 @@ const ListSwap = ({ wallet }) => {
     }
 
     const getAllSwaps = async () => {
+
+        const swapDetailsLoadingCallback = (completed, total) => {
+            setSwapsLoadingPendingCount([completed, total])
+        }
+
+        const swapDetailsSuccessCallback = (completed, total) => {
+            setSwapsLoadingSuccessCount([completed, total])
+        }
+
         getSwapsAsync(1).then(() => {
             setFinishedLoadingSwaps(true)
-            getAllSwapDetails(pendingSwapsList).then(result => {
+            setSwapsLoadingPendingCount([0, Object.keys(pendingSwapsList).length])
+            getAllSwapDetails(pendingSwapsList, swapDetailsLoadingCallback).then(result => {
                 setFinishedLoadingPending(true)
                 setPendingSwapsFull(filterOutSameContract(result.reverse()))
-                getAllSwapDetails(successSwapsList).then(result => {
+                setSwapsLoadingSuccessCount([0, Object.keys(successSwapsList).length])
+                getAllSwapDetails(successSwapsList, swapDetailsSuccessCallback).then(result => {
                     setFinishedLoadingSuccess(true)
                     setSuccessSwapsFull(filterOutSameContract(result.reverse()))
                 })
@@ -170,9 +183,9 @@ const ListSwap = ({ wallet }) => {
 
     const loadingText = !finishedLoadingSwaps ?
         'Loading Swaps (' + swapsLoadingCount + ')...'
-        : !finishedLoadingSuccess ?
-            'Loading pending swaps ...'
-            : 'Loading filled swaps ...'
+        : !finishedLoadingPending ?
+            'Loading pending swaps ... ( ' + swapsLoadingPendingCount[0] + ' / ' + swapsLoadingPendingCount[1] + ' )'
+            : 'Loading filled swaps ... ( ' + swapsLoadingSuccessCount[0] + ' / ' + swapsLoadingSuccessCount[1] + ' )'
 
     const over = finishedLoadingSwaps && finishedLoadingPending && finishedLoadingSuccess
 

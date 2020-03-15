@@ -31,6 +31,12 @@ const Header = ({ wallet, setWallet }) => {
         history.push("/list");
     }
 
+    /*
+    const listSwaps2Click = () => {
+        history.push("/list2");
+    }
+    */
+
     return (
         <div id="header">
             <div id="header-content-left">
@@ -63,6 +69,12 @@ const Header = ({ wallet, setWallet }) => {
                         <div className="svg-text-button">List Swaps</div>
                     </button>
 
+                    {/*
+                    <button className="big-button button-svg-container header-buttons" onClick={() => { listSwaps2Click() }}>
+                        <div className="svg-icon-button"><SwapListing /></div>
+                        <div className="svg-text-button">List Swaps2</div>
+                    </button>
+                    */}
                 </div>
             </>}
         </div>
