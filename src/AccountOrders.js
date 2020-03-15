@@ -111,7 +111,7 @@ const AccountOrders = ({ wallet }) => {
     })
 
     const onClickView = (swap) => {
-        history.push("/swap/" + swap['id'])
+        window.open("/#/swap/" + swap['id'], '_blank')
     }
 
     const onClickWithdraw = (swap) => {

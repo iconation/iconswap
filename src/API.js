@@ -64,6 +64,22 @@ class API {
         this._scoreAddress = scoreAddress
     }
 
+    // promises
+    progressPromiseAll(promises, tickCallback) {
+        var len = promises.length;
+        var progress = 0;
+
+        function tick(promise) {
+            promise.then(function () {
+                progress++;
+                tickCallback(progress, len);
+            });
+            return promise;
+        }
+
+        return Promise.all(promises.map(tick));
+    }
+
     _getIconService() {
         return new IconService(new IconService.HttpProvider(this.getAPIEndpoint() + '/api/v3'))
     }
