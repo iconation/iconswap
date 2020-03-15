@@ -59,15 +59,17 @@ class API {
     constructor(network, scoreAddress) {
         const iconNetworkInfo = this._getNetworkInfo(network)
 
-        const api = iconNetworkInfo.api
-        const httpProvider = new IconService.HttpProvider(api + '/api/v3')
-        const httpDebugProvider = new IconService.HttpProvider(api + '/api/debug/v3')
-
         this._nid = iconNetworkInfo.nid
         this._network = network
-        this._iconService = new IconService(httpProvider)
-        this._iconDebugService = new IconService(httpDebugProvider)
         this._scoreAddress = scoreAddress
+    }
+
+    _getIconService() {
+        return new IconService(new IconService.HttpProvider(this.getAPIEndpoint() + '/api/v3'))
+    }
+
+    _getDebugIconService() {
+        return new IconService(new IconService.HttpProvider(this.getAPIEndpoint() + '/api/debug/v3'))
     }
 
     _getNetworkInfo(network) {
@@ -80,7 +82,15 @@ class API {
         }
         iconNetworksInfo[Networks.MAINNET] = {
             name: 'MainNet',
-            api: 'https://ctz.solidwallet.io',
+            api: [
+                'https://ctz.solidwallet.io',
+                'https://ctz.blockmove.eu',
+                'http://ctz.icxstation.com:9000',
+                'http://13.58.103.19:9000',
+                'http://3.114.212.239:9000',
+                'http://52.47.90.20:9000',
+                'http://35.231.14.204:9000'
+            ],
             tracker: 'https://tracker.icon.foundation',
             nid: 1
         }
@@ -100,7 +110,8 @@ class API {
     }
 
     getAPIEndpoint() {
-        return this._getNetworkInfo(this._network).api
+        const apis = this._getNetworkInfo(this._network).api
+        return apis[Math.floor(Math.random() * apis.length)];
     }
 
     getTrackerEndpoint() {
@@ -382,7 +393,7 @@ class API {
     // ======================================================================================
     __getIcxBalance(address) {
         const digits = IconConverter.toBigNumber('10').exponentiatedBy(18)
-        return this._iconService.getBalance(address).execute().then(balance => {
+        return this._getIconService().getBalance(address).execute().then(balance => {
             return balance / digits;
         })
     }
@@ -419,7 +430,7 @@ class API {
                 }
 
                 const call = callBuilder.build()
-                const result = this._iconService.call(call).execute()
+                const result = this._getIconService().call(call).execute()
                 resolve(result)
             } catch (err) {
                 reject(err)
@@ -447,7 +458,7 @@ class API {
                 }
 
                 const transaction = new IconService.SignedTransaction(callTransactionBuilder.build(), wallet)
-                const result = this._iconService.sendTransaction(transaction).execute()
+                const result = this._getIconService().sendTransaction(transaction).execute()
                 resolve(result)
             } catch (err) {
                 reject(err)
@@ -478,7 +489,7 @@ class API {
 
         return new Promise((resolve, reject) => {
             try {
-                const result = this._iconDebugService.provider.request(transaction).execute()
+                const result = this._getDebugIconService().provider.request(transaction).execute()
                 resolve(result)
             } catch (err) {
                 reject(err)
@@ -520,7 +531,7 @@ class API {
 
     async __txResult(txHash, retriesLeft = 1000, interval = 100) {
         try {
-            return await this._iconService.getTransactionResult(txHash).execute()
+            return await this._getIconService().getTransactionResult(txHash).execute()
         } catch (error) {
             if (retriesLeft) {
                 await new Promise((resolve, reject) => setTimeout(resolve, interval))

@@ -19,7 +19,7 @@ const ListSwap = ({ wallet }) => {
     const [swapsList, setswapsList] = useState({})
     const [pendingSwapsList, setpendingSwapsList] = useState({})
     const [successSwapsList, setsuccessSwapsList] = useState({})
-    const ITERATION_COUNT = 200;
+    const ITERATION_COUNT = 100;
 
     const convertTsToDate = (timestamp) => {
         function pad(n) { return n < 10 ? '0' + n : n }
