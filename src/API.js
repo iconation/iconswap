@@ -240,7 +240,7 @@ class API {
     }
 
     cancelSwap(walletAddress, swapId) {
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap', 0, { swap_id: swapId }).then(txHash => {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap', 0, { swap_id: IconConverter.toHex(swapId) }).then(txHash => {
             return txHash
         })
     }
