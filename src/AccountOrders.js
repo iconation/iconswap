@@ -115,9 +115,11 @@ const AccountOrders = ({ wallet }) => {
     }
 
     const onClickWithdraw = (swap) => {
-        api.cancelSwap(wallet, parseInt(swap['id'])).then(() => {
-            setWithdrawingInProgress(swap)
-            setLoadingText('Withdrawing funds...')
+        api.cancelSwap(wallet, parseInt(swap['id'])).then((tx) => {
+            if (tx) {
+                setWithdrawingInProgress(swap)
+                setLoadingText('Withdrawing funds...')
+            }
         }).catch(error => {
             setWithdrawingInProgress(null)
             setErrorUi(error)
