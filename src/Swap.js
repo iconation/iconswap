@@ -71,9 +71,11 @@ const Swap = ({ match, wallet }) => {
     }
 
     const withdrawClicked = () => {
-        api.cancelSwap(wallet, swapId).then(() => {
-            setWithdrawingInProgress(true)
-            setLoadingText('Withdrawing funds...')
+        api.cancelSwap(wallet, swapId).then((tx) => {
+            if (tx) {
+                setWithdrawingInProgress(true)
+                setLoadingText('Withdrawing funds...')
+            }
         }).catch(error => {
             setWithdrawingInProgress(false)
             setErrorUi(error)
