@@ -138,7 +138,7 @@ const ListSwap = ({ wallet }) => {
     }
 
     const onClickView = (swap) => {
-        window.open("/#/swap/" + swap['id'], '_blank')
+        window.open("#/swap/" + swap['id'], '_blank')
     }
 
     const filterOutSameContract = (list) => {
