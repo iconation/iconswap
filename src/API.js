@@ -83,10 +83,7 @@ class API {
         iconNetworksInfo[Networks.MAINNET] = {
             name: 'MainNet',
             api: [
-                'https://ctz.solidwallet.io',
-                'https://ctz.blockmove.eu',
-                'https://ctz.blockmove.eu',
-                'https://ctz.blockmove.eu'
+                'https://ctz.solidwallet.io'
             ],
             tracker: 'https://tracker.icon.foundation',
             nid: 1
