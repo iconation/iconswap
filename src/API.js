@@ -130,7 +130,7 @@ class API {
     }
 
     getWhitelist() {
-        return this.__call(this._scoreAddress, 'get_whitelist').then(whitelist => {
+        return this.__callWithOffsetArray(this._scoreAddress, 'get_whitelist').then(whitelist => {
             return whitelist
         })
     }
@@ -189,9 +189,10 @@ class API {
         })
     }
 
-    async __callWithOffset(contract, method, params) {
+    async __callWithOffsetDict(contract, method, params) {
         let result = {}
         let offset = 0
+        params = params ? params : {}
 
         while (true) {
             params['offset'] = IconConverter.toHex(offset)
@@ -208,15 +209,35 @@ class API {
         return result
     }
 
+    async __callWithOffsetArray(contract, method, params) {
+        let result = []
+        let offset = 0
+        params = params ? params : {}
+
+        while (true) {
+            params['offset'] = IconConverter.toHex(offset)
+            const orders = await this.__call(contract, method, params)
+
+            offset += MAX_ITERATION_LOOP
+            if (orders.length === 0) {
+                break
+            }
+
+            result = result.concat(orders)
+        }
+
+        return result
+    }
+
     getPendingOrdersByAddress(walletAddress) {
-        return this.__callWithOffset(this._scoreAddress, 'get_pending_orders_by_address', { address: walletAddress })
+        return this.__callWithOffsetDict(this._scoreAddress, 'get_pending_swaps_by_address', { address: walletAddress })
             .then(orders => {
                 return orders
             })
     }
 
     getFilledOrdersByAddress(walletAddress) {
-        return this.__callWithOffset(this._scoreAddress, 'get_filled_orders_by_address', { address: walletAddress })
+        return this.__callWithOffsetDict(this._scoreAddress, 'get_filled_swaps_by_address', { address: walletAddress })
             .then(orders => {
                 return orders
             })
