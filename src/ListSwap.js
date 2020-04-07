@@ -40,7 +40,6 @@ const ListSwap = ({ wallet }) => {
 
     const getAllSwapDetails = (swaps, progressCallback) => {
         const promises = Object.entries(swaps).map(([key, swap]) => {
-            swap['id'] = key
             return api.getOrder(swap['maker_order_id']).then(maker => {
                 return api.getOrder(swap['taker_order_id']).then(taker => {
                     swap['timestamp_create'] = convertTsToDate(swap['timestamp_create'])

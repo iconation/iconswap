@@ -5,10 +5,11 @@ import { WALLET_LOCAL_STORAGE_KEY } from './constants'
 import './Header.css'
 import { api } from './API'
 import { useHistory } from 'react-router-dom';
-import { ReactComponent as SwapListing } from './static/svg/listing.svg'
 import { ReactComponent as PowerOffSvg } from './static/svg/PowerOff.svg'
 import { ReactComponent as AccountSvg } from './static/svg/Account.svg'
 import { ReactComponent as SwapSvg } from './static/svg/Swap.svg'
+import { ReactComponent as SwapListingSvg } from './static/svg/listing.svg'
+import { ReactComponent as MarketSvg } from './static/svg/listing.svg'
 
 const Header = ({ wallet, setWallet }) => {
 
@@ -31,11 +32,9 @@ const Header = ({ wallet, setWallet }) => {
         history.push("/list");
     }
 
-    /*
-    const listSwaps2Click = () => {
-        history.push("/list2");
+    const marketClick = () => {
+        history.push("/market");
     }
-    */
 
     return (
         <div id="header">
@@ -64,17 +63,16 @@ const Header = ({ wallet, setWallet }) => {
                         <div className="svg-text-button">Create Swap</div>
                     </button>
 
-                    <button className="big-button button-svg-container header-buttons" onClick={() => { listSwapsClick() }}>
-                        <div className="svg-icon-button"><SwapListing /></div>
-                        <div className="svg-text-button">List Swaps</div>
-                    </button>
-
                     {/*
-                    <button className="big-button button-svg-container header-buttons" onClick={() => { listSwaps2Click() }}>
-                        <div className="svg-icon-button"><SwapListing /></div>
-                        <div className="svg-text-button">List Swaps2</div>
+                    <button className="big-button button-svg-container header-buttons" onClick={() => { listSwapsClick() }}>
+                        <div className="svg-icon-button"><SwapListingSvg /></div>
+                        <div className="svg-text-button">List Swaps</div>
+                    </button>*/}
+
+                    <button className="big-button button-svg-container header-buttons" onClick={() => { marketClick() }}>
+                        <div className="svg-icon-button"><MarketSvg /></div>
+                        <div className="svg-text-button">Market</div>
                     </button>
-                    */}
                 </div>
             </>}
         </div>

@@ -46,7 +46,7 @@ const Swap = ({ match, wallet }) => {
 
         const refreshSwap = () => {
             return api.getSwap(swapId).then(swap => {
-                refreshOrders(swap['maker_order_id'], swap['taker_order_id']).then(() => {
+                refreshOrders(swap['maker']['id'], swap['taker']['id']).then(() => {
                     setSwap(swap)
                     !ready && setReady(true)
                 }).catch((error) => {

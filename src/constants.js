@@ -19,5 +19,5 @@ export const SCORE_NETWORK = Networks.YEOUIDO
 export const ICX_TOKEN_CONTRACT = 'cx0000000000000000000000000000000000000000'
 export const ICX_TOKEN_DECIMALS = 18
 
-// MAX_ITERATION_LOOP is defined in SCORE contract
+// MAX_ITERATION_LOOP is also defined in SCORE contract
 export const MAX_ITERATION_LOOP = 100

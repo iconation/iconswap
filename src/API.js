@@ -82,9 +82,7 @@ class API {
         }
         iconNetworksInfo[Networks.MAINNET] = {
             name: 'MainNet',
-            api: [
-                'https://ctz.solidwallet.io'
-            ],
+            api: ['https://ctz.solidwallet.io'],
             tracker: 'https://tracker.icon.foundation',
             nid: 1
         }
@@ -132,16 +130,33 @@ class API {
     }
 
     getWhitelist() {
-        return this.__call(this._scoreAddress, 'get_whitelist').then(whitelist => {
+        return this.__callWithOffset(this._scoreAddress, 'get_whitelist').then(whitelist => {
             return whitelist
         })
     }
 
     getSwap(swapId) {
         return this.__call(this._scoreAddress, 'get_swap', { swap_id: IconConverter.toHex(swapId) }).then(swap => {
-            swap['id'] = swapId
             return swap
         })
+    }
+
+    getMarketInfo() {
+        return this.__callWithOffset(this._scoreAddress, 'get_market_info')
+    }
+
+
+    getMarketBuyersPendingSwaps(pair) {
+        return this.__callWithOffset(this._scoreAddress, 'get_market_buyers_pending_swaps', { 'pair': pair })
+    }
+
+
+    getMarketSellerPendingSwaps(pair) {
+        return this.__callWithOffset(this._scoreAddress, 'get_market_sellers_pending_swaps', { 'pair': pair })
+    }
+
+    getMarketFilledSwaps(pair) {
+        return this.__callWithOffset(this._scoreAddress, 'get_market_filled_swaps', { 'pair': pair })
     }
 
     getOrder(orderId) {
@@ -180,6 +195,7 @@ class API {
     }
 
 
+
     getDecimals(contract) {
         if (contract === ICX_TOKEN_CONTRACT) {
             return new Promise((resolve, reject) => {
@@ -192,33 +208,36 @@ class API {
     }
 
     async __callWithOffset(contract, method, params) {
-        let result = {}
+        let result = []
         let offset = 0
+        params = params ? params : {}
+        let running = true
 
-        while (true) {
+        while (running) {
             params['offset'] = IconConverter.toHex(offset)
-            const orders = await this.__call(contract, method, params)
-
-            offset += MAX_ITERATION_LOOP
-            if (Object.keys(orders).length === 0) {
-                break
+            try {
+                const orders = await this.__call(contract, method, params)
+                result = result.concat(orders)
+                offset += MAX_ITERATION_LOOP
+            } catch (error) {
+                if (error.includes('StopIteration'))
+                    running = false
+                else throw error
             }
-
-            result = Object.assign({}, result, orders)
         }
 
         return result
     }
 
     getPendingOrdersByAddress(walletAddress) {
-        return this.__callWithOffset(this._scoreAddress, 'get_pending_orders_by_address', { address: walletAddress })
+        return this.__callWithOffset(this._scoreAddress, 'get_account_pending_swaps', { address: walletAddress })
             .then(orders => {
                 return orders
             })
     }
 
     getFilledOrdersByAddress(walletAddress) {
-        return this.__callWithOffset(this._scoreAddress, 'get_filled_orders_by_address', { address: walletAddress })
+        return this.__callWithOffset(this._scoreAddress, 'get_account_filled_swaps', { address: walletAddress })
             .then(orders => {
                 return orders
             })
@@ -316,11 +335,21 @@ class API {
 
     // IRC2 Token Interface ============================================================
     tokenName(contract) {
+        if (contract === ICX_TOKEN_CONTRACT) {
+            return new Promise((resolve, reject) => {
+                resolve('ICX')
+            })
+        }
         return this.__call(contract, 'name').then(name => {
             return name
         })
     }
     tokenSymbol(contract) {
+        if (contract === ICX_TOKEN_CONTRACT) {
+            return new Promise((resolve, reject) => {
+                resolve('ICX')
+            })
+        }
         return this.__call(contract, 'symbol').then(symbol => {
             return symbol
         })

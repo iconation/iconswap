@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom'
 import LoadingOverlay from './LoadingOverlay'
 import InfoBox from './InfoBox'
 import { IconConverter } from 'icon-sdk-js'
+import { convertTsToDate } from './utils'
 
 const AccountOrders = ({ wallet }) => {
     const [openSwaps, setOpenSwaps] = useState(null)
@@ -50,41 +51,19 @@ const AccountOrders = ({ wallet }) => {
         }
     }, [withdrawingInProgress, setOpenSwaps, setWithdrawingInProgress]);
 
-    const convertTsToDate = (timestamp) => {
-        function pad(n) { return n < 10 ? '0' + n : n }
-
-        var a = new Date(parseInt(timestamp, 16) / 1000);
-        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        var year = a.getFullYear();
-        var month = months[a.getMonth()];
-        var date = pad(a.getDate());
-        var hour = pad(a.getHours());
-        var min = pad(a.getMinutes());
-        var sec = pad(a.getSeconds());
-        var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
-        return time;
-    }
-
     const getAllSwapDetails = (swaps) => {
         const promises = Object.entries(swaps).map(([key, swap]) => {
-            swap['id'] = key
-            return api.getOrder(swap['maker_order_id']).then(maker => {
-                return api.getOrder(swap['taker_order_id']).then(taker => {
-                    swap['timestamp_create'] = convertTsToDate(swap['timestamp_create'])
-                    swap['timestamp_swap'] = convertTsToDate(swap['timestamp_swap'])
-                    swap['maker'] = maker
-                    swap['taker'] = taker
-                    return api.getTokenDetails(wallet, swap['maker']['contract']).then(details => {
-                        swap['maker']['token'] = details
-                        return api.getTokenDetails(wallet, swap['taker']['contract']).then(details => {
-                            swap['taker']['token'] = details
-                            return api.balanceToFloat(swap['taker']['amount'], swap['taker']['contract']).then(balance => {
-                                swap['taker']['amountDisplay'] = balance
-                                return api.balanceToFloat(swap['maker']['amount'], swap['maker']['contract']).then(balance => {
-                                    swap['maker']['amountDisplay'] = balance
-                                    return swap
-                                })
-                            })
+            swap['timestamp_create'] = convertTsToDate(swap['timestamp_create'])
+            swap['timestamp_swap'] = convertTsToDate(swap['timestamp_swap'])
+            return api.getTokenDetails(wallet, swap['maker']['contract']).then(details => {
+                swap['maker']['token'] = details
+                return api.getTokenDetails(wallet, swap['taker']['contract']).then(details => {
+                    swap['taker']['token'] = details
+                    return api.balanceToFloat(swap['taker']['amount'], swap['taker']['contract']).then(balance => {
+                        swap['taker']['amountDisplay'] = balance
+                        return api.balanceToFloat(swap['maker']['amount'], swap['maker']['contract']).then(balance => {
+                            swap['maker']['amountDisplay'] = balance
+                            return swap
                         })
                     })
                 })
@@ -111,7 +90,7 @@ const AccountOrders = ({ wallet }) => {
     })
 
     const onClickView = (swap) => {
-        window.open("#/swap/" + swap['id'], '_blank')
+        window.open("#/swap/" + parseInt(swap['id'], 16), '_blank')
     }
 
     const onClickWithdraw = (swap) => {
