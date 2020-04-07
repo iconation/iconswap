@@ -60,9 +60,9 @@ const Homepage = ({ wallet }) => {
                     api.createSwap(
                         wallet,
                         maker.contract,
-                        maker.amount * IconConverter.toBigNumber('10').exponentiatedBy(decimals_maker),
+                        IconConverter.toBigNumber(maker.amount).multipliedBy(IconConverter.toBigNumber('10').exponentiatedBy(decimals_maker)),
                         taker.contract,
-                        taker.amount * IconConverter.toBigNumber('10').exponentiatedBy(decimals_taker)
+                        IconConverter.toBigNumber(taker.amount).multipliedBy(IconConverter.toBigNumber('10').exponentiatedBy(decimals_taker))
                     ).then(swapInfo => {
                         if (swapInfo) {
                             history.push("/swap/" + swapInfo['swapId']);

@@ -1,0 +1,145 @@
+#market-pair-root {
+    height: 100vh;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    overflow-x: hidden;
+}
+
+#market-pair-container {
+    border-top:2px solid #f8f8f822;
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    border-radius: .25rem;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+    background-color: rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 150px;
+    padding-left: 2vw;
+    padding-right: 2vw;
+    padding-bottom: 5vh;
+    width: 90vw;
+}
+
+#market-pair-title {
+    font-size: 30px;
+    margin: 20px;
+    color: white;
+    font-weight: 500;
+    display: inline-block;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
+    padding-bottom: 10px;
+    text-align: center;
+    width: 200px;
+}
+
+
+#market-pair-orderbook {
+    width: 33%;
+}
+
+.market-pair-buyers-text {
+    color: #74aa17;
+    font-weight: 600;
+}
+.market-pair-sellers-text {
+    color: #ec4b70;
+    font-weight: 600;
+}
+
+.market-pair-orderbook-price {
+    width: 30%;
+}
+
+.market-pair-orderbook-amount {
+    width: 20%;
+}
+.market-pair-orderbook-total {
+    width: 25%;
+}
+.market-pair-orderbook-action {
+    width: 25%;
+}
+
+#market-pair-middleinfo {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    background: rgba(0,0,0,.20);
+    color: white;
+    font-size: 17px;
+}
+
+#market-pair-view {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+#market-pair-spread {
+    width: 50%;
+}
+
+
+#market-pair-lastprice {
+    width: 50%;
+}
+
+
+#market-pair-depth {
+    width: 33%;
+    background: rgba(0,0,0,.20);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+#market-pair-history {
+    width: 33%;
+    background: #f8f8f8;
+}
+
+
+.market-pair-history-price {
+    width: 20%;
+}
+
+.market-pair-history-amount {
+    width: 20%;
+}
+.market-pair-history-total {
+    width: 30%;
+}
+.market-pair-history-filled {
+    width: 30%;
+}
+
+.market-pair-table {
+    width: 100%;
+}
+
+.market-pair-tr-clickeable {
+    cursor: pointer;
+}
+
+#market-pair-sellers {
+    background: #f8f8f8;
+    display: flex;
+    flex-direction: row;
+    height: 25vh;
+    overflow: auto;
+}
+
+#market-pair-buyers {
+    background: #f8f8f8;
+    display: flex;
+    flex-direction: row;
+    height: 25vh;
+    overflow: auto;
+}
+
+#market-pair-table-sellers-view {
+    width: 100%;
+}

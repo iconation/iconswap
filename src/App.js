@@ -7,7 +7,8 @@ import Footer from './Footer'
 import Homepage from './Homepage'
 import AccountOrders from './AccountOrders'
 import ListSwap from './ListSwap'
-// import ListSwap2 from './ListSwap2'
+import Market from './Market'
+import MarketPair from './MarketPair'
 import { WALLET_LOCAL_STORAGE_KEY } from './constants'
 import LoginScreen from './LoginScreen';
 
@@ -29,7 +30,8 @@ function App() {
             <Route exact path='/swap/:id' render={(props) => <Swap {...props} wallet={wallet} />} />
             <Route exact path='/account/orders' render={(props) => <AccountOrders {...props} wallet={wallet} />} />
             <Route exact path='/list' render={(props) => <ListSwap {...props} wallet={wallet} />} />
-            {/*<Route exact path='/list2' render={(props) => <ListSwap2 {...props} wallet={wallet} />} />*/}
+            <Route exact path='/market' render={(props) => <Market {...props} wallet={wallet} />} />
+            <Route exact path='/market/:pair1/:pair2' render={(props) => <MarketPair {...props} wallet={wallet} />} />
             <Route render={() => <Redirect to="/" />} />
           </Switch>
         </div>
