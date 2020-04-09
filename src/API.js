@@ -155,8 +155,8 @@ class API {
         return this.__callWithOffset(this._scoreAddress, 'get_market_sellers_pending_swaps', { 'pair': pair })
     }
 
-    getMarketFilledSwaps(pair) {
-        return this.__callWithOffset(this._scoreAddress, 'get_market_filled_swaps', { 'pair': pair })
+    getMarketFilledSwaps(pair, offset) {
+        return this.__call(this._scoreAddress, 'get_market_filled_swaps', { 'offset': IconConverter.toHex(offset), 'pair': pair })
     }
 
     getOrder(orderId) {

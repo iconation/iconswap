@@ -8,7 +8,6 @@ import { useHistory } from 'react-router-dom';
 import { ReactComponent as PowerOffSvg } from './static/svg/PowerOff.svg'
 import { ReactComponent as AccountSvg } from './static/svg/Account.svg'
 import { ReactComponent as SwapSvg } from './static/svg/Swap.svg'
-import { ReactComponent as SwapListingSvg } from './static/svg/listing.svg'
 import { ReactComponent as MarketSvg } from './static/svg/listing.svg'
 
 const Header = ({ wallet, setWallet }) => {
@@ -26,10 +25,6 @@ const Header = ({ wallet, setWallet }) => {
 
     const createSwapClick = () => {
         history.push("/");
-    }
-
-    const listSwapsClick = () => {
-        history.push("/list");
     }
 
     const marketClick = () => {
@@ -62,12 +57,6 @@ const Header = ({ wallet, setWallet }) => {
                         <div className="svg-icon-button"><SwapSvg /></div>
                         <div className="svg-text-button">Create Swap</div>
                     </button>
-
-                    {/*
-                    <button className="big-button button-svg-container header-buttons" onClick={() => { listSwapsClick() }}>
-                        <div className="svg-icon-button"><SwapListingSvg /></div>
-                        <div className="svg-text-button">List Swaps</div>
-                    </button>*/}
 
                     <button className="big-button button-svg-container header-buttons" onClick={() => { marketClick() }}>
                         <div className="svg-icon-button"><MarketSvg /></div>

@@ -110,8 +110,8 @@ const Swap = ({ match, wallet }) => {
         return order && order['status'] === 'EMPTY'
     }
 
-    const isMaker = swapPending() && swap['maker_address'] === wallet
-    const isTaker = swapPending() && swap['maker_address'] !== wallet
+    const isMaker = swapPending() && swap['maker']['provider'] === wallet
+    const isTaker = swapPending() && swap['maker']['provider'] !== wallet
 
     withdrawingInProgress && swapCancel() && setWithdrawingInProgress(false)
     depositingInProgress && swapSuccess() && setDepositingInProgress(false)
