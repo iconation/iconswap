@@ -14,8 +14,6 @@ const Admin = ({ wallet }) => {
     const [finishedLoadingSwaps, setFinishedLoadingSwaps] = useState(null)
     const [finishedLoadingPending, setFinishedLoadingPending] = useState(null)
     const [finishedLoadingSuccess, setFinishedLoadingSuccess] = useState(null)
-    const [pendingSwapsFull, setPendingSwapsFull] = useState(null)
-    const [successSwapsFull, setSuccessSwapsFull] = useState(null)
     const [swapsList, setswapsList] = useState({})
     const [pendingSwapsList, setpendingSwapsList] = useState({})
     const [successSwapsList, setsuccessSwapsList] = useState({})
@@ -50,7 +48,7 @@ const Admin = ({ wallet }) => {
                     swapsList[swap['id']] = swap
                     addSwapToLists(swap)
                 })
-                setSwapsLoadingCount(result.slice(-1)[0]['id'])
+                setSwapsLoadingCount(Object.keys(swapsList).length)
             } catch (error) {
                 running = false
                 if (iteration > 2) {
@@ -166,7 +164,12 @@ const Admin = ({ wallet }) => {
                     <br />
 
                     <div className={"admin-cancel-all-swap-container"}>
-                        <button className="admin-button" disabled={!finishedLoadingSuccess} onClick={() => cancelAllSwaps()}>Cancel all swaps ({swapsLoadingCount})</button>
+                        <button className="admin-button"
+                            disabled={!finishedLoadingSuccess}
+                            onClick={() => cancelAllSwaps()}>
+                            Cancel all pending swaps (loading {swapsLoadingCount} ...)
+                        </button>
+                        {finishedLoadingSuccess && <p>Pending swaps : {Object.keys(pendingSwapsList).length}</p>}
                     </div>
 
                     <br />
