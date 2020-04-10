@@ -32,7 +32,9 @@
     display: inline-block;
     border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
     padding-bottom: 10px;
-    width: 90%;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .market-choser-table-view {
@@ -40,4 +42,49 @@
     overflow: auto;
     scroll-behavior: smooth;
     box-shadow: 10px 15px 20px -12px rgba(0,0,0,.25);
+    margin: auto;
+    width: 60%;
+    border-radius: .15em;
+    overflow: hidden;
+}
+
+.market-choser-tr-clickeable {
+    cursor: pointer;
+}
+
+.market-choser-td {
+    padding: 10px;
+    font-size: 15px;
+}
+
+.market-choser-symbol {
+    width: 30%;
+}
+
+.market-choser-lastprice {
+    width: 30%;
+}
+
+.market-choser-change24 {
+    width: 20%;
+}
+
+.market-choser-opened {
+    width: 20%;
+}
+
+.market-choser-table {
+    width: 100%;
+}
+
+#market-choser-select-view {
+    margin: auto;
+    width: 60%;
+    font-size: 15px;
+}
+
+#market-choser-select {
+    width: 20%;
+    float: right;
+
 }

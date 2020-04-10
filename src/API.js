@@ -135,6 +135,12 @@ class API {
         })
     }
 
+    isMaintenanceEnabled() {
+        return this.__call(this._scoreAddress, 'maintenance_enabled').then(status => {
+            return parseInt(status)
+        })
+    }
+
     getSwap(swapId) {
         return this.__call(this._scoreAddress, 'get_swap', { swap_id: IconConverter.toHex(swapId) }).then(swap => {
             return swap
@@ -155,8 +161,8 @@ class API {
         return this.__callWithOffset(this._scoreAddress, 'get_market_sellers_pending_swaps', { 'pair': pair })
     }
 
-    getMarketFilledSwaps(pair) {
-        return this.__callWithOffset(this._scoreAddress, 'get_market_filled_swaps', { 'pair': pair })
+    getMarketFilledSwaps(pair, offset) {
+        return this.__call(this._scoreAddress, 'get_market_filled_swaps', { 'offset': IconConverter.toHex(offset), 'pair': pair })
     }
 
     getOrder(orderId) {
@@ -280,6 +286,18 @@ class API {
 
     cancelSwap(walletAddress, swapId) {
         return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap', 0, { swap_id: IconConverter.toHex(swapId) }).then(txHash => {
+            return txHash
+        })
+    }
+
+    cancelSwapAdmin(walletAddress, swapId) {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap_admin', 0, { swap_id: IconConverter.toHex(swapId) }).then(txHash => {
+            return txHash
+        })
+    }
+
+    setMaintenanceMode(walletAddress, mode) {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'set_maintenance_mode', 0, { mode: IconConverter.toHex(mode) }).then(txHash => {
             return txHash
         })
     }
