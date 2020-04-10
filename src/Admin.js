@@ -123,20 +123,23 @@ const Admin = ({ wallet }) => {
         }
         let promises = []
         const pendingSwaps = Object.keys(pendingSwapsList)
+        let swapsCancelled = 0
 
         if (pendingSwaps.length > 0) {
             const firstId = pendingSwaps.pop()
             alert("You're about to cancel " + Object.keys(pendingSwapsList).length + " swaps." +
                 "Don't forget to enable automatic signing")
             await api.cancelSwapAdmin(wallet, parseInt(firstId))
+            swapsCancelled++;
 
             pendingSwaps.forEach(swapId => {
                 promises.push(api.cancelSwapAdmin(wallet, parseInt(swapId)))
             })
+            swapsCancelled += promises.length
         }
 
         Promise.all(promises).then(() => {
-            alert("Swaps cancelled : " + (promises.length + 1))
+            alert("Swaps cancelled : " + swapsCancelled)
         })
     }
 
