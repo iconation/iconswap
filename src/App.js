@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import { useLocation } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 import './App.css';
 import Swap from './Swap'
@@ -6,14 +7,28 @@ import Header from './Header'
 import Footer from './Footer'
 import Homepage from './Homepage'
 import AccountOrders from './AccountOrders'
+import MaintenanceScreen from './MaintenanceScreen'
+import Admin from './Admin'
 import ListSwap from './ListSwap'
-// import ListSwap2 from './ListSwap2'
 import { WALLET_LOCAL_STORAGE_KEY } from './constants'
 import LoginScreen from './LoginScreen';
+import { api } from './API'
 
 function App() {
 
   const [wallet, setWallet] = useState(localStorage.getItem(WALLET_LOCAL_STORAGE_KEY))
+  const [maintenance, setMaintenance] = useState(null)
+
+  useEffect(() => {
+    api.isMaintenanceEnabled().then(status => {
+      setMaintenance(status)
+    }).catch(error => {
+      console.log(error)
+      setMaintenance(false)
+    })
+  }, [maintenance, setMaintenance]);
+
+  const location = useLocation();
 
   return (
     <div className="App">
@@ -25,13 +40,14 @@ function App() {
       {wallet && <>
         <div id="body">
           <Switch>
-            <Route exact path='/' render={(props) => <Homepage {...props} wallet={wallet} />} />
-            <Route exact path='/swap/:id' render={(props) => <Swap {...props} wallet={wallet} />} />
-            <Route exact path='/account/orders' render={(props) => <AccountOrders {...props} wallet={wallet} />} />
-            <Route exact path='/list' render={(props) => <ListSwap {...props} wallet={wallet} />} />
-            {/*<Route exact path='/list2' render={(props) => <ListSwap2 {...props} wallet={wallet} />} />*/}
+            {!maintenance && <Route exact path='/' render={(props) => <Homepage {...props} wallet={wallet} />} />}
+            {!maintenance && <Route exact path='/swap/:id' render={(props) => <Swap {...props} wallet={wallet} />} />}
+            {!maintenance && <Route exact path='/account/orders' render={(props) => <AccountOrders {...props} wallet={wallet} />} />}
+            {!maintenance && <Route exact path='/list' render={(props) => <ListSwap {...props} wallet={wallet} />} />}
+            <Route exact path='/score_admin' render={(props) => <Admin {...props} wallet={wallet} />} />
             <Route render={() => <Redirect to="/" />} />
           </Switch>
+          {wallet && maintenance && !location.pathname.includes('/score_admin') && <MaintenanceScreen />}
         </div>
       </>}
 

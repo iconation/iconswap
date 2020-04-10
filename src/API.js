@@ -76,7 +76,7 @@ class API {
         const iconNetworksInfo = []
         iconNetworksInfo[Networks.LOCALHOST] = {
             name: 'localhost',
-            api: 'http://127.0.0.1:9000',
+            api: ['http://127.0.0.1:9000'],
             tracker: 'http://127.0.0.1:9000',
             nid: 0
         }
@@ -90,13 +90,13 @@ class API {
         }
         iconNetworksInfo[Networks.EULJIRO] = {
             name: 'Euljiro (TestNet)',
-            api: 'https://test-ctz.solidwallet.io',
+            api: ['https://test-ctz.solidwallet.io'],
             tracker: 'https://trackerdev.icon.foundation',
             nid: 2
         }
         iconNetworksInfo[Networks.YEOUIDO] = {
             name: 'Yeouido (TestNet)',
-            api: 'https://bicon.net.solidwallet.io',
+            api: ['https://bicon.net.solidwallet.io'],
             tracker: 'https://bicon.tracker.solidwallet.io',
             nid: 3
         }
@@ -134,6 +134,12 @@ class API {
     getWhitelist() {
         return this.__call(this._scoreAddress, 'get_whitelist').then(whitelist => {
             return whitelist
+        })
+    }
+
+    isMaintenanceEnabled() {
+        return this.__call(this._scoreAddress, 'maintenance_enabled').then(status => {
+            return parseInt(status)
         })
     }
 
@@ -261,6 +267,18 @@ class API {
 
     cancelSwap(walletAddress, swapId) {
         return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap', 0, { swap_id: IconConverter.toHex(swapId) }).then(txHash => {
+            return txHash
+        })
+    }
+
+    cancelSwapAdmin(walletAddress, swapId) {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap_admin', 0, { swap_id: IconConverter.toHex(swapId) }).then(txHash => {
+            return txHash
+        })
+    }
+
+    setMaintenanceMode(walletAddress, mode) {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'set_maintenance_mode', 0, { mode: IconConverter.toHex(mode) }).then(txHash => {
             return txHash
         })
     }
