@@ -153,10 +153,6 @@ const ListSwap = ({ wallet }) => {
             setSwapsLoadingPendingCount([completed, total])
         }
 
-        const swapDetailsSuccessCallback = (completed, total) => {
-            setSwapsLoadingSuccessCount([completed, total])
-        }
-
         getSwapsAsync(1).then(() => {
             setFinishedLoadingSwaps(true)
             setSwapsLoadingPendingCount([0, Object.keys(pendingSwapsList).length])
@@ -164,11 +160,23 @@ const ListSwap = ({ wallet }) => {
                 setFinishedLoadingPending(true)
                 setPendingSwapsFull(filterOutSameContract(result.reverse()))
                 setSwapsLoadingSuccessCount([0, Object.keys(successSwapsList).length])
-                getAllSwapDetails(successSwapsList, swapDetailsSuccessCallback).then(result => {
-                    setFinishedLoadingSuccess(true)
-                    setSuccessSwapsFull(filterOutSameContract(result.reverse()))
-                })
+                // getAllSwapDetails(successSwapsList, swapDetailsSuccessCallback).then(result => {
+                setFinishedLoadingSuccess(true)
+                // setSuccessSwapsFull(filterOutSameContract(result.reverse()))
+                // })
             })
+        })
+    }
+
+    const loadFilledSwaps = () => {
+        const swapDetailsSuccessCallback = (completed, total) => {
+            setSwapsLoadingSuccessCount([completed, total])
+        }
+
+        setFinishedLoadingSuccess(false)
+        getAllSwapDetails(successSwapsList, swapDetailsSuccessCallback).then(result => {
+            setFinishedLoadingSuccess(true)
+            setSuccessSwapsFull(filterOutSameContract(result.reverse()))
         })
     }
 
@@ -247,6 +255,7 @@ const ListSwap = ({ wallet }) => {
                                     <div className="list-swap-title">Filled Swaps</div>
 
                                     <div className="swaps-table-view">
+                                        <button onClick={() => { loadFilledSwaps() }}>Load filled swaps</button>
                                         <table className="swaps-table" cellSpacing='0'>
 
                                             <thead>
