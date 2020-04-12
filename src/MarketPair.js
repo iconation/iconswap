@@ -244,7 +244,7 @@ const MarketPair = ({ match, wallet }) => {
 
         const bid = getPriceBigNumber(swapBid)
         const ask = getPriceBigNumber(swapAsk)
-        return displayBigNumber(bid.minus(ask).dividedBy(ask.plus(bid).dividedBy(2)).multipliedBy(100))
+        return displayBigNumber(bid.minus(ask).dividedBy(ask.plus(bid).dividedBy(2)).multipliedBy(100).abs())
     }
 
     const over = buyers && sellers && decimals && symbols
