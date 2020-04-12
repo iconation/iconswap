@@ -142,7 +142,7 @@ const AccountOrders = ({ wallet }) => {
                                     <tbody>
                                         {openSwaps && Object.keys(openSwaps).map(order => (
                                             <tr className="account-tr-clickeable"
-                                                onClick={() => { goToSwap(filledSwaps[order]) }}
+                                                onClick={() => { goToSwap(openSwaps[order]) }}
                                                 key={order}>
                                                 <td>{openSwaps[order]['maker']['amountDisplay'] + " " + openSwaps[order]['maker']['token']['symbol']}</td>
                                                 <td>{openSwaps[order]['taker']['amountDisplay'] + " " + openSwaps[order]['taker']['token']['symbol']}</td>
