@@ -7,9 +7,10 @@ import Header from './Header'
 import Footer from './Footer'
 import Homepage from './Homepage'
 import AccountOrders from './AccountOrders'
+import MarketChoser from './MarketChoser'
+import MarketPair from './MarketPair'
 import MaintenanceScreen from './MaintenanceScreen'
 import Admin from './Admin'
-import ListSwap from './ListSwap'
 import { WALLET_LOCAL_STORAGE_KEY } from './constants'
 import LoginScreen from './LoginScreen';
 import { api } from './API'
@@ -43,7 +44,8 @@ function App() {
             {!maintenance && <Route exact path='/' render={(props) => <Homepage {...props} wallet={wallet} />} />}
             {!maintenance && <Route exact path='/swap/:id' render={(props) => <Swap {...props} wallet={wallet} />} />}
             {!maintenance && <Route exact path='/account/orders' render={(props) => <AccountOrders {...props} wallet={wallet} />} />}
-            {!maintenance && <Route exact path='/list' render={(props) => <ListSwap {...props} wallet={wallet} />} />}
+            {!maintenance && <Route exact path='/market' render={(props) => <MarketChoser {...props} wallet={wallet} />} />}
+            {!maintenance && <Route exact path='/market/:pair1/:pair2' render={(props) => <MarketPair {...props} wallet={wallet} />} />}
             <Route exact path='/score_admin' render={(props) => <Admin {...props} wallet={wallet} />} />
             <Route render={() => <Redirect to="/" />} />
           </Switch>

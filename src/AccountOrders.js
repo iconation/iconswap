@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom'
 import LoadingOverlay from './LoadingOverlay'
 import InfoBox from './InfoBox'
 import { IconConverter } from 'icon-sdk-js'
+import { convertTsToDate } from './utils'
 
 const AccountOrders = ({ wallet }) => {
     const [openSwaps, setOpenSwaps] = useState(null)
@@ -50,41 +51,19 @@ const AccountOrders = ({ wallet }) => {
         }
     }, [withdrawingInProgress, setOpenSwaps, setWithdrawingInProgress]);
 
-    const convertTsToDate = (timestamp) => {
-        function pad(n) { return n < 10 ? '0' + n : n }
-
-        var a = new Date(parseInt(timestamp, 16) / 1000);
-        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        var year = a.getFullYear();
-        var month = months[a.getMonth()];
-        var date = pad(a.getDate());
-        var hour = pad(a.getHours());
-        var min = pad(a.getMinutes());
-        var sec = pad(a.getSeconds());
-        var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
-        return time;
-    }
-
     const getAllSwapDetails = (swaps) => {
         const promises = Object.entries(swaps).map(([key, swap]) => {
-            swap['id'] = key
-            return api.getOrder(swap['maker_order_id']).then(maker => {
-                return api.getOrder(swap['taker_order_id']).then(taker => {
-                    swap['timestamp_create'] = convertTsToDate(swap['timestamp_create'])
-                    swap['timestamp_swap'] = convertTsToDate(swap['timestamp_swap'])
-                    swap['maker'] = maker
-                    swap['taker'] = taker
-                    return api.getTokenDetails(wallet, swap['maker']['contract']).then(details => {
-                        swap['maker']['token'] = details
-                        return api.getTokenDetails(wallet, swap['taker']['contract']).then(details => {
-                            swap['taker']['token'] = details
-                            return api.balanceToFloat(swap['taker']['amount'], swap['taker']['contract']).then(balance => {
-                                swap['taker']['amountDisplay'] = balance
-                                return api.balanceToFloat(swap['maker']['amount'], swap['maker']['contract']).then(balance => {
-                                    swap['maker']['amountDisplay'] = balance
-                                    return swap
-                                })
-                            })
+            swap['timestamp_create'] = convertTsToDate(swap['timestamp_create'])
+            swap['timestamp_swap'] = convertTsToDate(swap['timestamp_swap'])
+            return api.getTokenDetails(wallet, swap['maker']['contract']).then(details => {
+                swap['maker']['token'] = details
+                return api.getTokenDetails(wallet, swap['taker']['contract']).then(details => {
+                    swap['taker']['token'] = details
+                    return api.balanceToFloat(swap['taker']['amount'], swap['taker']['contract']).then(balance => {
+                        swap['taker']['amountDisplay'] = balance
+                        return api.balanceToFloat(swap['maker']['amount'], swap['maker']['contract']).then(balance => {
+                            swap['maker']['amountDisplay'] = balance
+                            return swap
                         })
                     })
                 })
@@ -110,8 +89,8 @@ const AccountOrders = ({ wallet }) => {
         })
     })
 
-    const onClickView = (swap) => {
-        window.open("#/swap/" + swap['id'], '_blank')
+    const goToSwap = (swap) => {
+        window.open("#/swap/" + parseInt(swap['id'], 16), '_blank')
     }
 
     const onClickWithdraw = (swap) => {
@@ -145,24 +124,26 @@ const AccountOrders = ({ wallet }) => {
                 <div id="account-orders-container">
                     <div className="container-swaps-item">
                         <div className="container-swaps-item-container">
-                            <div className="account-orders-title">My Pending Swaps</div>
+                            <div className="account-orders-title">My Opened Swaps</div>
 
                             <div className="swaps-table-view">
                                 <table className="swaps-table" cellSpacing='0'>
 
                                     <thead>
                                         <tr>
-                                            <th>Offer</th>
-                                            <th>Receive</th>
-                                            <th>Price</th>
-                                            <th>Creation</th>
-                                            <th>Action</th>
+                                            <th className="account-offer">Offer</th>
+                                            <th className="account-receive">Receive</th>
+                                            <th className="account-price">Price</th>
+                                            <th className="account-creation">Creation</th>
+                                            <th className="account-action">Action</th>
                                         </tr>
                                     </thead>
 
                                     <tbody>
                                         {openSwaps && Object.keys(openSwaps).map(order => (
-                                            <tr key={order}>
+                                            <tr className="account-tr-clickeable"
+                                                onClick={() => { goToSwap(openSwaps[order]) }}
+                                                key={order}>
                                                 <td>{openSwaps[order]['maker']['amountDisplay'] + " " + openSwaps[order]['maker']['token']['symbol']}</td>
                                                 <td>{openSwaps[order]['taker']['amountDisplay'] + " " + openSwaps[order]['taker']['token']['symbol']}</td>
                                                 <td>
@@ -176,8 +157,6 @@ const AccountOrders = ({ wallet }) => {
                                                 </td>
                                                 <td>{openSwaps[order]['timestamp_create']}</td>
                                                 <td className={"open-orders-actions"}>
-                                                    <button className={"open-orders-actions-button"}
-                                                        onClick={() => { onClickView(openSwaps[order]) }}>View</button>
                                                     {<button className={"open-orders-actions-button"}
                                                         onClick={() => { onClickWithdraw(openSwaps[order]) }}>Withdraw</button>}
                                                 </td>
@@ -197,17 +176,18 @@ const AccountOrders = ({ wallet }) => {
 
                                     <thead>
                                         <tr>
-                                            <th>Offer</th>
-                                            <th>Receive</th>
-                                            <th>Price</th>
-                                            <th>Filled</th>
-                                            <th>Action</th>
+                                            <th className="account-offer">Offer</th>
+                                            <th className="account-receive">Receive</th>
+                                            <th className="account-price">Price</th>
+                                            <th className="account-filled">Filled</th>
                                         </tr>
                                     </thead>
 
                                     <tbody>
                                         {filledSwaps && Object.keys(filledSwaps).map(order => (
-                                            <tr key={order}>
+                                            <tr className="account-tr-clickeable"
+                                                onClick={() => { goToSwap(filledSwaps[order]) }}
+                                                key={order}>
                                                 <td className={(filledSwaps[order]['maker']['provider'] === wallet ? "order-filled-sell" : "order-filled-buy")}>
                                                     {filledSwaps[order]['maker']['amountDisplay'] + " " + filledSwaps[order]['maker']['token']['symbol']}</td>
                                                 <td className={(filledSwaps[order]['taker']['provider'] === wallet ? "order-filled-sell" : "order-filled-buy")}>
@@ -222,10 +202,6 @@ const AccountOrders = ({ wallet }) => {
                                                     {filledSwaps[order]['maker']['token']['symbol']}
                                                 </td>
                                                 <td>{filledSwaps[order]['timestamp_swap']}</td>
-                                                <td>
-                                                    <button className={"open-orders-actions-button"}
-                                                        onClick={() => { onClickView(filledSwaps[order]) }}>View</button>
-                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>

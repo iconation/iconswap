@@ -14,17 +14,16 @@ const Admin = ({ wallet }) => {
     const [finishedLoadingSwaps, setFinishedLoadingSwaps] = useState(null)
     const [finishedLoadingPending, setFinishedLoadingPending] = useState(null)
     const [finishedLoadingSuccess, setFinishedLoadingSuccess] = useState(null)
-    const [pendingSwapsFull, setPendingSwapsFull] = useState(null)
-    const [successSwapsFull, setSuccessSwapsFull] = useState(null)
+    const [isMaintenanceEnabled, setIsMaintenanceEnabled] = useState(null)
     const [swapsList, setswapsList] = useState({})
     const [pendingSwapsList, setpendingSwapsList] = useState({})
     const [successSwapsList, setsuccessSwapsList] = useState({})
-    const [maintenanceMode, setMaintenanceMode] = useState({})
     const ITERATION_COUNT = 100;
 
-    const doMaintenanceMode = () => {
-        api.setMaintenanceMode(wallet, maintenanceMode).then(() => {
+    const doMaintenanceMode = (status) => {
+        api.setMaintenanceMode(wallet, status ? 1 : 0).then(() => {
             alert('Maintenance mode modified !')
+            setIsMaintenanceEnabled(status)
         })
     }
 
@@ -50,7 +49,7 @@ const Admin = ({ wallet }) => {
                     swapsList[swap['id']] = swap
                     addSwapToLists(swap)
                 })
-                setSwapsLoadingCount(result.slice(-1)[0]['id'])
+                setSwapsLoadingCount(Object.keys(swapsList).length)
             } catch (error) {
                 running = false
                 if (iteration > 2) {
@@ -110,6 +109,11 @@ const Admin = ({ wallet }) => {
 
 
     const cancelOneSwap = () => {
+        console.log(cancelSwapId)
+        if (cancelSwapId === null || isNaN(cancelSwapId)) {
+            return;
+        }
+
         api.cancelSwapAdmin(wallet, cancelSwapId).then(result => {
             alert('Swap cancelled!')
         }).catch(error => {
@@ -143,50 +147,65 @@ const Admin = ({ wallet }) => {
         })
     }
 
+    !isMaintenanceEnabled && api.isMaintenanceEnabled().then(result => {
+        setIsMaintenanceEnabled(result)
+    })
+
     return (
         <>
             <div id="admin-screen-root">
                 <div className={"admin-container"}>
                     <div className={"admin-welcome-message"}>Welcome Admin!</div>
-                    <div className={"admin-welcome-explain"}>If you are not admin, you are still welcome :)</div>
+                    <div className={"admin-welcome-explain"}>If you are not admin but a curious ICONist, you are still welcome :)</div>
 
-                    <div className={"admin-cancel-one-swap-container"}>
-                        <CustomInput
-                            label="SwapID"
-                            locked={false}
-                            active={false}
-                            numericOnly={true}
-                            onChange={(value) => { setCancelSwapId(parseInt(value)) }}
-                        />
-                        <button className="admin-button" onClick={() => cancelOneSwap()}>Cancel Swap</button>
+                    <div className={"admin-items-container"}>
+                        <div className={"admin-item admin-cancel-one-swap-container"}>
+                            <CustomInput
+                                label="SwapID"
+                                locked={false}
+                                active={false}
+                                numericOnly={true}
+                                onChange={(value) => { setCancelSwapId(parseInt(value)) }}
+                            />
+                            <button className="admin-button" onClick={() => cancelOneSwap()}>Cancel Swap</button>
+                        </div>
+
+                        <br /><hr /><br />
+
+                        <div className={"admin-item admin-cancel-all-swap-container"}>
+                            <CustomInput
+                                label={"Pending swaps : " + Object.keys(pendingSwapsList).length}
+                                locked={true}
+                                active={false}
+                                numericOnly={false}
+                            />
+                            <button className="admin-button"
+                                disabled={!finishedLoadingSuccess}
+                                onClick={() => cancelAllSwaps()}>
+                                Cancel all pending swaps (loading {swapsLoadingCount} ...)
+                            </button>
+                        </div>
+
+                        <br /><hr /><br />
+
+                        <div className={"admin-item admin-maintenance-mode"}>
+                            <CustomInput
+                                label={isMaintenanceEnabled ? "Maintenance ON" : "Maintenance OFF"}
+                                locked={true}
+                                active={false}
+                                numericOnly={false}
+                            />
+                            <div className={"admin-maintenance-buttons"}>
+                                <button className="admin-button"
+                                    onClick={() => doMaintenanceMode(true)}>Enable</button>
+                                <button className="admin-button"
+                                    onClick={() => doMaintenanceMode(false)}>Disable</button>
+                            </div>
+                        </div>
+
+                        <br /><hr /><br />
+
                     </div>
-
-                    <br />
-                    <hr />
-                    <br />
-
-                    <div className={"admin-cancel-all-swap-container"}>
-                        <button className="admin-button" disabled={!finishedLoadingSuccess} onClick={() => cancelAllSwaps()}>Cancel all swaps ({swapsLoadingCount})</button>
-                    </div>
-
-                    <br />
-                    <hr />
-                    <br />
-
-                    <div className={"admin-maintenance-mode"}>
-
-                        <CustomInput
-                            label="Mode"
-                            locked={false}
-                            active={false}
-                            numericOnly={true}
-                            onChange={(value) => { setMaintenanceMode(parseInt(value)) }}
-                        />
-                        <button className="admin-button" onClick={() => doMaintenanceMode()}>Set Maintenance Mode</button>
-
-                    </div>
-
-
                 </div>
             </div>
         </>

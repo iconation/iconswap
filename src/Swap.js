@@ -46,7 +46,7 @@ const Swap = ({ match, wallet }) => {
 
         const refreshSwap = () => {
             return api.getSwap(swapId).then(swap => {
-                refreshOrders(swap['maker_order_id'], swap['taker_order_id']).then(() => {
+                refreshOrders(swap['maker']['id'], swap['taker']['id']).then(() => {
                     setSwap(swap)
                     !ready && setReady(true)
                 }).catch((error) => {
@@ -110,8 +110,8 @@ const Swap = ({ match, wallet }) => {
         return order && order['status'] === 'EMPTY'
     }
 
-    const isMaker = swapPending() && swap['maker_address'] === wallet
-    const isTaker = swapPending() && swap['maker_address'] !== wallet
+    const isMaker = swapPending() && swap['maker']['provider'] === wallet
+    const isTaker = swapPending() && swap['maker']['provider'] !== wallet
 
     withdrawingInProgress && swapCancel() && setWithdrawingInProgress(false)
     depositingInProgress && swapSuccess() && setDepositingInProgress(false)

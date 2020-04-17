@@ -1,0 +1,90 @@
+#market-choser-root {
+    height: 100vh;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    overflow-x: hidden;
+}
+
+#market-choser-container {
+    border-top:2px solid #fafafa22;
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    border-radius: .25rem;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+    background-color: rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 150px;
+    padding-left: 2vw;
+    padding-right: 2vw;
+    padding-bottom: 5vh;
+    width: 90vw;
+}
+
+.market-choser-title {
+    font-size: 30px;
+    margin: 20px;
+    color: white;
+    font-weight: 500;
+    display: inline-block;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
+    padding-bottom: 10px;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.market-choser-table-view {
+    max-height: 50vh;
+    overflow: auto;
+    scroll-behavior: smooth;
+    box-shadow: 10px 15px 20px -12px rgba(0,0,0,.25);
+    margin: auto;
+    width: 60%;
+    border-radius: .15em;
+    overflow: hidden;
+}
+
+.market-choser-tr-clickeable {
+    cursor: pointer;
+}
+
+.market-choser-td {
+    padding: 10px;
+    font-size: 15px;
+}
+
+.market-choser-symbol {
+    width: 30%;
+}
+
+.market-choser-lastprice {
+    width: 30%;
+}
+
+.market-choser-change24 {
+    width: 20%;
+}
+
+.market-choser-opened {
+    width: 20%;
+}
+
+.market-choser-table {
+    width: 100%;
+}
+
+#market-choser-select-view {
+    margin: auto;
+    width: 60%;
+    font-size: 15px;
+}
+
+#market-choser-select {
+    width: 20%;
+    float: right;
+
+}

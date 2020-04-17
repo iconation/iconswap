@@ -16,12 +16,10 @@
     background-color: rgba(255, 255, 255, 0.2);
     display: flex;
     flex-direction: row;
-  justify-content: center;
+    justify-content: center;
     margin-top: 150px;
-    padding-left: 2vw;
-    padding-right: 2vw;
     padding-bottom: 5vh;
-    width: 90vw;
+    width: 95vw;
 }
 
 .account-orders-title {
@@ -36,14 +34,14 @@
 }
 
 .swaps-table {
-    min-width: 40vw;
+    min-width: 45vw;
     font-size: 14px;
     margin-left: auto;
     margin-right: auto;
 }
 
 .container-swaps-item {
-    padding: 20px;
+    padding: 10px;
 }
 
 .open-orders-actions {
@@ -95,4 +93,28 @@
 
 .filled-swaps-legend-container>p {
     margin-left: 10px;
+}
+
+
+.account-offer {
+    width: 15%;
+}
+.account-receive {
+    width: 15%;
+}
+.account-price {
+    width: 30%;
+}
+.account-creation {
+    width: 20%;
+}
+.account-filled {
+    width: 40%;
+}
+.account-action {
+    width: 20%;
+}
+
+.account-tr-clickeable {
+    cursor: pointer;
 }
