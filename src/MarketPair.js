@@ -201,7 +201,9 @@ const MarketPair = ({ match, wallet }) => {
 
     const scrollSellersToBottom = () => {
         const div = scrollSellers.current;
-        div.scrollTop = div.scrollHeight;
+        if (div) {
+            div.scrollTop = div.scrollHeight;
+        }
     }
 
     const isBuyer = (swap) => {
