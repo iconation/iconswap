@@ -1,27 +1,17 @@
 {
   "files": {
-    "main.css": "/iconswap/static/css/main.ae749ee1.chunk.css",
-    "main.js": "/iconswap/static/js/main.2cea8062.chunk.js",
-    "main.js.map": "/iconswap/static/js/main.2cea8062.chunk.js.map",
-    "runtime-main.js": "/iconswap/static/js/runtime-main.224f7fc6.js",
-    "runtime-main.js.map": "/iconswap/static/js/runtime-main.224f7fc6.js.map",
-    "xlsx.js": "/iconswap/static/js/xlsx.c05a1958.chunk.js",
-    "xlsx.js.map": "/iconswap/static/js/xlsx.c05a1958.chunk.js.map",
-    "static/js/3.516ee899.chunk.js": "/iconswap/static/js/3.516ee899.chunk.js",
-    "static/js/3.516ee899.chunk.js.map": "/iconswap/static/js/3.516ee899.chunk.js.map",
-    "static/js/4.ff040fc8.chunk.js": "/iconswap/static/js/4.ff040fc8.chunk.js",
-    "static/js/4.ff040fc8.chunk.js.map": "/iconswap/static/js/4.ff040fc8.chunk.js.map",
-    "static/js/5.84132aa1.chunk.js": "/iconswap/static/js/5.84132aa1.chunk.js",
-    "static/js/5.84132aa1.chunk.js.map": "/iconswap/static/js/5.84132aa1.chunk.js.map",
-    "static/js/6.63f91065.chunk.js": "/iconswap/static/js/6.63f91065.chunk.js",
-    "static/js/6.63f91065.chunk.js.map": "/iconswap/static/js/6.63f91065.chunk.js.map",
+    "main.css": "/iconswap/static/css/main.55d7b36a.chunk.css",
+    "main.js": "/iconswap/static/js/main.620ae2c7.chunk.js",
+    "main.js.map": "/iconswap/static/js/main.620ae2c7.chunk.js.map",
+    "runtime-main.js": "/iconswap/static/js/runtime-main.caaeb70b.js",
+    "runtime-main.js.map": "/iconswap/static/js/runtime-main.caaeb70b.js.map",
+    "static/js/2.17baaed9.chunk.js": "/iconswap/static/js/2.17baaed9.chunk.js",
+    "static/js/2.17baaed9.chunk.js.map": "/iconswap/static/js/2.17baaed9.chunk.js.map",
     "index.html": "/iconswap/index.html",
-    "precache-manifest.c54690f50ab17d8f0571d2de5580d62e.js": "/iconswap/precache-manifest.c54690f50ab17d8f0571d2de5580d62e.js",
+    "precache-manifest.c7c9fbc73742cc061b576fbe7c71128a.js": "/iconswap/precache-manifest.c7c9fbc73742cc061b576fbe7c71128a.js",
     "service-worker.js": "/iconswap/service-worker.js",
-    "static/css/main.ae749ee1.chunk.css.map": "/iconswap/static/css/main.ae749ee1.chunk.css.map",
-    "static/js/4.ff040fc8.chunk.js.LICENSE.txt": "/iconswap/static/js/4.ff040fc8.chunk.js.LICENSE.txt",
-    "static/js/5.84132aa1.chunk.js.LICENSE.txt": "/iconswap/static/js/5.84132aa1.chunk.js.LICENSE.txt",
-    "static/js/6.63f91065.chunk.js.LICENSE.txt": "/iconswap/static/js/6.63f91065.chunk.js.LICENSE.txt",
+    "static/css/main.55d7b36a.chunk.css.map": "/iconswap/static/css/main.55d7b36a.chunk.css.map",
+    "static/js/2.17baaed9.chunk.js.LICENSE.txt": "/iconswap/static/js/2.17baaed9.chunk.js.LICENSE.txt",
     "static/media/Account.c2f4c664.svg": "/iconswap/static/media/Account.c2f4c664.svg",
     "static/media/PowerOff.a76f746e.svg": "/iconswap/static/media/PowerOff.a76f746e.svg",
     "static/media/Swap.e93073b6.svg": "/iconswap/static/media/Swap.e93073b6.svg",
@@ -30,9 +20,9 @@
     "static/media/logo.png": "/iconswap/static/media/logo.45b9800e.png"
   },
   "entrypoints": [
-    "static/js/runtime-main.224f7fc6.js",
-    "static/js/4.ff040fc8.chunk.js",
-    "static/css/main.ae749ee1.chunk.css",
-    "static/js/main.2cea8062.chunk.js"
+    "static/js/runtime-main.caaeb70b.js",
+    "static/js/2.17baaed9.chunk.js",
+    "static/css/main.55d7b36a.chunk.css",
+    "static/js/main.620ae2c7.chunk.js"
   ]
 }
