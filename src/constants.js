@@ -12,7 +12,7 @@ export const WALLET_LOCAL_STORAGE_KEY = 'wallet'
 // export const SCORE_NETWORK = Networks.YEOUIDO
 // export const SCORE_ENDPOINT = "cxe2c3a12039f9f9d9e90655faadd557abebde9cf3"
 // export const SCORE_NETWORK = Networks.LOCALHOST
-export const SCORE_ENDPOINT = "cxab5384cf1752def036a22730acd5f009f7345619"
+export const SCORE_ENDPOINT = "cx6f824b1ccc08c13f626b8fc888d8214632cba28a"
 export const SCORE_NETWORK = Networks.MAINNET
 
 // ICX Configuration
