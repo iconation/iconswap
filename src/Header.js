@@ -9,6 +9,7 @@ import { ReactComponent as PowerOffSvg } from './static/svg/PowerOff.svg'
 import { ReactComponent as AccountSvg } from './static/svg/Account.svg'
 import { ReactComponent as SwapSvg } from './static/svg/Swap.svg'
 import { ReactComponent as MarketSvg } from './static/svg/listing.svg'
+var pjson = require('../package.json')
 
 const Header = ({ wallet, setWallet }) => {
 
@@ -36,7 +37,7 @@ const Header = ({ wallet, setWallet }) => {
             <div id="header-content-left">
                 <Link to="/"><img src={logo} height="60" alt="logo" /></Link>
                 <Link to="/" id="logo-text-href"><div id="logotext">ICONSwap</div></Link>
-                <div className="header-bubble">Status: Beta</div>
+                <div className="header-bubble">Status: Beta ({pjson.version})</div>
                 <div className="header-bubble">Network: {api.getNetworkName()}</div>
             </div>
 
