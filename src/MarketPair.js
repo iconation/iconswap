@@ -2,14 +2,18 @@ import React, { useState, useEffect, useRef } from 'react'
 import LoadingOverlay from './LoadingOverlay'
 import { api } from './API'
 import './MarketPair.css'
+import { useHistory } from 'react-router-dom';
 import { IconConverter } from 'icon-sdk-js'
 import { convertTsToDate } from './utils'
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
+import { ReactComponent as SwapSpotSvg } from './static/svg/SwapSpot.svg'
 
 
 const MarketPair = ({ match, wallet }) => {
+
+    const history = useHistory();
 
     const pairs = [match.params.pair1, match.params.pair2]
     const scrollSellers = useRef(null);
@@ -166,7 +170,7 @@ const MarketPair = ({ match, wallet }) => {
         })
     }
 
-    useEffect(() => {
+    const refreshData = () => {
 
         let promises = [
             api.getMarketBuyersPendingSwaps(pairName),
@@ -178,21 +182,49 @@ const MarketPair = ({ match, wallet }) => {
             api.tokenSymbol(pairs[1]),
         ]
 
-        Promise.all(promises).then(results => {
+        return Promise.all(promises).then(results => {
             const [
                 buyers, sellers,
                 filledSwaps,
                 decimal1, decimal2,
                 symbol1, symbol2
             ] = results
-            setBuyers(buyers)
-            setSellers(sellers)
+
+            // Check if inverted view
+            if (buyers.length != 0) {
+                if (buyers[0].maker.contract == pairs[1]) {
+                    setBuyers(buyers)
+                    setSellers(sellers)
+                } else {
+                    // inverted
+                    setBuyers(sellers.reverse())
+                    setSellers(buyers.reverse())
+                }
+            }
+            else if (sellers.length != 0) {
+                if (sellers[0].maker.contract == pairs[0]) {
+                    setBuyers(buyers)
+                    setSellers(sellers)
+                } else {
+                    // inverted
+                    setBuyers(sellers.reverse())
+                    setSellers(buyers.reverse())
+                }
+            }
+
             setSwapsFilled(filledSwaps)
             setDecimals([decimal1, decimal2])
-            setSymbols([symbol1, symbol2])
+            let symbols = {}
+            symbols[pairs[0]] = symbol1
+            symbols[pairs[1]] = symbol2
+            setSymbols(symbols)
             scrollSellersToBottom()
             addDepthChart(results)
         })
+    }
+
+    useEffect(() => {
+        refreshData()
     }, [setBuyers,
         setSellers,
         setSwapsFilled,
@@ -249,6 +281,12 @@ const MarketPair = ({ match, wallet }) => {
         return displayBigNumber(bid.minus(ask).dividedBy(ask.plus(bid).dividedBy(2)).multipliedBy(100).abs())
     }
 
+    const swapSpot = () => {
+        history.push("/market/" + pairs[1] + "/" + pairs[0])
+        setBuyers(null)
+        refreshData()
+    }
+
     const over = buyers && sellers && decimals && symbols
     const loadingText = 'Loading Market...'
 
@@ -259,7 +297,18 @@ const MarketPair = ({ match, wallet }) => {
         <div id="market-pair-root">
             {over && <>
                 <div id="market-pair-container">
-                    <div id="market-pair-title">{symbols[0]}/{symbols[1]}</div>
+                    <div id="market-pair-title">
+
+                        {symbols[pairs[0]]}/{symbols[pairs[1]]}
+
+                        <button id="market-pair-swap-spots" className="big-button button-svg-container tooltip"
+                            onClick={() => { swapSpot() }}>
+                            <span className="tooltiptext">Show {symbols[pairs[1]]} / {symbols[pairs[0]]}</span>
+                            <div className="svg-icon-button"><SwapSpotSvg /></div>
+                        </button>
+
+                    </div>
+
                     <div id="market-pair-view">
                         <div id="market-pair-orderbook">
 
@@ -281,9 +330,9 @@ const MarketPair = ({ match, wallet }) => {
                             <table className="market-pair-table">
                                 <thead>
                                     <tr>
-                                        <th className="market-pair-orderbook-price">Price ({symbols[1]}) </th>
-                                        <th className="market-pair-orderbook-amount">Amount ({symbols[0]})</th>
-                                        <th className="market-pair-orderbook-total">Total ({symbols[1]})</th>
+                                        <th className="market-pair-orderbook-price">Price ({symbols[pairs[1]]}) </th>
+                                        <th className="market-pair-orderbook-amount">Amount ({symbols[pairs[0]]})</th>
+                                        <th className="market-pair-orderbook-total">Total ({symbols[pairs[1]]})</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -296,9 +345,9 @@ const MarketPair = ({ match, wallet }) => {
                             <table className="market-pair-table">
                                 <thead>
                                     <tr>
-                                        <th className="market-pair-orderbook-price">Price ({symbols[1]}) </th>
-                                        <th className="market-pair-orderbook-amount">Amount ({symbols[0]})</th>
-                                        <th className="market-pair-orderbook-total">Total ({symbols[1]})</th>
+                                        <th className="market-pair-orderbook-price">Price ({symbols[pairs[1]]}) </th>
+                                        <th className="market-pair-orderbook-amount">Amount ({symbols[pairs[0]]})</th>
+                                        <th className="market-pair-orderbook-total">Total ({symbols[pairs[1]]})</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -322,9 +371,9 @@ const MarketPair = ({ match, wallet }) => {
                             <table className="market-pair-table">
                                 <thead>
                                     <tr>
-                                        <th className="market-pair-history-price">Price ({symbols[1]}) </th>
-                                        <th className="market-pair-history-amount">Amount ({symbols[0]})</th>
-                                        <th className="market-pair-history-total">Total ({symbols[1]})</th>
+                                        <th className="market-pair-history-price">Price ({symbols[pairs[1]]}) </th>
+                                        <th className="market-pair-history-amount">Amount ({symbols[pairs[0]]})</th>
+                                        <th className="market-pair-history-total">Total ({symbols[pairs[1]]})</th>
                                         <th className="market-pair-history-filled">Time filled</th>
                                     </tr>
                                 </thead>

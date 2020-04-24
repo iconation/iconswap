@@ -29,7 +29,8 @@
     margin: 20px;
     color: white;
     font-weight: 500;
-    display: inline-block;
+    display: flex;
+    flex-direction: row;
     border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
     padding-bottom: 10px;
     text-align: center;
@@ -169,4 +170,8 @@
 .market-pair-table-content {
     flex: 1 1 auto;
     align-self: flex-end;
+}
+
+#market-pair-swap-spots {
+    margin-left: 10px;
 }
