@@ -83,6 +83,7 @@ const Market = ({ wallet }) => {
 
                         <tbody>
                             {marketInfo && marketInfo['pairs'].map(pairs => (
+                                parseInt(pairs['swaps_pending_count'], 16) != 0 &&
                                 <tr className="market-choser-tr-clickeable"
                                     onClick={() => { redirectToMarket(pairs['name']) }}
                                     key={pairs['name']}>

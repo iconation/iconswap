@@ -262,15 +262,6 @@ const MarketPair = ({ match, wallet }) => {
                     <div id="market-pair-title">{symbols[0]}/{symbols[1]}</div>
                     <div id="market-pair-view">
                         <div id="market-pair-orderbook">
-                            <table className="market-pair-table">
-                                <thead>
-                                    <tr>
-                                        <th className="market-pair-orderbook-price">Price ({symbols[1]}) </th>
-                                        <th className="market-pair-orderbook-amount">Amount ({symbols[0]})</th>
-                                        <th className="market-pair-orderbook-total">Total ({symbols[1]})</th>
-                                    </tr>
-                                </thead>
-                            </table>
 
                             <div ref={scrollSellers} id="market-pair-sellers">
                                 <table className="market-pair-table-content market-pair-table">
@@ -285,6 +276,16 @@ const MarketPair = ({ match, wallet }) => {
                                     </tbody>
                                 </table>
                             </div>
+
+                            <table className="market-pair-table">
+                                <thead>
+                                    <tr>
+                                        <th className="market-pair-orderbook-price">Price ({symbols[1]}) </th>
+                                        <th className="market-pair-orderbook-amount">Amount ({symbols[0]})</th>
+                                        <th className="market-pair-orderbook-total">Total ({symbols[1]})</th>
+                                    </tr>
+                                </thead>
+                            </table>
 
                             <div id="market-pair-middleinfo">
                                 <div id="market-pair-spread">Spread: <br /> {getSpread(sellers.slice(-1)[0], buyers[0])} %</div>

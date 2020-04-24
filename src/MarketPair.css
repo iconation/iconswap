@@ -138,14 +138,19 @@
     overflow: auto;
 }
 
+
+#market-pair-table-sellers-view {
+    width: 100%;
+}
+
 #market-pair-buyers {
     background: #fafafa;
     display: flex;
     flex-direction: row;
     height: 25vh;
-    overflow: auto;
 }
 
-#market-pair-table-sellers-view {
-    width: 100%;
+.market-pair-table-content {
+    flex: 1 1 auto;
+    align-self: flex-end;
 }
