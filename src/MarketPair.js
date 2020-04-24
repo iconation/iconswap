@@ -264,7 +264,7 @@ const MarketPair = ({ match, wallet }) => {
                         <div id="market-pair-orderbook">
 
                             <div ref={scrollSellers} id="market-pair-sellers">
-                                <table className="market-pair-table-content market-pair-table">
+                                <table className="market-pair-table-content market-pair-table" id="seller-table">
                                     <tbody>
                                         {sellers && sellers.map(swap => (
                                             <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
@@ -275,6 +275,7 @@ const MarketPair = ({ match, wallet }) => {
                                         ))}
                                     </tbody>
                                 </table>
+                                <div id="seller-anchor"></div>
                             </div>
 
                             <table className="market-pair-table">

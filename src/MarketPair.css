@@ -136,6 +136,21 @@
     flex-direction: row;
     height: 25vh;
     overflow: auto;
+	overflow-anchor: none;
+	position: relative;
+	flex-direction: column-reverse;
+}
+
+#seller-anchor {
+    /* allow the final child to be selected as an anchor node */
+    overflow-anchor: auto;
+
+    /* anchor nodes are required to have non-zero area */
+    height: 1px;
+}
+
+#seller-table{
+	align-self: flex-end;
 }
 
 
@@ -148,6 +163,7 @@
     display: flex;
     flex-direction: row;
     height: 25vh;
+	overflow: auto;
 }
 
 .market-pair-table-content {
