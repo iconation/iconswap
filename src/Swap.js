@@ -154,7 +154,7 @@ const Swap = ({ match, wallet }) => {
 
                 {maker && taker && <>
                     <div className="split left">
-                        <div className="centered">
+                        <div className="swap-centered">
                             <div className={"order-view-container " + (orderEmpty(maker) ? 'order-view-container-pulse' : '')}>
                                 <OrderView wallet={wallet} order={maker} />
                                 {isMaker &&
@@ -170,7 +170,7 @@ const Swap = ({ match, wallet }) => {
                     </div>
 
                     <div className="split right">
-                        <div className="centered">
+                        <div className="swap-centered">
                             <div className={"order-view-container " + (orderEmpty(taker) ? 'order-view-container-pulse' : '')}>
                                 <OrderView wallet={wallet} order={taker} />
                                 {isTaker &&
@@ -185,7 +185,7 @@ const Swap = ({ match, wallet }) => {
                         </div>
                     </div>
 
-                    <div className="center">
+                    <div className="swap-center-price">
                         <div className="swap-info">
                             <div className="swap-info-header">
                                 Swap Price

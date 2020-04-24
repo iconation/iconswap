@@ -40,21 +40,6 @@
 
 /* If you want the content centered horizontally and vertically */
 
-.center {
-  position: fixed;
-  top: 45%;
-  left: 50%;
-  transform: translate3d(-50%, 0, 0);
-}
-
-.center-bottom {
-  position: fixed;
-  bottom: 15%;
-  left: 49.7%;
-  transform: translate3d(-49.7%, 0, 0);
-
-}
-
 .bottom {
   position: fixed;
   bottom: 0;

@@ -118,7 +118,7 @@ const Homepage = ({ wallet }) => {
             {over && <>
 
                 <div className="split left">
-                    <div className="centered">
+                    <div className="homepage-orders-centered">
                         <OrderChoser
                             whitelist={whitelist}
                             setContract={setContract}
@@ -130,7 +130,7 @@ const Homepage = ({ wallet }) => {
                 </div>
 
                 <div className="split right">
-                    <div className="centered">
+                    <div className="homepage-orders-centered">
                         <OrderChoser
                             whitelist={whitelist}
                             setContract={setContract}
@@ -140,6 +140,24 @@ const Homepage = ({ wallet }) => {
                             index={1} />
                     </div>
                 </div>
+
+                {maker.contract !== null && taker.contract !== null &&
+                    maker.amount !== null && taker.amount !== null &&
+                    parseInt(maker.amount) !== 0 && parseInt(taker.amount) !== 0 &&
+                    maker.amount !== "" && taker.amount !== "" &&
+
+                    <div className="homepage-center-price">
+                        <div className="swap-info">
+                            <div className="swap-info-header">
+                                Swap Price
+                            </div>
+                            {console.log(maker)}
+                            1 {whitelist[maker.contract].symbol} ≈ {parseFloat((taker.amount / maker.amount).toFixed(5)).toString()} {whitelist[taker.contract].symbol}
+                            <br />
+                            1 {whitelist[taker.contract].symbol} ≈ {parseFloat((maker.amount / taker.amount).toFixed(5)).toString()} {whitelist[maker.contract].symbol}
+                        </div>
+                    </div>
+                }
 
                 {whitelist && <div className="center swap-logo">
                     <img src={swapPicture} height="60" alt="logo" />

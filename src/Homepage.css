@@ -1,3 +1,30 @@
 .swap-logo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate3d(-50%, 0, 0);
     z-index: 1;
 }
+
+.homepage-orders-centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    transform: translate(-50%, -50%);
+}
+
+.homepage-center-price {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  .center-bottom {
+    position: fixed;
+    bottom: 15%;
+    left: 49.7%;
+    transform: translate3d(-49.7%, 0, 0);
+  }
+  
