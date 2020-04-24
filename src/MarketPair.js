@@ -15,9 +15,9 @@ const MarketPair = ({ match, wallet }) => {
 
     const history = useHistory();
 
-    const pairs = [match.params.pair1, match.params.pair2]
     const scrollSellers = useRef(null);
 
+    const [pairs, setPairs] = useState([match.params.pair1, match.params.pair2])
     const [buyers, setBuyers] = useState(null)
     const [sellers, setSellers] = useState(null)
     const [decimals, setDecimals] = useState(null)
@@ -32,8 +32,11 @@ const MarketPair = ({ match, wallet }) => {
             buyers, sellers,
             _,
             decimal1, decimal2,
-            symbol1, symbol2
+            symbol1, symbol2,
+            isInverted
         ] = results
+
+        console.log("is=", isInverted)
 
         am4core.ready(function () {
             am4core.useTheme(am4themes_animated);
@@ -45,7 +48,9 @@ const MarketPair = ({ match, wallet }) => {
             const asks = sellers.map(seller => {
                 return [getPrice(seller).toString(), parseFloat(balanceToUnitDisplay(seller['maker']['amount'], decimal2))]
             })
-            const data = { "asks": asks, "bids": bids }
+            const data = !isInverted ?
+                { "asks": asks, "bids": bids }
+                : { "asks": bids, "bids": asks }
 
             // Add data
             const getData = (rawData) => {
@@ -191,24 +196,28 @@ const MarketPair = ({ match, wallet }) => {
             ] = results
 
             // Check if inverted view
-            if (buyers.length != 0) {
-                if (buyers[0].maker.contract == pairs[1]) {
+            if (buyers.length !== 0) {
+                if (buyers[0].maker.contract === pairs[1]) {
                     setBuyers(buyers)
                     setSellers(sellers)
+                    results.push(false)
                 } else {
                     // inverted
                     setBuyers(sellers.reverse())
                     setSellers(buyers.reverse())
+                    results.push(true)
                 }
             }
-            else if (sellers.length != 0) {
-                if (sellers[0].maker.contract == pairs[0]) {
+            else if (sellers.length !== 0) {
+                if (sellers[0].maker.contract === pairs[0]) {
                     setBuyers(buyers)
                     setSellers(sellers)
+                    results.push(false)
                 } else {
                     // inverted
                     setBuyers(sellers.reverse())
                     setSellers(buyers.reverse())
+                    results.push(true)
                 }
             }
 
@@ -225,11 +234,7 @@ const MarketPair = ({ match, wallet }) => {
 
     useEffect(() => {
         refreshData()
-    }, [setBuyers,
-        setSellers,
-        setSwapsFilled,
-        setDecimals,
-        setSymbols]);
+    }, [pairs]);
 
     const scrollSellersToBottom = () => {
         const div = scrollSellers.current;
@@ -284,7 +289,7 @@ const MarketPair = ({ match, wallet }) => {
     const swapSpot = () => {
         history.push("/market/" + pairs[1] + "/" + pairs[0])
         setBuyers(null)
-        refreshData()
+        setPairs([pairs[1], pairs[0]])
     }
 
     const over = buyers && sellers && decimals && symbols
