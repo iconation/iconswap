@@ -1,7 +1,7 @@
 {
   "homepage": "https://iconation.github.io/iconswap-testnet-latest/",
   "name": "iconswap-testnet-latest",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "dependencies": {
     "@amcharts/amcharts4": "^4.9.13",

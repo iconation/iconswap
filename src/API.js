@@ -290,18 +290,6 @@ class API {
         })
     }
 
-    cancelSwapAdmin(walletAddress, swapId) {
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap_admin', 0, { swap_id: IconConverter.toHex(swapId) }).then(txHash => {
-            return txHash
-        })
-    }
-
-    setMaintenanceMode(walletAddress, mode) {
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'set_maintenance_mode', 0, { mode: IconConverter.toHex(mode) }).then(txHash => {
-            return txHash
-        })
-    }
-
     createSwap(walletAddress, maker_contract, maker_amount, taker_contract, taker_amount) {
         const getSwapIdFromTx = async (tx) => {
             if (!tx) return null;
@@ -350,6 +338,32 @@ class API {
             return IconConverter.toBigNumber(balance).dividedBy(digits).toString()
         })
     }
+
+    // admin
+    cancelSwapAdmin(walletAddress, swapId) {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap_admin', 0, { swap_id: IconConverter.toHex(swapId) }).then(txHash => {
+            return txHash
+        })
+    }
+
+    forceSwapFactoryId(walletAddress, uid) {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'force_swap_factory_id', 0, { uid: IconConverter.toHex(uid) }).then(txHash => {
+            return txHash
+        })
+    }
+
+    forceOrderFactoryId(walletAddress, uid) {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'force_order_factory_id', 0, { uid: IconConverter.toHex(uid) }).then(txHash => {
+            return txHash
+        })
+    }
+
+    setMaintenanceMode(walletAddress, mode) {
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'set_maintenance_mode', 0, { mode: IconConverter.toHex(mode) }).then(txHash => {
+            return txHash
+        })
+    }
+
 
     // IRC2 Token Interface ============================================================
     tokenName(contract) {
