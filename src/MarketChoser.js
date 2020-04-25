@@ -44,7 +44,11 @@ const Market = ({ wallet }) => {
     const loadingText = 'Loading Marketplace...'
     const over = (marketInfo !== null)
 
-    const options = marketInfo && marketInfo['pairs'].map(pairs => {
+    const activePairs = marketInfo && marketInfo['pairs'].filter(pairs => {
+        return parseInt(pairs['swaps_pending_count'], 16) !== 0
+    })
+
+    const options = marketInfo && activePairs.map(pairs => {
         return {
             'value': pairs['name'],
             'label': marketInfo['tokens'][pairs['name'].split('/')[0]]['symbol'] + "/" +
