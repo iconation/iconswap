@@ -8,6 +8,7 @@ import { useHistory } from 'react-router-dom'
 import InfoBox from './InfoBox'
 import LoadingOverlay from './LoadingOverlay'
 import { ReactComponent as SwapSvg } from './static/svg/Swap.svg'
+import Switch from "react-switch";
 
 const Homepage = ({ wallet }) => {
     const emptyOrder = {
@@ -20,6 +21,7 @@ const Homepage = ({ wallet }) => {
     const [whitelist, setWhitelist] = useState(null)
     const [waitForSwapCreation, setWaitForSwapCreation] = useState(false)
     const [errorUi, setErrorUi] = useState(null)
+    const [switchPrivate, setSwitchPrivate] = useState(false)
 
     const maker = orders[0]
     const taker = orders[1]
@@ -41,6 +43,10 @@ const Homepage = ({ wallet }) => {
             setErrorUi(error)
         })
     })
+
+    const doSwitchPrivate = () => {
+        setSwitchPrivate(!switchPrivate)
+    }
 
     const createSwapClicked = () => {
         if (!swappable()) {
@@ -107,6 +113,23 @@ const Homepage = ({ wallet }) => {
         setOrders(newOrders)
     }
 
+    const getPairDisplayPrice = (o1, o2) => {
+        if (!(o1.contract !== null && o2.contract !== null &&
+            o1.amount !== null && o2.amount !== null &&
+            parseInt(o1.amount) !== 0 && parseInt(o2.amount) !== 0 &&
+            o1.amount !== "" && o2.amount !== "")) {
+            return "?"
+        }
+        return parseFloat((o1.amount / o2.amount).toFixed(5)).toString()
+    }
+
+    const getPairDisplaySymbol = (o) => {
+        if (o.contract === null) {
+            return ""
+        }
+        return whitelist[o.contract].symbol
+    }
+
     const loadingText = waitForSwapCreation ? 'Creating Swap, please wait...' : 'Loading wallet...'
     const over = (whitelist !== null)
 
@@ -141,33 +164,33 @@ const Homepage = ({ wallet }) => {
                     </div>
                 </div>
 
-                {maker.contract !== null && taker.contract !== null &&
-                    maker.amount !== null && taker.amount !== null &&
-                    parseInt(maker.amount) !== 0 && parseInt(taker.amount) !== 0 &&
-                    maker.amount !== "" && taker.amount !== "" &&
-
-                    <div className="homepage-center-price">
-                        <div className="swap-info">
-                            <div className="swap-info-header">
-                                Swap Price
-                            </div>
-                            {console.log(maker)}
-                            1 {whitelist[maker.contract].symbol} ≈ {parseFloat((taker.amount / maker.amount).toFixed(5)).toString()} {whitelist[taker.contract].symbol}
-                            <br />
-                            1 {whitelist[taker.contract].symbol} ≈ {parseFloat((maker.amount / taker.amount).toFixed(5)).toString()} {whitelist[maker.contract].symbol}
-                        </div>
-                    </div>
-                }
-
                 {whitelist && <div className="center swap-logo">
                     <img src={swapPicture} height="60" alt="logo" />
                 </div>}
 
-                {whitelist && <div className="center-bottom">
+                {whitelist && <div id="homepage-create-swap-container">
+
+                    {
+                        <div id="homepage-price-container">
+                            Swap Price
+                            <br />
+                            {maker.contract && taker.contract && <>
+                                1 {getPairDisplaySymbol(maker)} ≈ {getPairDisplayPrice(taker, maker)} {getPairDisplaySymbol(taker)}
+                            </>}
+                            <br />
+                            {maker.contract && taker.contract && <>
+                                1 {getPairDisplaySymbol(taker)} ≈ {getPairDisplayPrice(maker, taker)} {getPairDisplaySymbol(maker)}
+                            </>}
+                        </div>
+                    }
+
+                    <Switch onChange={() => { doSwitchPrivate() }} checked={switchPrivate} />
+
                     <button className="big-button button-svg-container" onClick={() => { createSwapClicked() }}>
                         <div className="svg-icon-button"><SwapSvg /></div>
                         <div className="svg-text-button">Create Swap</div>
                     </button>
+
                 </div>}
             </>}
         </>
