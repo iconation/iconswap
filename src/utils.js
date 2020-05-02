@@ -13,3 +13,21 @@ export const convertTsToDate = (timestamp) => {
     var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
     return time;
 }
+
+export const redirectClick = (event, history, dest) => {
+    // dest for example : "/market"
+
+    // external : open in new window always
+    if (dest.startsWith("http")) {
+        window.open(dest, '_blank');
+    }
+
+    else {
+        if ((event.button == 1) || (event.ctrlKey && event.button == 0)) {
+            window.open("#" + dest, '_blank');
+        }
+        else if (event.button == 0) {
+            history.push(dest);
+        }
+    }
+}

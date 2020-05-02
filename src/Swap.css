@@ -58,9 +58,17 @@
     transform: translate3d(-50%, 0, 0);
   }
   
-  .swap-centered {
+.swap-centered {
     position: absolute;
     top: 50%;
+    left: 50%;
+    width: 100%;
+    transform: translate(-50%, -50%);
+}
+
+#swap-private-notice {
+    position: absolute;
+    top: 80%;
     left: 50%;
     width: 100%;
     transform: translate(-50%, -50%);

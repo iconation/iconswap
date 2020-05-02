@@ -3,7 +3,6 @@
     top: 40%;
     left: 50%;
     transform: translate3d(-50%, 0, 0);
-    z-index: 1;
 }
 
 .homepage-orders-centered {
@@ -14,7 +13,18 @@
     transform: translate(-50%, -50%);
 }
 
-.homepage-price-container {
+#homepage-price-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 15vw;
+}
+
+#homepage-create-swap-button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 10wv;
 }
 
  #homepage-create-swap-container {
@@ -24,13 +34,76 @@
     left: 50%;
     transform: translate3d(-50%, 0, 0);
     
-    width: 75%;
+    padding-top: 20px;
+    padding-bottom: 20px;
 
-    border-top:2px solid #fafafa22;
+    border-top: 2px solid #27c4c9ff;
     border-radius: .25rem;
     box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
-    background-color: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(to bottom, #17b4b9ff, #27a4a9ff);
 
     display: flex;
     flex-direction: row;
+    justify-content: space-around;
+
+    color: white;
+    align-items: center;
+    justify-content: center;
+}
+
+#homepage-price-wait-price-input {
+}
+
+#homepage-swap-settings-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#homepage-private-toggle-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#homepage-private-toggle {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#homepage-private-text {
+    padding-left: 10px;
+    padding-top: 3px;
+    font-size: 18px;
+}
+
+.homepage-create-swap-item {
+    border-right: 1px solid #ffffff55;
+    padding-left: 25px;
+    padding-right: 25px;
+} 
+
+.homepage-create-swap-item:last-child {
+    border-right: 0px;
+}
+
+.homepage-create-swap-title {
+    padding-bottom: 20px;
+    font-weight: 500;
+}
+
+.homepage-create-swap-content {
+    padding-left: 5px;
+    font-size: 18px;
+    font-weight: 300;
+}
+
+#homepage-private-address-container {
+    padding-top: 10px;
+    width: 600px;
+}
+
+.homepage-create-swap-button {
+    height: 75px;
 }

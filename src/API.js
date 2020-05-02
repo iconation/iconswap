@@ -137,7 +137,7 @@ class API {
 
     isMaintenanceEnabled() {
         return this.__call(this._scoreAddress, 'maintenance_enabled').then(status => {
-            return parseInt(status)
+            return parseInt(status, 16) == 1
         })
     }
 
@@ -290,7 +290,7 @@ class API {
         })
     }
 
-    createSwap(walletAddress, maker_contract, maker_amount, taker_contract, taker_amount) {
+    createSwap(walletAddress, maker_contract, maker_amount, taker_contract, taker_amount, taker_address) {
         const getSwapIdFromTx = async (tx) => {
             if (!tx) return null;
             const txHash = tx['result']
@@ -306,9 +306,12 @@ class API {
         }
 
         if (maker_contract === ICX_TOKEN_CONTRACT) {
-            const params = {
+            let params = {
                 taker_contract: taker_contract,
                 taker_amount: IconConverter.toHex(IconConverter.toBigNumber(taker_amount)),
+            }
+            if (taker_address) {
+                params["taker_address"] = taker_address
             }
             return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'create_icx_swap', maker_amount, params)
                 .then(async tx => {
@@ -316,10 +319,13 @@ class API {
                 })
         } else {
             const value = IconConverter.toHex(maker_amount)
-            const data = {
+            let data = {
                 'action': 'create_irc2_swap',
                 'taker_contract': taker_contract,
                 'taker_amount': IconConverter.toHex(IconConverter.toBigNumber(taker_amount)),
+            }
+            if (taker_address) {
+                data["taker_address"] = taker_address
             }
             const params = {
                 '_to': this._scoreAddress,
