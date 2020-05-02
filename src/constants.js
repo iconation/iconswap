@@ -8,10 +8,10 @@ export const Networks = Object.freeze({
 export const WALLET_LOCAL_STORAGE_KEY = 'wallet'
 
 // SCORE Configuration
-// export const SCORE_ENDPOINT = 'cxfbe5703f71d9dc1befb98a91c0a9d37f65e7bed9'
-// export const SCORE_NETWORK = Networks.YEOUIDO
-export const SCORE_ENDPOINT = "cx7837030a8cdedff92700d2c72108be8058aa9ac5"
-export const SCORE_NETWORK = Networks.LOCALHOST
+export const SCORE_ENDPOINT = 'cx90d86f087c70187d1a054473887165815f6251a8'
+export const SCORE_NETWORK = Networks.YEOUIDO
+// export const SCORE_ENDPOINT = "cx7837030a8cdedff92700d2c72108be8058aa9ac5"
+// export const SCORE_NETWORK = Networks.LOCALHOST
 // export const SCORE_ENDPOINT = "cx6f824b1ccc08c13f626b8fc888d8214632cba28a"
 // export const SCORE_NETWORK = Networks.MAINNET
 
