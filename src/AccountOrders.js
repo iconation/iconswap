@@ -51,41 +51,58 @@ const AccountOrders = ({ wallet }) => {
         }
     }, [withdrawingInProgress, setOpenSwaps, setWithdrawingInProgress]);
 
-    const getAllSwapDetails = (swaps) => {
-        const promises = Object.entries(swaps).map(([key, swap]) => {
-            swap['timestamp_create'] = convertTsToDate(swap['timestamp_create'])
-            swap['timestamp_swap'] = convertTsToDate(swap['timestamp_swap'])
-            return api.getTokenDetails(wallet, swap['maker']['contract']).then(details => {
-                swap['maker']['token'] = details
-                return api.getTokenDetails(wallet, swap['taker']['contract']).then(details => {
-                    swap['taker']['token'] = details
-                    return api.balanceToFloat(swap['taker']['amount'], swap['taker']['contract']).then(balance => {
-                        swap['taker']['amountDisplay'] = balance
-                        return api.balanceToFloat(swap['maker']['amount'], swap['maker']['contract']).then(balance => {
-                            swap['maker']['amountDisplay'] = balance
-                            return swap
-                        })
-                    })
-                })
-            })
+    const balanceToFloat = (balance, decimals) => {
+        const digits = IconConverter.toBigNumber('10').exponentiatedBy(decimals)
+        return IconConverter.toBigNumber(balance).dividedBy(digits).toString()
+    }
+
+    const getAllSwapDetails = async (swaps) => {
+
+        let contractsList = []
+
+        // Get token details cache from all swaps
+        Object.entries(swaps).forEach(([key, swap]) => {
+            if (!(contractsList.includes(swap.maker.contract))) {
+                contractsList.push(swap.maker.contract)
+            }
+            if (!(contractsList.includes(swap.taker.contract))) {
+                contractsList.push(swap.taker.contract)
+            }
         })
 
-        return Promise.all(promises).then(result => {
-            return result
+        const promisesContract = contractsList.map((contract) => {
+            return api.getTokenDetails(wallet, contract).then(details => {
+                return [contract, details]
+            })
+        })
+        const tokenDetails = {}
+        await Promise.all(promisesContract).then(result => {
+            for (let details of result) {
+                const [contract, info] = details
+                tokenDetails[contract] = info
+            }
+        })
+
+        return Object.entries(swaps).map(([key, swap]) => {
+            swap.timestamp_create = convertTsToDate(swap.timestamp_create)
+            swap.timestamp_swap = convertTsToDate(swap.timestamp_swap)
+            swap.maker.token = tokenDetails[swap.maker.contract]
+            swap.taker.token = tokenDetails[swap.taker.contract]
+            swap.taker.amountDisplay = balanceToFloat(swap.taker.amount, tokenDetails[swap.taker.contract].decimals)
+            swap.maker.amountDisplay = balanceToFloat(swap.maker.amount, tokenDetails[swap.maker.contract].decimals)
+            return swap
         })
     }
 
     !openSwaps && api.getPendingOrdersByAddress(wallet).then(swaps => {
         getAllSwapDetails(swaps).then(result => {
-            // reverse chronological order
-            setOpenSwaps(result.reverse())
+            setOpenSwaps(result)
         })
     })
 
     !filledSwaps && api.getFilledOrdersByAddress(wallet).then(swaps => {
         getAllSwapDetails(swaps).then(result => {
-            // reverse chronological order
-            setFilledSwaps(result.reverse())
+            setFilledSwaps(result)
         })
     })
 
@@ -157,8 +174,10 @@ const AccountOrders = ({ wallet }) => {
                                                 </td>
                                                 <td>{openSwaps[order]['timestamp_create']}</td>
                                                 <td className={"open-orders-actions"}>
-                                                    {<button className={"open-orders-actions-button"}
-                                                        onClick={() => { onClickWithdraw(openSwaps[order]) }}>Withdraw</button>}
+                                                    <button className={"open-orders-actions-button"}
+                                                        onClick={() => { onClickWithdraw(openSwaps[order]) }}>
+                                                        Withdraw
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -169,7 +188,7 @@ const AccountOrders = ({ wallet }) => {
                     </div>
                     <div className="container-swaps-item">
                         <div className="container-swaps-item-container">
-                            <div className="account-orders-title">My Filled Swaps</div>
+                            <div className="account-orders-title">My Last Filled Swaps</div>
 
                             <div className="swaps-table-view">
                                 <table className="swaps-table" cellSpacing='0'>

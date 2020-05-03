@@ -292,6 +292,10 @@ const MarketPair = ({ match, wallet }) => {
         setPairs([pairs[1], pairs[0]])
     }
 
+    const isUserSwap = (swap) => {
+        return (swap.maker.provider === wallet || swap.taker.provider === wallet)
+    }
+
     const over = buyers && sellers && decimals && symbols
     const loadingText = 'Loading Market...'
 
@@ -322,6 +326,10 @@ const MarketPair = ({ match, wallet }) => {
                                     <tbody>
                                         {sellers && sellers.map(swap => (
                                             <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
+                                                <td className={"market-pair-orderbook-status tooltip"}>{isUserSwap(swap) && <>
+                                                    <strong>*</strong> <span className="tooltiptext">Your <br />swap</span>
+                                                </>}
+                                                </td>
                                                 <td className="market-pair-orderbook-price market-pair-sellers-text" >{getPrice(swap)}</td>
                                                 <td className="market-pair-orderbook-amount">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
                                                 <td className="market-pair-orderbook-total">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
@@ -335,6 +343,7 @@ const MarketPair = ({ match, wallet }) => {
                             <table className="market-pair-table">
                                 <thead>
                                     <tr>
+                                        <th className="market-pair-orderbook-status"></th>
                                         <th className="market-pair-orderbook-price">Price ({symbols[pairs[1]]}) </th>
                                         <th className="market-pair-orderbook-amount">Amount ({symbols[pairs[0]]})</th>
                                         <th className="market-pair-orderbook-total">Total ({symbols[pairs[1]]})</th>
@@ -350,6 +359,7 @@ const MarketPair = ({ match, wallet }) => {
                             <table className="market-pair-table">
                                 <thead>
                                     <tr>
+                                        <th className="market-pair-orderbook-status"></th>
                                         <th className="market-pair-orderbook-price">Price ({symbols[pairs[1]]}) </th>
                                         <th className="market-pair-orderbook-amount">Amount ({symbols[pairs[0]]})</th>
                                         <th className="market-pair-orderbook-total">Total ({symbols[pairs[1]]})</th>
@@ -361,6 +371,10 @@ const MarketPair = ({ match, wallet }) => {
                                     <tbody>
                                         {buyers && buyers.map(swap => (
                                             <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
+                                                <td className={"market-pair-orderbook-status tooltip"}>{isUserSwap(swap) && <>
+                                                    <strong>*</strong> <span className="tooltiptext tooltiptext-bottom">Your <br />swap</span>
+                                                </>}
+                                                </td>
                                                 <td className="market-pair-orderbook-price market-pair-buyers-text" >{getPrice(swap)}</td>
                                                 <td className="market-pair-orderbook-amount">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
                                                 <td className="market-pair-orderbook-total">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
@@ -370,9 +384,10 @@ const MarketPair = ({ match, wallet }) => {
                                 </table>
                             </div>
                         </div>
-                        <div id="market-pair-depth"></div>
-                        <div id="market-pair-history">
 
+                        <div id="market-pair-depth"></div>
+
+                        <div id="market-pair-history">
                             <table className="market-pair-table">
                                 <thead>
                                     <tr>

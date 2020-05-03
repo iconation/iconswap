@@ -338,13 +338,6 @@ class API {
         }
     }
 
-    balanceToFloat(balance, contract) {
-        return this.getDecimals(contract).then(decimals => {
-            const digits = IconConverter.toBigNumber('10').exponentiatedBy(decimals)
-            return IconConverter.toBigNumber(balance).dividedBy(digits).toString()
-        })
-    }
-
     // admin
     cancelSwapAdmin(walletAddress, swapId) {
         return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap_admin', 0, { swap_id: IconConverter.toHex(swapId) }).then(txHash => {

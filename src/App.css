@@ -128,27 +128,36 @@
 
 .tooltip {
   position: relative;
-  display: inline-block;
 }
 
-.tooltip .tooltiptext {
-  visibility: hidden;
+.tooltiptext {
+  opacity: 0%;
+  transition:opacity 0.2s;
   background-color: black;
   color: #fff;
   text-align: center;
   border-radius: 6px;
-  padding: 5px 0;
-  
+  width: auto;
+  white-space:nowrap;
+  padding: 5px;
+}
+
+.tooltiptext {
   /* Position the tooltip */
   position: absolute;
-  z-index: 1;
-  bottom: 100%;
-  left: 50%;
-  margin-left: -60px;
+  bottom: 120%;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.tooltiptext-bottom {
+  bottom: -140% !important;
+  left: 70%;
 }
 
 .tooltip:hover .tooltiptext {
-  visibility: visible;
+  opacity: 100%;
+  transition:opacity 0.2s;
 }
 
 .button-svg-container {

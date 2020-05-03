@@ -213,7 +213,7 @@ const Homepage = ({ wallet }) => {
 
                             <div id="homepage-private-toggle-container" className="tooltip">
                                 <span className="tooltiptext">
-                                    Private Swaps aren't listed on the Market.
+                                    Private Swaps aren't listed on the Market. <br />
                                     Only the given ICON address will be able to fulfill the swap.
                                 </span>
                                 <div id="homepage-private-toggle">
