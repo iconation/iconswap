@@ -131,6 +131,7 @@
 }
 
 .tooltiptext {
+  visibility: hidden;
   opacity: 0%;
   transition:opacity 0.2s;
   background-color: black;
@@ -156,6 +157,7 @@
 }
 
 .tooltip:hover .tooltiptext {
+  visibility: visible;
   opacity: 100%;
   transition:opacity 0.2s;
 }

@@ -17,8 +17,7 @@ import { api } from './API'
 
 function App() {
 
-  // const [wallet, setWallet] = useState(localStorage.getItem(WALLET_LOCAL_STORAGE_KEY))
-  const [wallet, setWallet] = useState("hx8d3d046b8adc47bb5d0a5b5ae3d02a4e2204e04c")
+  const [wallet, setWallet] = useState(localStorage.getItem(WALLET_LOCAL_STORAGE_KEY))
   const [maintenance, setMaintenance] = useState(false)
 
   useEffect(() => {
