@@ -131,7 +131,7 @@ const MarketPair = ({ match, wallet }) => {
             var xAxis = chart.xAxes.push(new am4charts.CategoryAxis());
             xAxis.dataFields.category = "value";
             //xAxis.renderer.grid.template.location = 0;
-            xAxis.renderer.minGridDistance = 20;
+            xAxis.renderer.minGridDistance = 50;
             xAxis.title.text = "Price (" + symbol1 + "/" + symbol2 + ")";
 
             var yAxis = chart.yAxes.push(new am4charts.ValueAxis());
