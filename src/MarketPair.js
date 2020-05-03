@@ -36,8 +36,6 @@ const MarketPair = ({ match, wallet }) => {
             isInverted
         ] = results
 
-        console.log("is=", isInverted)
-
         am4core.ready(function () {
             am4core.useTheme(am4themes_animated);
             let chart = am4core.create("market-pair-depth", am4charts.XYChart);
