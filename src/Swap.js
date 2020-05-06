@@ -113,7 +113,7 @@ const Swap = ({ match, wallet }) => {
 
     const isMaker = swapPending() && swap['maker']['provider'] === wallet
     const isTaker = swapPending() && swap['maker']['provider'] !== wallet
-    const isPrivate = swapPending() && swap['taker']['provider'] != EMPTY_ORDER_PROVIDER
+    const isPrivate = swapPending() && swap['taker']['provider'] !== EMPTY_ORDER_PROVIDER
 
     withdrawingInProgress && swapCancel() && setWithdrawingInProgress(false)
     depositingInProgress && swapSuccess() && setDepositingInProgress(false)
@@ -147,7 +147,7 @@ const Swap = ({ match, wallet }) => {
                     "You may share this link with anyone you want to trade your tokens with : <br/>" +
                     "<strong><a href='" + window.location.href + "'>" + window.location.href + "</a></strong>"} />}
 
-                {isTaker && (taker.provider == EMPTY_ORDER_PROVIDER || (isPrivate && wallet == taker.provider)) &&
+                {isTaker && (taker.provider === EMPTY_ORDER_PROVIDER || (isPrivate && wallet === taker.provider)) &&
                     <InfoBox content={"You may deposit the amount of tokens displayed on the right (<strong>" +
                         IconConverter.toBigNumber(taker['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(taker['token']['decimals'])) +
                         " " + taker['token']['symbol'] + "</strong>), " +
@@ -176,7 +176,7 @@ const Swap = ({ match, wallet }) => {
                         <div className="swap-centered">
                             <div className={"order-view-container " + (orderEmpty(taker) ? 'order-view-container-pulse' : '')}>
                                 <OrderView wallet={wallet} order={taker} />
-                                {isTaker && (taker.provider == EMPTY_ORDER_PROVIDER || (isPrivate && wallet == taker.provider)) &&
+                                {isTaker && (taker.provider === EMPTY_ORDER_PROVIDER || (isPrivate && wallet === taker.provider)) &&
                                     <div>
                                         <button className="big-button order-view-action-buttons" disabled={!cancellable()}
                                             onClick={() => depositClicked()}>
@@ -187,7 +187,7 @@ const Swap = ({ match, wallet }) => {
                             </div>
                         </div>
 
-                        {isPrivate && wallet != taker.provider &&
+                        {isPrivate && wallet !== taker.provider &&
                             <div id="swap-private-notice">
                                 This swap is private. <br />
                                 Only <strong>{taker.provider}</strong> can fill it.

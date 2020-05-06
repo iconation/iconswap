@@ -137,7 +137,7 @@ class API {
 
     isMaintenanceEnabled() {
         return this.__call(this._scoreAddress, 'maintenance_enabled').then(status => {
-            return parseInt(status, 16) == 1
+            return parseInt(status, 16) === 1
         })
     }
 

@@ -23,10 +23,10 @@ export const redirectClick = (event, history, dest) => {
     }
 
     else {
-        if ((event.button == 1) || (event.ctrlKey && event.button == 0)) {
+        if ((event.button === 1) || (event.ctrlKey && event.button === 0)) {
             window.open("#" + dest, '_blank');
         }
-        else if (event.button == 0) {
+        else if (event.button === 0) {
             history.push(dest);
         }
     }

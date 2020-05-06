@@ -96,7 +96,7 @@ const Homepage = ({ wallet }) => {
             && orders[0].amount
             && taker.contract
             && maker.contract !== taker.contract
-            && (!switchPrivate || switchPrivate && IconValidator.isEoaAddress(privateSwapAddress))
+            && (!switchPrivate || (switchPrivate && IconValidator.isEoaAddress(privateSwapAddress)))
     }
 
     const setContract = (index, value) => {
