@@ -55,6 +55,10 @@
     width: 30%;
 }
 
+.market-pair-orderbook-status {
+    width: 5%;
+}
+
 .market-pair-orderbook-amount {
     width: 20%;
 }
@@ -163,7 +167,7 @@
     background: #fafafa;
     display: flex;
     flex-direction: row;
-    height: 25vh;
+    height: 100%;
 	overflow: auto;
 }
 

@@ -109,7 +109,6 @@ const Admin = ({ wallet }) => {
 
 
     const cancelOneSwap = () => {
-        console.log(cancelSwapId)
         if (cancelSwapId === null || isNaN(cancelSwapId)) {
             return;
         }

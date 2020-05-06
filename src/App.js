@@ -18,7 +18,7 @@ import { api } from './API'
 function App() {
 
   const [wallet, setWallet] = useState(localStorage.getItem(WALLET_LOCAL_STORAGE_KEY))
-  const [maintenance, setMaintenance] = useState(null)
+  const [maintenance, setMaintenance] = useState(false)
 
   useEffect(() => {
     api.isMaintenanceEnabled().then(status => {
@@ -49,7 +49,9 @@ function App() {
             <Route exact path='/score_admin' render={(props) => <Admin {...props} wallet={wallet} />} />
             <Route render={() => <Redirect to="/" />} />
           </Switch>
-          {wallet && maintenance && !location.pathname.includes('/score_admin') && <MaintenanceScreen />}
+          {(wallet !== null && maintenance && location.pathname.includes('/score_admin') !== true) &&
+            <MaintenanceScreen />
+          }
         </div>
       </>}
 

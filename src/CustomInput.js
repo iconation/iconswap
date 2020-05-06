@@ -28,7 +28,7 @@ const CustomInput = ({ error, label, locked, active, numericOnly, onChange }) =>
     }
 
     const fieldClassName = `field ${(locked ? _active : _active || value) &&
-        "active"} ${locked && !_active && "locked"} ${_error && "error"}`;
+        "active"} ${locked && !_active && "locked"} ${_error && "custom-input-error"}`;
 
     return (
         <div className={fieldClassName}>
