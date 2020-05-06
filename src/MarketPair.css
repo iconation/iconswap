@@ -179,3 +179,15 @@
 #market-pair-swap-spots {
     margin-left: 10px;
 }
+
+.market-pair-yourswap {
+    font-weight: 800;
+}
+
+.market-pair-yourswap-seller {
+    color: #ec4b70;
+}
+
+.market-pair-yourswap-buyer {
+    color: #74aa17;
+}

@@ -325,7 +325,8 @@ const MarketPair = ({ match, wallet }) => {
                                         {sellers && sellers.map(swap => (
                                             <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
                                                 <td className={"market-pair-orderbook-status tooltip"}>{isUserSwap(swap) && <>
-                                                    <strong>*</strong> <span className="tooltiptext">You created this swap</span>
+                                                    <span className="market-pair-yourswap market-pair-yourswap-seller">⮞</span>
+                                                    <span className="tooltiptext">You created this swap</span>
                                                 </>}
                                                 </td>
                                                 <td className="market-pair-orderbook-price market-pair-sellers-text" >{getPrice(swap)}</td>
@@ -370,7 +371,8 @@ const MarketPair = ({ match, wallet }) => {
                                         {buyers && buyers.map(swap => (
                                             <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
                                                 <td className={"market-pair-orderbook-status tooltip"}>{isUserSwap(swap) && <>
-                                                    <strong>*</strong> <span className="tooltiptext tooltiptext-bottom">You created this swap</span>
+                                                    <span className="market-pair-yourswap market-pair-yourswap-buyer">⮞</span>
+                                                    <span className="tooltiptext tooltiptext-bottom">You created this swap</span>
                                                 </>}
                                                 </td>
                                                 <td className="market-pair-orderbook-price market-pair-buyers-text" >{getPrice(swap)}</td>
