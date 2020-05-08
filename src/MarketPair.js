@@ -365,6 +365,7 @@ const MarketPair = ({ match, wallet }) => {
                                     </tr>
                                 </thead>
                             </table>
+
                             <div id="market-pair-buyers">
                                 <table className="market-pair-table">
                                     <tbody>
