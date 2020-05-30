@@ -14,6 +14,17 @@ export const convertTsToDate = (timestamp) => {
     return time;
 }
 
+export const convertTsToNumericDate = (timestamp) => {
+    function pad(n) { return n < 10 ? '0' + n : n }
+
+    var a = new Date(parseInt(timestamp, 16) / 1000);
+    var year = a.getFullYear();
+    var month = pad(a.getMonth() + 1);
+    var date = pad(a.getDate());
+    var time = year + '-' + month + '-' + date;
+    return time;
+}
+
 export const redirectClick = (event, history, dest) => {
     // dest for example : "/market"
 

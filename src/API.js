@@ -165,6 +165,18 @@ class API {
         return this.__call(this._scoreAddress, 'get_market_filled_swaps', { 'offset': IconConverter.toHex(offset), 'pair': pair })
     }
 
+    getManyMarketFilledSwaps(pair, offset, count) {
+        return this.__callWithOffset(
+            this._scoreAddress,
+            'get_market_filled_swaps',
+            {
+                'offset': IconConverter.toHex(offset),
+                'pair': pair
+            },
+            count
+        )
+    }
+
     getOrder(orderId) {
         return this.__call(this._scoreAddress, 'get_order', { order_id: IconConverter.toHex(orderId) }).then(swap => {
             return swap
@@ -213,10 +225,9 @@ class API {
         })
     }
 
-    async __callWithOffset(contract, method, params) {
+    async __callWithOffset(contract, method, params = {}, minCount = 0) {
         let result = []
         let offset = 0
-        params = params ? params : {}
         let running = true
 
         while (running) {
@@ -224,6 +235,9 @@ class API {
             try {
                 const orders = await this.__call(contract, method, params)
                 result = result.concat(orders)
+                if (result.length >= minCount) {
+                    running = false;
+                }
                 offset += MAX_ITERATION_LOOP
             } catch (error) {
                 if (error.includes('StopIteration'))

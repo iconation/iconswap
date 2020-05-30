@@ -38,12 +38,6 @@
 }
 
 
-#market-pair-orderbook {
-    min-height: 100%;
-    width: 34%;
-    background-color: #fafafa;
-}
-
 .market-pair-buyers-text {
     color: #74aa17;
     font-weight: 600;
@@ -102,16 +96,26 @@
 }
 
 
-#market-pair-depth {
-    width: 33%;
+#market-pair-orderbook {
+    min-height: 100%;
+    width: 25%;
+    background-color: #fafafa;
+}
+
+#market-pair-chart {
+    width: 45%;
     background: #fafafa;
     font-size: 12px;
     font-weight: 500;
     border: 1px solid #cacaca;
 }
 
+#market-pair-chart-canvas {
+    height: 100%;
+}
+
 #market-pair-history {
-    width: 33%;
+    width: 30%;
     background: #fafafa;
     overflow: auto;
 }
