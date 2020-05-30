@@ -41,6 +41,7 @@
 #market-pair-orderbook {
     min-height: 100%;
     width: 34%;
+    background-color: #fafafa;
 }
 
 .market-pair-buyers-text {
@@ -74,7 +75,7 @@
     display: flex;
     flex-direction: row;
     width: 100%;
-    background: rgba(0,0,0,.20);
+    background: #36b4b8;
     color: white;
     font-size: 17px;
 }
