@@ -1,6 +1,6 @@
 import React from 'react'
 import './OrderView.css';
-import { IconConverter } from 'icon-sdk-js'
+import { balanceToUnitDisplay } from './utils'
 
 const OrderView = ({ order }) => {
     const orderSuccess = (order) => {
@@ -12,11 +12,11 @@ const OrderView = ({ order }) => {
     }
 
     return (
-        <div className="OrderViewRoot">
+        <div className="order-view-root">
 
-            <div className="headerToken">
+            <div className="order-view-header-token">
                 <div className="bigtext">
-                    {IconConverter.toBigNumber(order['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(order['token']['decimals'])).toString()}
+                    {balanceToUnitDisplay(order['amount'], order['token']['decimals'])}
                     &nbsp;{order['token']['symbol']} ({order['token']['name']})
                 </div>
             </div>
