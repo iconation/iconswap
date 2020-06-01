@@ -7,21 +7,9 @@
 }
 
 #market-pair-container {
-    border-top:2px solid #fafafa22;
-    position: fixed;
-    left: 50%;
-    transform: translate(-50%, 0%);
-    border-radius: .25rem;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
-    background-color: rgba(255, 255, 255, 0.2);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-top: 120px;
-    padding-left: 2vw;
-    padding-right: 2vw;
-    padding-bottom: 5vh;
-    width: 90vw;
+    margin-top: 100px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 #market-pair-title {
@@ -47,22 +35,22 @@
     font-weight: 600;
 }
 
-.market-pair-orderbook-price {
-    width: 30%;
+.market-pair-left-price {
+    width: 300px;
 }
 
-.market-pair-orderbook-status {
-    width: 5%;
+.market-pair-left-status {
+    width: 50px;
 }
 
-.market-pair-orderbook-amount {
-    width: 20%;
+.market-pair-left-amount {
+    width: 200px;
 }
-.market-pair-orderbook-total {
-    width: 25%;
+.market-pair-left-total {
+    width: 250px;
 }
-.market-pair-orderbook-action {
-    width: 25%;
+.market-pair-left-action {
+    width: 250px;
 }
 
 #market-pair-middleinfo {
@@ -77,9 +65,9 @@
 #market-pair-view {
     display: flex;
     flex-direction: row;
-    height: 60vh;
+    height: 75vh;
     width: 100%;
-    box-shadow: 0 5px 10px -3px rgba(0,0,0,.25);
+    box-shadow: 0 12px 25px -6px rgba(0,0,0,.25);
     border-radius: .15em;
     overflow: hidden;
 }
@@ -96,18 +84,31 @@
 }
 
 
-#market-pair-orderbook {
+#market-pair-left {
+    display: flex;
+    flex-flow: column;
+    flex: 1 1 auto;
     min-height: 100%;
     width: 25%;
     background-color: #fafafa;
 }
 
-#market-pair-chart {
+#market-pair-chart-choser {
+    right: 20px;
+    position: absolute;
+    z-index: 10;
+}
+
+#market-pair-middle {
     width: 45%;
     background: #fafafa;
+}
+
+#market-pair-chart {
     font-size: 12px;
     font-weight: 500;
-    border: 1px solid #cacaca;
+    height: 60%;
+    position: relative;
 }
 
 #market-pair-chart-canvas {
@@ -115,43 +116,52 @@
 }
 
 #market-pair-history {
-    width: 30%;
-    background: #fafafa;
     overflow: auto;
+    border-bottom: 1px solid #cacaca;
 }
 
+#market-pair-right {
+    width: 30%;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+}
 
 .market-pair-history-price {
-    width: 20%;
+    width: 200px;
 }
 
 .market-pair-history-amount {
-    width: 20%;
+    width: 200px;
 }
 .market-pair-history-total {
-    width: 30%;
+    width: 300px;
 }
 .market-pair-history-filled {
-    width: 30%;
+    width: 300px;
 }
 
 .market-pair-table {
+    display: flex;
+    flex-direction: column;
     width: 100%;
-}
-
-.market-pair-tr-clickeable {
-    cursor: pointer;
 }
 
 #market-pair-sellers {
     background: #fafafa;
-    display: flex;
-    flex-direction: row;
-    height: 25vh;
     overflow: auto;
-	overflow-anchor: none;
-	position: relative;
-	flex-direction: column-reverse;
+    display: flex;
+    flex-direction: column-reverse;
+    height: 60%;
+}
+
+#market-pair-buyers {
+    background: #fafafa;
+    overflow: auto;
+}
+
+.market-pair-tr-clickeable {
+    cursor: pointer;
 }
 
 #seller-anchor {
@@ -166,12 +176,6 @@
 
 #market-pair-table-sellers-view {
     width: 100%;
-}
-
-#market-pair-buyers {
-    background: #fafafa;
-    overflow: auto;
-    height: 25vh;
 }
 
 .market-pair-table-content {
@@ -193,4 +197,94 @@
 
 .market-pair-yourswap-buyer {
     color: #74aa17;
+}
+
+
+#market-pair-make-order {
+    border: 1px solid rgb(230, 230, 230);
+    display: flex;
+    flex-direction: row;
+    background-color: rgb(247, 247, 247);
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+#market-pair-buy-order {
+    margin: 15px 0px;
+    padding: 0px 26px;
+    width: 50%;
+    min-height: 250px;
+    border-right: 1px solid rgb(226, 226, 226); 
+}
+#market-pair-sell-order {
+    margin: 15px 0px;
+    padding: 0px 26px;
+    width: 50%;
+    min-height: 250px;
+}
+
+.market-pair-make-order-title {
+    font-weight: bold;
+    font-size: 14px;
+    text-align: left;
+    padding-bottom: 20px;
+}
+
+.market-pair-make-order-fields {
+    font-size: 12px;
+    text-align: left;
+}
+
+.market-pair-make-order-textfield {
+    width: 25%;
+}
+
+.market-pair-make-order-hz {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 3px;
+}
+
+.market-pair-make-order-inputfield {
+    width: 80%;
+}
+
+.market-pair-buysell-button {
+    margin-top: 30px;
+    flex: 1 1 0%;
+    cursor: pointer;
+    width: 100%;
+    color: white;
+    padding: 7px;
+    font-size: 14px;
+    outline: currentcolor none medium;
+}
+
+.market-pair-buy-button {
+    border: 1px solid rgb(112, 168, 0);
+    background: rgb(112, 168, 0) none repeat scroll 0% 0%;
+}
+
+.market-pair-sell-button {
+    border: 1px solid rgb(234, 0, 112);
+    background: rgb(234, 0, 112) none repeat scroll 0% 0%;
+}
+
+.market-pair-buy-button:hover {
+    filter: brightness(1.1);
+}
+
+.market-pair-percent-button {
+    width: 24%;
+    border: 1px solid rgb(226, 226, 226);
+    background: white;
+    cursor: pointer;
+    outline: currentcolor none medium;
+    margin: 0px 3px auto auto;
+}
+
+.market-pair-percent-button:hover {
+    border-color: #1ab7bc;
+    color: #1ab7bc;
 }

@@ -41,7 +41,7 @@ const MarketPair = ({ match, wallet }) => {
             api.getDecimals(pairs[1]),
             api.tokenSymbol(pairs[0]),
             api.tokenSymbol(pairs[1]),
-            api.getManyMarketFilledSwaps(pairName, 0, 500)
+            api.getManyMarketFilledSwaps(pairName, 0, 600)
         ]
 
         return Promise.all(promises).then(results => {
@@ -78,7 +78,7 @@ const MarketPair = ({ match, wallet }) => {
                 }
             }
 
-            setSwapsFilled(history)
+            setSwapsFilled(history.slice(0, 250))
             setDecimals([decimal1, decimal2])
             let symbols = {}
             symbols[pairs[0]] = symbol1
@@ -149,42 +149,37 @@ const MarketPair = ({ match, wallet }) => {
 
                         <button id="market-pair-swap-spots" className="big-button button-svg-container tooltip"
                             onClick={() => { swapSpot() }}>
-                            <span className="tooltiptext">Show {symbols[pairs[1]]} / {symbols[pairs[0]]}</span>
                             <div className="svg-icon-button"><SwapSpotSvg /></div>
                         </button>
 
                     </div>
 
                     <div id="market-pair-view">
-                        <div id="market-pair-orderbook">
-
-                            <div ref={scrollSellers} id="market-pair-sellers">
-                                <table className="market-pair-table-content market-pair-table" id="seller-table">
-                                    <tbody>
-                                        {sellers && sellers.map(swap => (
-                                            <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
-                                                <td className={"market-pair-orderbook-status tooltip"}>{isUserSwap(swap) && <>
-                                                    <span className="market-pair-yourswap market-pair-yourswap-seller">⮞</span>
-                                                    <span className="tooltiptext">You created this swap</span>
-                                                </>}
-                                                </td>
-                                                <td className="market-pair-orderbook-price market-pair-sellers-text" >{getPrice(swap, pairs)}</td>
-                                                <td className="market-pair-orderbook-amount">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
-                                                <td className="market-pair-orderbook-total">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                <div id="seller-anchor"></div>
-                            </div>
+                        <div id="market-pair-left">
+                            <table id="market-pair-sellers" className="market-pair-table">
+                                <tbody>
+                                    {sellers && sellers.map(swap => (
+                                        <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
+                                            <td className={"market-pair-left-status tooltip"}>{isUserSwap(swap) && <>
+                                                <span className="market-pair-yourswap market-pair-yourswap-seller">⮞</span>
+                                                <span className="tooltiptext">You created this swap</span>
+                                            </>}
+                                            </td>
+                                            <td className="market-pair-left-price market-pair-sellers-text" >{getPrice(swap, pairs)}</td>
+                                            <td className="market-pair-left-amount">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
+                                            <td className="market-pair-left-total">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
 
                             <table className="market-pair-table">
                                 <thead>
                                     <tr>
-                                        <th className="market-pair-orderbook-status"></th>
-                                        <th className="market-pair-orderbook-price">Price ({symbols[pairs[1]]}) </th>
-                                        <th className="market-pair-orderbook-amount">Amount ({symbols[pairs[0]]})</th>
-                                        <th className="market-pair-orderbook-total">Total ({symbols[pairs[1]]})</th>
+                                        <th className="market-pair-left-status"></th>
+                                        <th className="market-pair-left-price">Price ({symbols[pairs[1]]}) </th>
+                                        <th className="market-pair-left-amount">Amount ({symbols[pairs[0]]})</th>
+                                        <th className="market-pair-left-total">Total ({symbols[pairs[1]]})</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -197,44 +192,107 @@ const MarketPair = ({ match, wallet }) => {
                             <table className="market-pair-table">
                                 <thead>
                                     <tr>
-                                        <th className="market-pair-orderbook-status"></th>
-                                        <th className="market-pair-orderbook-price">Price ({symbols[pairs[1]]}) </th>
-                                        <th className="market-pair-orderbook-amount">Amount ({symbols[pairs[0]]})</th>
-                                        <th className="market-pair-orderbook-total">Total ({symbols[pairs[1]]})</th>
+                                        <th className="market-pair-left-status"></th>
+                                        <th className="market-pair-left-price">Price ({symbols[pairs[1]]}) </th>
+                                        <th className="market-pair-left-amount">Amount ({symbols[pairs[0]]})</th>
+                                        <th className="market-pair-left-total">Total ({symbols[pairs[1]]})</th>
                                     </tr>
                                 </thead>
                             </table>
 
-                            <div id="market-pair-buyers">
-                                <table className="market-pair-table">
-                                    <tbody>
-                                        {buyers && buyers.map(swap => (
-                                            <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
-                                                <td className={"market-pair-orderbook-status tooltip"}>{isUserSwap(swap) && <>
-                                                    <span className="market-pair-yourswap market-pair-yourswap-buyer">⮞</span>
-                                                    <span className="tooltiptext tooltiptext-bottom">You created this swap</span>
-                                                </>}
-                                                </td>
-                                                <td className="market-pair-orderbook-price market-pair-buyers-text" >{getPrice(swap, pairs)}</td>
-                                                <td className="market-pair-orderbook-amount">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
-                                                <td className="market-pair-orderbook-total">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                            <table id="market-pair-buyers" className="market-pair-table">
+                                <tbody>
+                                    {buyers && buyers.map(swap => (
+                                        <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
+                                            <td className={"market-pair-left-status tooltip"}>{isUserSwap(swap) && <>
+                                                <span className="market-pair-yourswap market-pair-yourswap-buyer">⮞</span>
+                                                <span className="tooltiptext tooltiptext-bottom">You created this swap</span>
+                                            </>}
+                                            </td>
+                                            <td className="market-pair-left-price market-pair-buyers-text" >{getPrice(swap, pairs)}</td>
+                                            <td className="market-pair-left-amount">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
+                                            <td className="market-pair-left-total">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="market-pair-middle">
+                            <div id="market-pair-chart">
+                                <div id="market-pair-chart-choser">
+
+                                    <button className="small-button tooltip" onClick={() => { setChartView('depth') }}>
+                                        Depth
+                                    </button>
+
+                                    <button className="small-button tooltip" onClick={() => { setChartView('price') }}>
+                                        Price
+                                    </button>
+                                </div>
+
+                                <div id="market-pair-chart-canvas"></div>
+                            </div>
+
+
+                            <div id="market-pair-make-order">
+                                <div id="market-pair-buy-order">
+                                    <div className="market-pair-make-order-title">Buy {symbols[pairs[0]]}</div>
+                                    <div className="market-pair-make-order-fields">
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-price"}>
+                                            <div className="market-pair-make-order-textfield">Price:</div>
+                                            <input className="market-pair-make-order-inputfield" type="text"></input>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-amount"}>
+                                            <div className="market-pair-make-order-textfield">Amount:</div>
+                                            <input className="market-pair-make-order-inputfield" type="text"></input>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-percent"}>
+                                            <button className={"market-pair-percent-button"}>25%</button>
+                                            <button className={"market-pair-percent-button"}>50%</button>
+                                            <button className={"market-pair-percent-button"}>75%</button>
+                                            <button className={"market-pair-percent-button"}>100%</button>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-total"}>
+                                            <div className="market-pair-make-order-textfield">Total:</div>
+                                            <input className="market-pair-make-order-inputfield" type="text"></input>
+                                        </div>
+
+                                        <button className="market-pair-buysell-button market-pair-buy-button">Buy {symbols[pairs[0]]}</button>
+                                    </div>
+                                </div>
+
+                                <div id="market-pair-sell-order">
+                                    <div className="market-pair-make-order-title">Sell {symbols[pairs[0]]}</div>
+                                    <div className="market-pair-make-order-fields">
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-price"}>
+                                            <div className="market-pair-make-order-textfield">Price:</div>
+                                            <input className="market-pair-make-order-inputfield" type="text"></input>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-amount"}>
+                                            <div className="market-pair-make-order-textfield">Amount:</div>
+                                            <input className="market-pair-make-order-inputfield" type="text"></input>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-percent"}>
+                                            <button className={"market-pair-percent-button"}>25%</button>
+                                            <button className={"market-pair-percent-button"}>50%</button>
+                                            <button className={"market-pair-percent-button"}>75%</button>
+                                            <button className={"market-pair-percent-button"}>100%</button>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-total"}>
+                                            <div className="market-pair-make-order-textfield">Total:</div>
+                                            <input className="market-pair-make-order-inputfield" type="text"></input>
+                                        </div>
+
+                                        <button className="market-pair-buysell-button market-pair-sell-button">Sell {symbols[pairs[0]]}</button>
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div id="market-pair-chart">
-                            <div id="market-pair-chart-choser">
-                                <button onClick={() => { setChartView('depth') }}>Depth Chart</button>
-                                <button onClick={() => { setChartView('price') }}>Price Chart</button>
-                            </div>
+                        <div id="market-pair-right">
 
-                            <div id="market-pair-chart-canvas"></div>
-                        </div>
-
-                        <div id="market-pair-history">
                             <table className="market-pair-table">
                                 <thead>
                                     <tr>
@@ -245,26 +303,29 @@ const MarketPair = ({ match, wallet }) => {
                                     </tr>
                                 </thead>
                             </table>
-                            <table className="market-pair-table">
-                                <tbody>
-                                    {swapsFilled && swapsFilled.map(swap => (
-                                        <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
-                                            {isBuyer(swap, pairs) && <>
-                                                <td className="market-pair-history-price market-pair-buyers-text" >{getPrice(swap, pairs)}</td>
-                                                <td className="market-pair-history-amount">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
-                                                <td className="market-pair-history-total">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
-                                                <td className="market-pair-history-filled">{convertTsToDate(swap['timestamp_swap'])}</td>
-                                            </>}
-                                            {!isBuyer(swap, pairs) && <>
-                                                <td className="market-pair-history-price market-pair-sellers-text" >{getPrice(swap, pairs)}</td>
-                                                <td className="market-pair-history-amount">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
-                                                <td className="market-pair-history-total">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
-                                                <td className="market-pair-history-filled">{convertTsToDate(swap['timestamp_swap'])}</td>
-                                            </>}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+
+                            <div id="market-pair-history">
+                                <table className="market-pair-table">
+                                    <tbody>
+                                        {swapsFilled && swapsFilled.map(swap => (
+                                            <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
+                                                {isBuyer(swap, pairs) && <>
+                                                    <td className="market-pair-history-price market-pair-buyers-text" >{getPrice(swap, pairs)}</td>
+                                                    <td className="market-pair-history-amount">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
+                                                    <td className="market-pair-history-total">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
+                                                    <td className="market-pair-history-filled">{convertTsToDate(swap['timestamp_swap'])}</td>
+                                                </>}
+                                                {!isBuyer(swap, pairs) && <>
+                                                    <td className="market-pair-history-price market-pair-sellers-text" >{getPrice(swap, pairs)}</td>
+                                                    <td className="market-pair-history-amount">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
+                                                    <td className="market-pair-history-total">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
+                                                    <td className="market-pair-history-filled">{convertTsToDate(swap['timestamp_swap'])}</td>
+                                                </>}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
