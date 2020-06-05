@@ -324,5 +324,15 @@ export const showPriceChart = (market, pairs, isInverted) => {
         series2.groupFields.valueY = "sum";
         series2.defaultState.transitionDuration = 0;
         chart.cursor = new am4charts.XYCursor();
+
+        var scrollbarX = new am4charts.XYChartScrollbar();
+        var sbSeries = chart.series.push(new am4charts.LineSeries());
+        sbSeries.dataFields.valueY = "Close";
+        sbSeries.dataFields.dateX = "Date";
+        scrollbarX.series.push(sbSeries);
+        sbSeries.disabled = true;
+        scrollbarX.marginBottom = 0;
+        chart.scrollbarX = scrollbarX;
+        scrollbarX.scrollbarChart.xAxes.getIndex(0).minHeight = undefined;
     })
 }

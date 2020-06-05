@@ -11,7 +11,8 @@ import {
     balanceToUnitDisplay,
     isBuyer,
     getPriceBigNumber,
-    getPrice
+    getPrice,
+    truncateDecimals
 } from './utils'
 import { IconConverter } from 'icon-sdk-js'
 import { ReactComponent as WalletSvg } from './static/svg/Wallet.svg'
@@ -171,9 +172,9 @@ const MarketPair = ({ match, wallet }) => {
                 break
         }
 
-        priceInput.current.value = price ? parseFloat(price.toFixed(8)) : price === 0 ? '0' : ''
-        amountInput.current.value = amount ? parseFloat(amount.toFixed(4)) : amount === 0 ? '0' : ''
-        totalInput.current.value = total ? parseFloat(total.toFixed(4)) : total === 0 ? '0' : ''
+        priceInput.current.value = price ? truncateDecimals(price, 8) : price === 0 ? '0' : ''
+        amountInput.current.value = amount ? truncateDecimals(amount, 4) : amount === 0 ? '0' : ''
+        totalInput.current.value = total ? truncateDecimals(total, 4) : total === 0 ? '0' : ''
     }
 
     const clickOnBookOrder = (swap, index, swaps, sideSell) => {
@@ -195,12 +196,27 @@ const MarketPair = ({ match, wallet }) => {
         }
 
         // Check if amount exceed balance
-        const indexBalance = isInverted ? 1 : 0
-        if (amount > balances[indexBalance]) {
-            amount = IconConverter.toBigNumber(balances[indexBalance])
-        }
+        const indexBalance = sideSell ? 1 : 0
+        const balance = IconConverter.toBigNumber(balances[indexBalance])
+        console.log("-----------------------------")
+        console.log("pre amount ", balanceToUnitDisplay(amount, decimals[indexBalance]))
+        console.log("pre balance ", balanceToUnitDisplay(balance, decimals[indexBalance]))
+        if (sideSell) {
+            console.log("<")
+            const total = amount.multipliedBy(price)
+            console.log("pre total", balanceToUnitDisplay(total, decimals[indexBalance]))
 
-        const total = balanceToUnit(amount.multipliedBy(price), decimals[indexBalance])
+            if (total.comparedTo(balance) == 1) {
+                amount = IconConverter.toBigNumber(balance).dividedBy(IconConverter.toBigNumber(price))
+            }
+        } else {
+            console.log(">")
+            if (amount.comparedTo(balance) == 1) {
+                amount = balance
+            }
+        }
+        console.log("aft amount ", balanceToUnitDisplay(amount, decimals[indexBalance]))
+
         amount = balanceToUnit(amount, decimals[indexBalance])
 
         if (sideSell) {
@@ -209,7 +225,7 @@ const MarketPair = ({ match, wallet }) => {
             sellAmountInput.current.value = amount
         }
 
-        makerOrderFieldChange(sideSell, FormIndexes.AMOUNT_FORM_INDEX)
+        makerOrderFieldChange(!sideSell, FormIndexes.AMOUNT_FORM_INDEX)
     }
 
     const getSpread = (swapBid, swapAsk, pairs) => {

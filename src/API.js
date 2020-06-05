@@ -200,6 +200,8 @@ class API {
     getTokenDetails(wallet, contract) {
         return api.getBalance(wallet, contract).then(balance => {
             if (contract === ICX_TOKEN_CONTRACT) {
+                const digits = IconConverter.toBigNumber('10').exponentiatedBy(ICX_TOKEN_DECIMALS)
+                balance = IconConverter.toBigNumber(balance).dividedBy(digits).toString()
                 return new Promise((resolve, reject) => {
                     resolve({
                         name: 'ICX',
@@ -213,6 +215,8 @@ class API {
             return api.tokenName(contract).then(name => {
                 return api.tokenSymbol(contract).then(symbol => {
                     return api.getDecimals(contract).then(decimals => {
+                        const digits = IconConverter.toBigNumber('10').exponentiatedBy(ICX_TOKEN_DECIMALS)
+                        balance = IconConverter.toBigNumber(balance).dividedBy(digits).toString()
                         return {
                             name: name,
                             symbol: symbol,

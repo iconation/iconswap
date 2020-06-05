@@ -5,6 +5,7 @@ import OrderChoser from './OrderChoser'
 import './Homepage.css'
 import swapPicture from './static/img/swap.png'
 import { useHistory } from 'react-router-dom'
+import { truncateDecimals } from './utils'
 import InfoBox from './InfoBox'
 import LoadingOverlay from './LoadingOverlay'
 import CustomInput from './CustomInput'
@@ -129,11 +130,11 @@ const Homepage = ({ wallet }) => {
     const getPairDisplayPrice = (o1, o2) => {
         if (!(o1.contract !== null && o2.contract !== null &&
             o1.amount !== null && o2.amount !== null &&
-            parseInt(o1.amount) !== 0 && parseInt(o2.amount) !== 0 &&
+            parseFloat(o1.amount) !== 0 && parseFloat(o2.amount) !== 0 &&
             o1.amount !== "" && o2.amount !== "")) {
             return "?"
         }
-        return parseFloat((o1.amount / o2.amount).toFixed(5)).toString()
+        return truncateDecimals(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber(o2['amount'])), 8)
     }
 
     const getPairDisplaySymbol = (o) => {
