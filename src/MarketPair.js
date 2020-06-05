@@ -271,7 +271,7 @@ const MarketPair = ({ match, wallet }) => {
                             <table id="market-pair-sellers" className="market-pair-table">
                                 <tbody>
                                     {sellers && sellers.map((swap, index) => (
-                                        <tr className="market-pair-tr-clickeable" onClick={() => { clickOnBookOrder(swap, index, sellers, true) }} key={swap['id']}>
+                                        <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
                                             <td className={"market-pair-left-status tooltip"}>{isUserSwap(swap) && <>
                                                 <span className="market-pair-yourswap market-pair-yourswap-seller">⮞</span>
                                                 <span className="tooltiptext">You created this swap</span>
@@ -315,7 +315,7 @@ const MarketPair = ({ match, wallet }) => {
                             <table id="market-pair-buyers" className="market-pair-table">
                                 <tbody>
                                     {buyers && buyers.map((swap, index) => (
-                                        <tr className="market-pair-tr-clickeable" onClick={() => { clickOnBookOrder(swap, index, buyers, false) }} key={swap['id']}>
+                                        <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
                                             <td className={"market-pair-left-status tooltip"}>{isUserSwap(swap) && <>
                                                 <span className="market-pair-yourswap market-pair-yourswap-buyer">⮞</span>
                                                 <span className="tooltiptext tooltiptext-bottom">You created this swap</span>
@@ -346,7 +346,7 @@ const MarketPair = ({ match, wallet }) => {
                                 <div id="market-pair-chart-canvas"></div>
                             </div>
 
-
+                            {/*
                             <div id="market-pair-make-order">
                                 <div id="market-pair-buy-order">
                                     <div className="market-pair-make-order-header">
@@ -418,6 +418,7 @@ const MarketPair = ({ match, wallet }) => {
                                     </div>
                                 </div>
                             </div>
+                            */}
                         </div>
 
                         <div id="market-pair-right">
