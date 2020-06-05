@@ -3,7 +3,7 @@ import LoadingOverlay from './LoadingOverlay'
 import { api } from './API'
 import './MarketPair.css'
 import { useHistory } from 'react-router-dom';
-import { showPriceChart, showDepthChart } from './MarketViewers'
+import { showPriceChart, showDepthChart } from './MarketCharts'
 import {
     convertTsToDate,
     displayBigNumber,
