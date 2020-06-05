@@ -4,20 +4,23 @@ import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 
-export const showDepthChart = (market, pairs) => {
+var curChart = null;
+
+export const showDepthChart = (market, pairs, isInverted) => {
     if (!market) return;
+    if (curChart) curChart.dispose();
 
     const [
+        , ,
         buyers, sellers,
         decimal1, decimal2,
-        symbol1, symbol2,
-        history,
-        isInverted
+        symbol1, symbol2
     ] = market
 
     am4core.ready(function () {
         am4core.useTheme(am4themes_animated);
         let chart = am4core.create("market-pair-chart-canvas", am4charts.XYChart);
+        curChart = chart;
 
         const bids = buyers.map(buyer => {
             return [getPrice(buyer, pairs).toString(), parseFloat(balanceToUnitDisplay(buyer['taker']['amount'], decimal1))]
@@ -152,20 +155,23 @@ export const showDepthChart = (market, pairs) => {
     })
 }
 
-export const showPriceChart = (market, pairs) => {
+export const showPriceChart = (market, pairs, isInverted) => {
     if (!market) return;
+    if (curChart) curChart.dispose();
 
     const [
-        buyers, sellers,
-        decimal1, decimal2,
-        symbol1, symbol2,
+        , ,
+        , ,
+        decimal1, ,
+        , ,
         history,
-        isInverted
+
     ] = market
 
     am4core.ready(function () {
         am4core.useTheme(am4themes_animated);
         let chart = am4core.create("market-pair-chart-canvas", am4charts.XYChart);
+        curChart = chart;
 
         const getFormattedData = (history) => {
             var prices = []
@@ -180,7 +186,7 @@ export const showPriceChart = (market, pairs) => {
                 const curPrice = getPrice(swap, pairs)
 
                 // init
-                if (key === 0) {
+                if (parseInt(key) === 0) {
                     lastDate = convertTsToNumericDate(swap['timestamp_swap'])
                     lastHigh = curPrice;
                     lastLow = curPrice;
@@ -203,6 +209,7 @@ export const showPriceChart = (market, pairs) => {
                     lastHigh = curPrice;
                     lastLow = curPrice;
                     lastOpen = curPrice;
+                    lastClose = curPrice;
                     if (swap.maker.contract === pairs[0]) {
                         lastVolume = parseFloat(balanceToUnitDisplay(swap['maker']['amount'], decimal1))
                     } else {
@@ -240,7 +247,7 @@ export const showPriceChart = (market, pairs) => {
             return prices
         }
 
-        chart.data = getFormattedData(history.reverse());
+        chart.data = getFormattedData(history.slice().reverse());
 
         // the following line makes value axes to be arranged vertically.
         chart.leftAxesContainer.layout = "vertical";

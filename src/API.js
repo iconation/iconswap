@@ -165,16 +165,30 @@ class API {
         return this.__call(this._scoreAddress, 'get_market_filled_swaps', { 'offset': IconConverter.toHex(offset), 'pair': pair })
     }
 
-    getManyMarketFilledSwaps(pair, offset, count) {
-        return this.__callWithOffset(
-            this._scoreAddress,
-            'get_market_filled_swaps',
-            {
-                'offset': IconConverter.toHex(offset),
-                'pair': pair
-            },
-            count
-        )
+    async getManyMarketFilledSwaps(pair, offset, count) {
+        var curOffset = offset;
+        var promises = []
+
+        for (var curOffset = offset; curOffset < count; curOffset += MAX_ITERATION_LOOP) {
+            promises.push(this.__call(this._scoreAddress, 'get_market_filled_swaps', { 'offset': IconConverter.toHex(curOffset), 'pair': pair }))
+        }
+
+        try {
+            return await Promise.all(promises).then(result => {
+                return Array.prototype.concat.apply([], result);
+            })
+        } catch (error) {
+            if (error.includes('StopIteration')) {
+                return await this.__callWithOffset(
+                    this._scoreAddress,
+                    'get_market_filled_swaps',
+                    { 'pair': pair },
+                    count
+                )
+            } else {
+                throw error;
+            }
+        }
     }
 
     getOrder(orderId) {
@@ -184,7 +198,7 @@ class API {
     }
 
     getTokenDetails(wallet, contract) {
-        return api.__getBalance(wallet, contract).then(balance => {
+        return api.getBalance(wallet, contract).then(balance => {
             if (contract === ICX_TOKEN_CONTRACT) {
                 return new Promise((resolve, reject) => {
                     resolve({
@@ -475,23 +489,19 @@ class API {
 
     // ======================================================================================
     __getIcxBalance(address) {
-        const digits = IconConverter.toBigNumber('10').exponentiatedBy(18)
         return this._getIconService().getBalance(address).execute().then(balance => {
-            return balance / digits;
+            return balance;
         })
     }
 
     __getIRC2Balance(address, contract) {
         return this.__call(contract, 'balanceOf', { '_owner': address }).then(balance => {
-            return this.getDecimals(contract).then(decimals => {
-                const digits = IconConverter.toBigNumber('10').exponentiatedBy(decimals)
-                return balance / digits
-            })
+            return balance
         })
     }
 
 
-    __getBalance(address, contract) {
+    getBalance(address, contract) {
         if (contract === ICX_TOKEN_CONTRACT) {
             return this.__getIcxBalance(address)
         } else {

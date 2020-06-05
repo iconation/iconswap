@@ -148,7 +148,7 @@ const Homepage = ({ wallet }) => {
         setPrivateAddressError(false)
     }
 
-    const loadingText = waitForSwapCreation ? 'Creating Swap, please wait...' : 'Loading wallet...'
+    const loadingText = waitForSwapCreation ? 'Creating Swap, please wait...' : 'Loading Wallet...'
     const over = (whitelist !== null)
 
     return (
