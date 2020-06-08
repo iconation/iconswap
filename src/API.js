@@ -166,7 +166,7 @@ class API {
         return this.__call(this._scoreAddress, 'get_market_filled_swaps', { 'offset': IconConverter.toHex(offset), 'pair': pair })
     }
 
-    async getManyMarketFilledSwaps(pair, offset, count) {
+    getManyMarketFilledSwaps(pair, offset, count) {
         var curOffset = offset;
         var promises = []
 
