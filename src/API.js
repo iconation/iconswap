@@ -1,5 +1,6 @@
 import IconService, { IconConverter } from 'icon-sdk-js'
 import { SCORE_NETWORK, SCORE_ENDPOINT, Networks, ICX_TOKEN_CONTRACT, ICX_TOKEN_DECIMALS, MAX_ITERATION_LOOP } from './constants'
+import { unitToBalanceEx } from './utils'
 
 // ================================================
 //  Constants
@@ -170,25 +171,23 @@ class API {
         var promises = []
 
         for (var curOffset = offset; curOffset < count; curOffset += MAX_ITERATION_LOOP) {
-            promises.push(this.__call(this._scoreAddress, 'get_market_filled_swaps', { 'offset': IconConverter.toHex(curOffset), 'pair': pair }))
-        }
-
-        try {
-            return await Promise.all(promises).then(result => {
-                return Array.prototype.concat.apply([], result);
-            })
-        } catch (error) {
-            if (error.includes('StopIteration')) {
-                return await this.__callWithOffset(
+            promises.push(
+                this.__call(
                     this._scoreAddress,
                     'get_market_filled_swaps',
-                    { 'pair': pair },
-                    count
+                    {
+                        'offset': IconConverter.toHex(curOffset),
+                        'pair': pair
+                    }
                 )
-            } else {
-                throw error;
-            }
+            )
         }
+
+        return Promise.allSettled(promises).then(result => {
+            result = result.filter(item => item.status == "fulfilled")
+            result = result.map(item => item.value)
+            return Array.prototype.concat.apply([], result);
+        })
     }
 
     getOrder(orderId) {
@@ -215,13 +214,13 @@ class API {
             return api.tokenName(contract).then(name => {
                 return api.tokenSymbol(contract).then(symbol => {
                     return api.getDecimals(contract).then(decimals => {
-                        const digits = IconConverter.toBigNumber('10').exponentiatedBy(ICX_TOKEN_DECIMALS)
+                        const digits = IconConverter.toBigNumber('10').exponentiatedBy(decimals)
                         balance = IconConverter.toBigNumber(balance).dividedBy(digits).toString()
                         return {
                             name: name,
                             symbol: symbol,
                             contract: contract,
-                            decimals: parseInt(decimals, 16),
+                            decimals: decimals,
                             balance: balance
                         }
                     })
@@ -239,7 +238,7 @@ class API {
             })
         }
         return this.__call(contract, 'decimals').then(decimals => {
-            return decimals
+            return parseInt(decimals, 16)
         })
     }
 
@@ -281,8 +280,46 @@ class API {
             })
     }
 
+    marketCreateLimitOrder(walletAddress, maker_contract, maker_amount, taker_contract, taker_amount) {
+
+        // Convert amount to bigint
+        Promise.all([unitToBalanceEx(maker_amount, maker_contract), unitToBalanceEx(taker_amount, taker_contract)]).then(([maker_amount, taker_amount]) => {
+
+            if (maker_contract === ICX_TOKEN_CONTRACT) {
+                return this.__iconexCallTransaction(
+                    walletAddress,
+                    this._scoreAddress,
+                    'market_create_limit_icx_order',
+                    IconConverter.toHex(maker_amount),
+                    {
+                        taker_contract: taker_contract,
+                        taker_amount: IconConverter.toHex(taker_amount)
+                    }
+                )
+            } else {
+                const data = {
+                    'action': 'market_create_limit_irc2_order',
+                    'taker_contract': taker_contract,
+                    'taker_amount': IconConverter.toHex(taker_amount)
+                }
+                const params = {
+                    '_to': this._scoreAddress,
+                    '_value': IconConverter.toHex(maker_amount),
+                    '_data': IconConverter.toHex(JSON.stringify(data))
+                }
+                return this.__iconexCallTransaction(
+                    walletAddress,
+                    maker_contract,
+                    'transfer',
+                    0,
+                    params
+                )
+            }
+        })
+    }
+
     fillOrder(walletAddress, swapId, taker_contract, taker_amount) {
-        swapId = IconConverter.toHex(IconConverter.toBigNumber(swapId))
+        swapId = IconConverter.toHex(swapId)
         if (taker_contract === ICX_TOKEN_CONTRACT) {
             const value = IconConverter.toHex(taker_amount)
             return this.__iconexCallTransaction(
@@ -290,9 +327,7 @@ class API {
                 this._scoreAddress,
                 'fill_icx_order',
                 value, { swap_id: swapId }
-            ).then(tx => {
-                return tx
-            })
+            )
         } else {
             const value = IconConverter.toHex(taker_amount)
             const data = {
@@ -310,9 +345,7 @@ class API {
                 'transfer',
                 0,
                 params
-            ).then(tx => {
-                return tx
-            })
+            )
         }
     }
 

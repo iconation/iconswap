@@ -24,7 +24,7 @@ function App() {
     api.isMaintenanceEnabled().then(status => {
       setMaintenance(status)
     }).catch(error => {
-      console.log(error)
+      console.error(error)
       setMaintenance(false)
     })
   }, [maintenance, setMaintenance]);

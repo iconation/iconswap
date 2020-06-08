@@ -1,5 +1,6 @@
 
 import { IconConverter } from 'icon-sdk-js'
+import { api } from './API';
 
 export const convertTsToDate = (timestamp) => {
     function pad(n) { return n < 10 ? '0' + n : n }
@@ -52,6 +53,17 @@ export const displayBigNumber = (f) => {
 export const balanceToUnit = (balance, decimals) => {
     const digits = IconConverter.toBigNumber('10').exponentiatedBy(decimals)
     return IconConverter.toBigNumber(balance).dividedBy(digits)
+}
+
+export const unitToBalance = (balance, decimals) => {
+    const digits = IconConverter.toBigNumber('10').exponentiatedBy(decimals)
+    return IconConverter.toBigNumber(balance).multipliedBy(digits)
+}
+
+export const unitToBalanceEx = (balance, contract) => {
+    return api.getDecimals(contract).then(decimals => {
+        return unitToBalance(balance, decimals)
+    })
 }
 
 export const balanceToUnitDisplay = (balance, decimals) => {

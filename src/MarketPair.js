@@ -32,7 +32,7 @@ const MarketPair = ({ match, wallet }) => {
     const [market, setMarket] = useState(null)
     const [chartView, setChartView] = useState('price')
     const [balances, setBalances] = useState([0, 0])
-    const [isInverted, setIsInverted] = useState(null)
+    const [isInverted, setIsInverted] = useState(false)
 
     const buyPriceInput = useRef(null)
     const buyAmountInput = useRef(null)
@@ -60,6 +60,7 @@ const MarketPair = ({ match, wallet }) => {
             api.getDecimals(pairs[1]),
             api.tokenSymbol(pairs[0]),
             api.tokenSymbol(pairs[1]),
+            api.getManyMarketFilledSwaps(pairName, 0, 1300)
         ]
 
         return Promise.all(promises).then(async market => {
@@ -68,10 +69,8 @@ const MarketPair = ({ match, wallet }) => {
                 buyers, sellers,
                 decimal1, decimal2,
                 symbol1, symbol2,
+                history
             ] = market
-
-            const history = await api.getManyMarketFilledSwaps(pairName, 0, 800)
-            market.push(history)
 
             // Check if inverted view
             if (buyers.length !== 0) {
@@ -177,6 +176,20 @@ const MarketPair = ({ match, wallet }) => {
         totalInput.current.value = total ? truncateDecimals(total, 4) : total === 0 ? '0' : ''
     }
 
+    const clickOrderLimit = (sideSell) => {
+
+        const amountInput = (sideSell ? sellAmountInput : buyAmountInput)
+        const totalInput = (sideSell ? sellTotalInput : buyTotalInput)
+
+        const maker_amount = sideSell ? parseFloat(amountInput.current.value) : parseFloat(totalInput.current.value)
+        const taker_amount = sideSell ? parseFloat(totalInput.current.value) : parseFloat(amountInput.current.value)
+
+        const maker_contract = sideSell ? pairs[0] : pairs[1]
+        const taker_contract = sideSell ? pairs[1] : pairs[0]
+
+        api.marketCreateLimitOrder(wallet, maker_contract, maker_amount, taker_contract, taker_amount)
+    }
+
     const clickOnBookOrder = (swap, index, swaps, sideSell) => {
         const price = getPriceBigNumber(swap, pairs)
         buyPriceInput.current.value = displayBigNumber(price);
@@ -198,24 +211,16 @@ const MarketPair = ({ match, wallet }) => {
         // Check if amount exceed balance
         const indexBalance = sideSell ? 1 : 0
         const balance = IconConverter.toBigNumber(balances[indexBalance])
-        console.log("-----------------------------")
-        console.log("pre amount ", balanceToUnitDisplay(amount, decimals[indexBalance]))
-        console.log("pre balance ", balanceToUnitDisplay(balance, decimals[indexBalance]))
         if (sideSell) {
-            console.log("<")
             const total = amount.multipliedBy(price)
-            console.log("pre total", balanceToUnitDisplay(total, decimals[indexBalance]))
-
             if (total.comparedTo(balance) == 1) {
                 amount = IconConverter.toBigNumber(balance).dividedBy(IconConverter.toBigNumber(price))
             }
         } else {
-            console.log(">")
             if (amount.comparedTo(balance) == 1) {
                 amount = balance
             }
         }
-        console.log("aft amount ", balanceToUnitDisplay(amount, decimals[indexBalance]))
 
         amount = balanceToUnit(amount, decimals[indexBalance])
 
@@ -269,7 +274,7 @@ const MarketPair = ({ match, wallet }) => {
                     <div id="market-pair-view">
                         <div id="market-pair-left">
                             <table id="market-pair-sellers" className="market-pair-table">
-                                <tbody>
+                                <tbody id="market-pair-sellers-entries">
                                     {sellers && sellers.map((swap, index) => (
                                         <tr className="market-pair-tr-clickeable" onClick={() => { clickOnBookOrder(swap, index, sellers, true) }} key={swap['id']}>
                                             <td className={"market-pair-left-status tooltip"}>{isUserSwap(swap) && <>
@@ -297,7 +302,7 @@ const MarketPair = ({ match, wallet }) => {
                             </table>
 
                             <div id="market-pair-middleinfo">
-                                <div id="market-pair-spread">Spread: <br /> {getSpread(sellers.slice(-1)[0], buyers[0], pairs)} %</div>
+                                <div id="market-pair-spread">Spread: <br /> {getSpread(sellers[0], buyers[0], pairs)} %</div>
                                 <div id="market-pair-lastprice">Last Price : <br /> {(swapsFilled.length > 0 && getPrice(swapsFilled[0], pairs)) || 0}</div>
                             </div>
 
@@ -378,7 +383,9 @@ const MarketPair = ({ match, wallet }) => {
                                             <input onChange={() => { makerOrderFieldChange(false, FormIndexes.TOTAL_FORM_INDEX) }} ref={buyTotalInput} className="market-pair-make-order-inputfield" type="number"></input>
                                         </div>
 
-                                        <button className="market-pair-buysell-button market-pair-buy-button">Buy {symbols[pairs[0]]}</button>
+                                        <button className="market-pair-buysell-button market-pair-buy-button"
+                                            onClick={() => { clickOrderLimit(false) }}>
+                                            Buy {symbols[pairs[0]]}</button>
                                     </div>
                                 </div>
 
@@ -413,7 +420,9 @@ const MarketPair = ({ match, wallet }) => {
                                             <input onChange={() => { makerOrderFieldChange(true, FormIndexes.TOTAL_FORM_INDEX) }} ref={sellTotalInput} className="market-pair-make-order-inputfield" type="number"></input>
                                         </div>
 
-                                        <button className="market-pair-buysell-button market-pair-sell-button">Sell {symbols[pairs[0]]}</button>
+                                        <button className="market-pair-buysell-button market-pair-sell-button"
+                                            onClick={() => { clickOrderLimit(true) }}>
+                                            Sell {symbols[pairs[0]]}</button>
 
                                     </div>
                                 </div>

@@ -284,6 +284,7 @@ export const showPriceChart = (market, pairs, isInverted) => {
         valueAxis.renderer.labels.template.padding(2, 2, 2, 2);
         //valueAxis.renderer.maxLabelPosition = 0.95;
         valueAxis.renderer.fontSize = "0.8em"
+        valueAxis.logarithmic = true;
 
         var series = chart.series.push(new am4charts.CandlestickSeries());
         series.dataFields.dateX = "Date";
@@ -302,11 +303,11 @@ export const showPriceChart = (market, pairs, isInverted) => {
         valueAxis2.height = am4core.percent(15);
         valueAxis2.zIndex = 3
         // this makes gap between panels
-        valueAxis2.marginTop = 30;
+        valueAxis2.marginTop = 0;
         valueAxis2.renderer.baseGrid.disabled = true;
         valueAxis2.renderer.inside = true;
         valueAxis2.renderer.labels.template.verticalCenter = "bottom";
-        valueAxis2.renderer.labels.template.padding(2, 2, 2, 2);
+        valueAxis2.renderer.labels.template.padding(0, 0, -30, 0);
         //valueAxis.renderer.maxLabelPosition = 0.95;
         valueAxis2.renderer.fontSize = "0.8em"
 
@@ -325,14 +326,8 @@ export const showPriceChart = (market, pairs, isInverted) => {
         series2.defaultState.transitionDuration = 0;
         chart.cursor = new am4charts.XYCursor();
 
-        var scrollbarX = new am4charts.XYChartScrollbar();
         var sbSeries = chart.series.push(new am4charts.LineSeries());
         sbSeries.dataFields.valueY = "Close";
         sbSeries.dataFields.dateX = "Date";
-        scrollbarX.series.push(sbSeries);
-        sbSeries.disabled = true;
-        scrollbarX.marginBottom = 0;
-        chart.scrollbarX = scrollbarX;
-        scrollbarX.scrollbarChart.xAxes.getIndex(0).minHeight = undefined;
     })
 }

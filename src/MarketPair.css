@@ -156,6 +156,11 @@
     max-height: 44%;
 }
 
+#market-pair-sellers-entries {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
 #market-pair-buyers {
     background: #fafafa;
     overflow: auto;
