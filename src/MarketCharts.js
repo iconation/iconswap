@@ -284,6 +284,7 @@ export const showPriceChart = (market, pairs, isInverted) => {
         valueAxis.renderer.labels.template.padding(2, 2, 2, 2);
         //valueAxis.renderer.maxLabelPosition = 0.95;
         valueAxis.renderer.fontSize = "0.8em"
+        valueAxis.logarithmic = true
 
         var series = chart.series.push(new am4charts.CandlestickSeries());
         series.dataFields.dateX = "Date";

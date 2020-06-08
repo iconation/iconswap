@@ -70,7 +70,7 @@ const MarketPair = ({ match, wallet }) => {
                 symbol1, symbol2,
             ] = market
 
-            const history = await api.getManyMarketFilledSwaps(pairName, 0, 800)
+            const history = await api.getManyMarketFilledSwaps(pairName, 0, 2000)
             market.push(history)
 
             // Check if inverted view
