@@ -302,7 +302,12 @@ const MarketPair = ({ match, wallet }) => {
                             </table>
 
                             <div id="market-pair-middleinfo">
-                                <div id="market-pair-spread">Spread: <br /> {getSpread(sellers.slice(-1)[0], buyers[0], pairs)} %</div>
+                                <div id="market-pair-spread">Spread: <br /> {
+                                    // Temp
+                                    appVersion && appVersion == '0.4.0' ?
+                                        getSpread(sellers.slice(-1)[0], buyers[0], pairs)
+                                        : getSpread(sellers[0], buyers[0], pairs)
+                                } %</div>
                                 <div id="market-pair-lastprice">Last Price : <br /> {(swapsFilled.length > 0 && getPrice(swapsFilled[0], pairs)) || 0}</div>
                             </div>
 

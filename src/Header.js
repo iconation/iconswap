@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import logo from './static/img/logo.png'
 import { WALLET_LOCAL_STORAGE_KEY } from './constants'
@@ -15,6 +15,12 @@ var pjson = require('../package.json')
 const Header = ({ wallet, setWallet }) => {
 
     const history = useHistory();
+
+    // HackFix
+    const [appVersion, setAppVersion] = useState(null)
+    !appVersion && api.getVersion().then(version => {
+        setAppVersion(version)
+    })
 
     const disconnectClick = () => {
         localStorage.removeItem(WALLET_LOCAL_STORAGE_KEY)
@@ -38,7 +44,7 @@ const Header = ({ wallet, setWallet }) => {
             <div id="header-content-left">
                 <Link to="/"><img src={logo} height="60" alt="logo" /></Link>
                 <Link to="/" id="logo-text-href"><div id="logotext">ICONSwap</div></Link>
-                <div className="header-bubble">Status: Beta ({pjson.version})</div>
+                <div className="header-bubble">Beta (UI:{pjson.version} / SCORE:{appVersion})</div>
                 <div className="header-bubble">Network: {api.getNetworkName()}</div>
             </div>
 
