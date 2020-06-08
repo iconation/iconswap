@@ -142,8 +142,8 @@ class API {
     }
 
     getSwap(swapId) {
-        return this.__call(this._scoreAddress, 'get_swap', { swap_id: IconConverter.toHex(swapId) }).then(swap => {
-            return swap
+        return this.__call(this._scoreAddress, 'get_swap', {
+            swap_id: IconConverter.toHex(swapId)
         })
     }
 
@@ -162,38 +162,35 @@ class API {
     }
 
     getMarketFilledSwaps(pair, offset) {
-        return this.__call(this._scoreAddress, 'get_market_filled_swaps', { 'offset': IconConverter.toHex(offset), 'pair': pair })
+        return this.__call(this._scoreAddress, 'get_market_filled_swaps', {
+            'offset': IconConverter.toHex(offset),
+            'pair': pair
+        })
     }
 
-    async getManyMarketFilledSwaps(pair, offset, count) {
+    getManyMarketFilledSwaps(pair, offset, count) {
         var curOffset = offset;
         var promises = []
 
         for (var curOffset = offset; curOffset < count; curOffset += MAX_ITERATION_LOOP) {
-            promises.push(this.__call(this._scoreAddress, 'get_market_filled_swaps', { 'offset': IconConverter.toHex(curOffset), 'pair': pair }))
+            promises.push(
+                this.__call(this._scoreAddress, 'get_market_filled_swaps', {
+                    offset: IconConverter.toHex(curOffset),
+                    pair: pair
+                })
+            )
         }
 
-        try {
-            return await Promise.all(promises).then(result => {
-                return Array.prototype.concat.apply([], result);
-            })
-        } catch (error) {
-            if (error.includes('StopIteration')) {
-                return await this.__callWithOffset(
-                    this._scoreAddress,
-                    'get_market_filled_swaps',
-                    { 'pair': pair },
-                    count
-                )
-            } else {
-                throw error;
-            }
-        }
+        return Promise.allSettled(promises).then(result => {
+            result = result.filter(item => item.status == "fulfilled")
+            result = result.map(item => item.value)
+            return Array.prototype.concat.apply([], result);
+        })
     }
 
     getOrder(orderId) {
-        return this.__call(this._scoreAddress, 'get_order', { order_id: IconConverter.toHex(orderId) }).then(swap => {
-            return swap
+        return this.__call(this._scoreAddress, 'get_order', {
+            order_id: IconConverter.toHex(orderId)
         })
     }
 
@@ -243,7 +240,7 @@ class API {
         })
     }
 
-    async __callWithOffset(contract, method, params = {}, minCount = 0) {
+    async __callWithOffset(contract, method, params = {}) {
         let result = []
         let offset = 0
         let running = true
@@ -251,15 +248,13 @@ class API {
         while (running) {
             params['offset'] = IconConverter.toHex(offset)
             try {
-                const orders = await this.__call(contract, method, params)
-                result = result.concat(orders)
-                if (result.length >= minCount) {
-                    running = false;
-                }
+                const items = await this.__call(contract, method, params)
+                result = result.concat(items)
                 offset += MAX_ITERATION_LOOP
             } catch (error) {
-                if (error.includes('StopIteration'))
+                if (error.includes('StopIteration')) {
                     running = false
+                }
                 else throw error
             }
         }
@@ -268,17 +263,15 @@ class API {
     }
 
     getPendingOrdersByAddress(walletAddress) {
-        return this.__callWithOffset(this._scoreAddress, 'get_account_pending_swaps', { address: walletAddress })
-            .then(orders => {
-                return orders
-            })
+        return this.__callWithOffset(this._scoreAddress, 'get_account_pending_swaps', {
+            address: walletAddress
+        })
     }
 
     getFilledOrdersByAddress(walletAddress) {
-        return this.__callWithOffset(this._scoreAddress, 'get_account_filled_swaps', { address: walletAddress })
-            .then(orders => {
-                return orders
-            })
+        return this.__callWithOffset(this._scoreAddress, 'get_account_filled_swaps', {
+            address: walletAddress
+        })
     }
 
     fillOrder(walletAddress, swapId, taker_contract, taker_amount) {
@@ -290,35 +283,24 @@ class API {
                 this._scoreAddress,
                 'fill_icx_order',
                 value, { swap_id: swapId }
-            ).then(tx => {
-                return tx
-            })
+            )
         } else {
             const value = IconConverter.toHex(taker_amount)
             const data = {
                 'action': 'fill_irc2_order',
                 'swap_id': swapId
             }
-            const params = {
+            return this.__iconexCallTransaction(walletAddress, taker_contract, 'transfer', 0, {
                 '_to': this._scoreAddress,
                 '_value': value,
                 '_data': IconConverter.toHex(JSON.stringify(data))
-            }
-            return this.__iconexCallTransaction(
-                walletAddress,
-                taker_contract,
-                'transfer',
-                0,
-                params
-            ).then(tx => {
-                return tx
             })
         }
     }
 
     cancelSwap(walletAddress, swapId) {
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap', 0, { swap_id: IconConverter.toHex(swapId) }).then(txHash => {
-            return txHash
+        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap', 0, {
+            swap_id: IconConverter.toHex(swapId)
         })
     }
 
@@ -372,27 +354,47 @@ class API {
 
     // admin
     cancelSwapAdmin(walletAddress, swapId) {
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'cancel_swap_admin', 0, { swap_id: IconConverter.toHex(swapId) }).then(txHash => {
-            return txHash
-        })
+        return this.__iconexCallTransaction(
+            walletAddress,
+            this._scoreAddress,
+            'cancel_swap_admin', 0,
+            {
+                swap_id: IconConverter.toHex(swapId)
+            }
+        )
     }
 
     forceSwapFactoryId(walletAddress, uid) {
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'force_swap_factory_id', 0, { uid: IconConverter.toHex(uid) }).then(txHash => {
-            return txHash
-        })
+        return this.__iconexCallTransaction(
+            walletAddress,
+            this._scoreAddress,
+            'force_swap_factory_id', 0,
+            {
+                uid: IconConverter.toHex(uid)
+            }
+        )
     }
 
     forceOrderFactoryId(walletAddress, uid) {
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'force_order_factory_id', 0, { uid: IconConverter.toHex(uid) }).then(txHash => {
-            return txHash
-        })
+        return this.__iconexCallTransaction(
+            walletAddress,
+            this._scoreAddress,
+            'force_order_factory_id', 0,
+            {
+                uid: IconConverter.toHex(uid)
+            }
+        )
     }
 
     setMaintenanceMode(walletAddress, mode) {
-        return this.__iconexCallTransaction(walletAddress, this._scoreAddress, 'set_maintenance_mode', 0, { mode: IconConverter.toHex(mode) }).then(txHash => {
-            return txHash
-        })
+        return this.__iconexCallTransaction(
+            walletAddress,
+            this._scoreAddress,
+            'set_maintenance_mode', 0,
+            {
+                mode: IconConverter.toHex(mode)
+            }
+        )
     }
 
 
@@ -403,9 +405,7 @@ class API {
                 resolve('ICX')
             })
         }
-        return this.__call(contract, 'name').then(name => {
-            return name
-        })
+        return this.__call(contract, 'name')
     }
     tokenSymbol(contract) {
         if (contract === ICX_TOKEN_CONTRACT) {
@@ -413,28 +413,20 @@ class API {
                 resolve('ICX')
             })
         }
-        return this.__call(contract, 'symbol').then(symbol => {
-            return symbol
-        })
+        return this.__call(contract, 'symbol')
     }
 
     // ICONex Connect Extension =============================================================
     iconexHasAccount() {
-        return this.__iconexConnectRequest('REQUEST_HAS_ACCOUNT').then(payload => {
-            return payload
-        })
+        return this.__iconexConnectRequest('REQUEST_HAS_ACCOUNT')
     }
 
     iconexHasAddress(address) {
-        return this.__iconexConnectRequest('REQUEST_HAS_ADDRESS', address).then(payload => {
-            return payload
-        })
+        return this.__iconexConnectRequest('REQUEST_HAS_ADDRESS', address)
     }
 
     iconexAskAddress() {
-        return this.__iconexConnectRequest('REQUEST_ADDRESS').then(payload => {
-            return payload
-        })
+        return this.__iconexConnectRequest('REQUEST_ADDRESS')
     }
 
     // ======================================================================================
@@ -486,22 +478,16 @@ class API {
     }
 
     __iconexJsonRpc(jsonRpcQuery) {
-        return this.__iconexConnectRequest('REQUEST_JSON-RPC', jsonRpcQuery).then(payload => {
-            return payload
-        })
+        return this.__iconexConnectRequest('REQUEST_JSON-RPC', jsonRpcQuery)
     }
 
     // ======================================================================================
     __getIcxBalance(address) {
-        return this._getIconService().getBalance(address).execute().then(balance => {
-            return balance;
-        })
+        return this._getIconService().getBalance(address).execute()
     }
 
     __getIRC2Balance(address, contract) {
-        return this.__call(contract, 'balanceOf', { '_owner': address }).then(balance => {
-            return balance
-        })
+        return this.__call(contract, 'balanceOf', { '_owner': address })
     }
 
 

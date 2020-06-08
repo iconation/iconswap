@@ -60,6 +60,7 @@ const MarketPair = ({ match, wallet }) => {
             api.getDecimals(pairs[1]),
             api.tokenSymbol(pairs[0]),
             api.tokenSymbol(pairs[1]),
+            api.getManyMarketFilledSwaps(pairName, 0, 1500)
         ]
 
         return Promise.all(promises).then(async market => {
@@ -68,10 +69,8 @@ const MarketPair = ({ match, wallet }) => {
                 buyers, sellers,
                 decimal1, decimal2,
                 symbol1, symbol2,
+                history
             ] = market
-
-            const history = await api.getManyMarketFilledSwaps(pairName, 0, 2000)
-            market.push(history)
 
             // Check if inverted view
             if (buyers.length !== 0) {
