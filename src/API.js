@@ -141,6 +141,15 @@ class API {
         })
     }
 
+    async getVersion() {
+        try {
+            return await this.__call(this._scoreAddress, 'version')
+        } catch (exception) {
+            console.log(exception)
+            return '0.4.0'
+        }
+    }
+
     getSwap(swapId) {
         return this.__call(this._scoreAddress, 'get_swap', {
             swap_id: IconConverter.toHex(swapId)

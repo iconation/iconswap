@@ -34,6 +34,12 @@ const MarketPair = ({ match, wallet }) => {
     const [balances, setBalances] = useState([0, 0])
     const [isInverted, setIsInverted] = useState(null)
 
+    // HackFix
+    const [appVersion, setAppVersion] = useState(null)
+    !appVersion && api.getVersion().then(version => {
+        setAppVersion(version)
+    })
+
     const buyPriceInput = useRef(null)
     const buyAmountInput = useRef(null)
     const buyTotalInput = useRef(null)
