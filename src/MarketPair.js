@@ -274,7 +274,7 @@ const MarketPair = ({ match, wallet }) => {
                     <div id="market-pair-view">
                         <div id="market-pair-left">
                             <table id="market-pair-sellers" className="market-pair-table">
-                                <tbody>
+                                <tbody id={appVersion == '0.4.0' ? "" : "market-pair-sellers-entries"}>
                                     {sellers && sellers.map((swap, index) => (
                                         <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
                                             <td className={"market-pair-left-status tooltip"}>{isUserSwap(swap) && <>
