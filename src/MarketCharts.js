@@ -314,6 +314,7 @@ export const showPriceChart = (market, pairs, isInverted) => {
         valueAxis2.renderer.gridContainer.background.fill = am4core.color("#000000");
         valueAxis2.renderer.gridContainer.background.fillOpacity = 0.05;
 
+        // Volume
         var series2 = chart.series.push(new am4charts.ColumnSeries());
         series2.dataFields.dateX = "Date";
         series2.clustered = false;
@@ -326,6 +327,7 @@ export const showPriceChart = (market, pairs, isInverted) => {
         series2.defaultState.transitionDuration = 0;
         chart.cursor = new am4charts.XYCursor();
 
+        // Price slider
         var scrollbarX = new am4charts.XYChartScrollbar();
         var sbSeries = chart.series.push(new am4charts.LineSeries());
         sbSeries.dataFields.valueY = "Close";
