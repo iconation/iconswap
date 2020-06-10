@@ -10,7 +10,7 @@ export const WALLET_LOCAL_STORAGE_KEY = 'wallet'
 // SCORE Configuration
 // export const SCORE_ENDPOINT = 'cx90d86f087c70187d1a054473887165815f6251a8'
 // export const SCORE_NETWORK = Networks.YEOUIDO
-export const SCORE_ENDPOINT = "cx2de49dd96253dbf3d6ae93717a2ac22db1ea01de"
+export const SCORE_ENDPOINT = "cx0a47b1de97efa0ffd2cf0ad11a7ee46ccd8495e5"
 export const SCORE_NETWORK = Networks.LOCALHOST
 // export const SCORE_ENDPOINT = "cx6f824b1ccc08c13f626b8fc888d8214632cba28a"
 // export const SCORE_NETWORK = Networks.MAINNET

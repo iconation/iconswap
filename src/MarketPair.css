@@ -48,7 +48,7 @@
 }
 
 .market-pair-left-total {
-    min-width: 150px;
+    width: 100%;
 }
 
 #market-pair-middleinfo {
