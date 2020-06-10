@@ -197,15 +197,9 @@ const MarketPair = ({ match, wallet }) => {
 
         // Get amount
         var amount = IconConverter.toBigNumber(0);
-        if (sideSell) {
-            for (var curIndex = index; curIndex < swaps.length; curIndex++) {
-                amount = amount.plus(IconConverter.toBigNumber(swaps[curIndex]['maker']['amount']))
-            }
-
-        } else {
-            for (var curIndex = index; curIndex >= 0; curIndex--) {
-                amount = amount.plus(IconConverter.toBigNumber(swaps[curIndex]['taker']['amount']))
-            }
+        const sideOrder = sideSell ? 'maker' : 'taker'
+        for (var curIndex = index; curIndex >= 0; curIndex--) {
+            amount = amount.plus(IconConverter.toBigNumber(swaps[curIndex][sideOrder]['amount']))
         }
 
         // Check if amount exceed balance
