@@ -36,21 +36,19 @@
 }
 
 .market-pair-left-price {
-    width: 300px;
+    min-width: 180px;
 }
 
 .market-pair-left-status {
-    width: 50px;
+    min-width: 20px;
 }
 
 .market-pair-left-amount {
-    width: 200px;
+    min-width: 100px;
 }
+
 .market-pair-left-total {
-    width: 250px;
-}
-.market-pair-left-action {
-    width: 250px;
+    min-width: 150px;
 }
 
 #market-pair-middleinfo {
