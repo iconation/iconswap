@@ -80,8 +80,8 @@ const MarketPair = ({ match, wallet }) => {
                     setIsInverted(false)
                 } else {
                     // inverted
-                    setBuyers(sellers.reverse())
-                    setSellers(buyers.reverse())
+                    setBuyers(sellers)
+                    setSellers(buyers)
                     setIsInverted(true)
                 }
             }
@@ -92,8 +92,8 @@ const MarketPair = ({ match, wallet }) => {
                     setIsInverted(false)
                 } else {
                     // inverted
-                    setBuyers(sellers.reverse())
-                    setSellers(buyers.reverse())
+                    setBuyers(sellers)
+                    setSellers(buyers)
                     setIsInverted(true)
                 }
             }
