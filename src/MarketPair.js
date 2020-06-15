@@ -34,6 +34,7 @@ const MarketPair = ({ match, wallet }) => {
     const [balances, setBalances] = useState([0, 0])
     const [isInverted, setIsInverted] = useState(false)
 
+    const chartCanvas = useRef(null)
     const buyPriceInput = useRef(null)
     const buyAmountInput = useRef(null)
     const buyTotalInput = useRef(null)
@@ -51,16 +52,16 @@ const MarketPair = ({ match, wallet }) => {
 
     useEffect(() => {
 
-        const groupSwaps = (swaps) => {
+        const groupSwaps = (swaps, sellSide) => {
             if (swaps.length === 0) return swaps
 
             // Group swaps in a dict with a price key
             let dictionary = {}
             swaps.forEach(swap => {
-                if (!(getPrice(swap, pairs) in dictionary)) {
-                    dictionary[getPrice(swap, pairs)] = [swap]
+                if (!(getPrice(swap, pairs, false) in dictionary)) {
+                    dictionary[getPrice(swap, pairs, false)] = [swap]
                 } else {
-                    dictionary[getPrice(swap, pairs)].push(swap)
+                    dictionary[getPrice(swap, pairs, false)].push(swap)
                 }
             })
 
@@ -68,11 +69,11 @@ const MarketPair = ({ match, wallet }) => {
 
             // Sort keys by value
             const sortedKeys = Object.keys(dictionary).sort((a, b) => {
-                return parseFloat(a) - parseFloat(b)
+                return sellSide ? parseFloat(a) - parseFloat(b) : parseFloat(b) - parseFloat(a)
             })
 
             // Iterate the dictionary
-            sortedKeys.forEach((key, index) => {
+            sortedKeys.forEach(key => {
                 const swapsPrice = dictionary[key]
                 var sumSwap = swapsPrice.reduce((acc, cur) => {
                     acc['maker']['amount'] = IconConverter.toHex(IconConverter.toBigNumber(acc['maker']['amount'])
@@ -89,11 +90,13 @@ const MarketPair = ({ match, wallet }) => {
 
         const refreshMarket = () => {
 
+            console.log("isInverted=", isInverted)
+
             let promises = [
                 api.getBalance(wallet, pairs[0]),
                 api.getBalance(wallet, pairs[1]),
-                api.getMarketBuyersPendingSwaps(pairName).then(s => groupSwaps(s)),
-                api.getMarketSellerPendingSwaps(pairName).then(s => groupSwaps(s)),
+                api.getMarketBuyersPendingSwaps(pairName),
+                api.getMarketSellerPendingSwaps(pairName),
                 api.getDecimals(pairs[0]),
                 api.getDecimals(pairs[1]),
                 api.tokenSymbol(pairs[0]),
@@ -113,25 +116,25 @@ const MarketPair = ({ match, wallet }) => {
                 // Check if inverted view
                 if (buyers.length !== 0) {
                     if (buyers[0].maker.contract === pairs[1]) {
-                        setBuyers(buyers)
-                        setSellers(sellers)
+                        setBuyers(groupSwaps(buyers, false))
+                        setSellers(groupSwaps(sellers, true))
                         setIsInverted(false)
                     } else {
                         // inverted
-                        setBuyers(sellers)
-                        setSellers(buyers)
+                        setBuyers(groupSwaps(sellers, false))
+                        setSellers(groupSwaps(buyers, true))
                         setIsInverted(true)
                     }
                 }
                 else if (sellers.length !== 0) {
                     if (sellers[0].maker.contract === pairs[0]) {
-                        setBuyers(buyers)
-                        setSellers(sellers)
+                        setBuyers(groupSwaps(buyers, false))
+                        setSellers(groupSwaps(sellers, true))
                         setIsInverted(false)
                     } else {
                         // inverted
-                        setBuyers(sellers)
-                        setSellers(buyers)
+                        setBuyers(groupSwaps(sellers, false))
+                        setSellers(groupSwaps(buyers, true))
                         setIsInverted(true)
                     }
                 }
@@ -153,11 +156,11 @@ const MarketPair = ({ match, wallet }) => {
     useEffect(() => {
         switch (chartView) {
             case 'price':
-                showPriceChart(market, pairs, isInverted);
+                if (chartCanvas.current) showPriceChart(market, pairs, isInverted);
                 break;
 
             case 'depth':
-                showDepthChart(market, pairs, isInverted);
+                if (chartCanvas.current) showDepthChart(market, pairs, isInverted);
                 break;
 
             default:
@@ -390,7 +393,7 @@ const MarketPair = ({ match, wallet }) => {
                                     </button>
                                 </div>
 
-                                <div id="market-pair-chart-canvas"></div>
+                                <div ref={chartCanvas} id="market-pair-chart-canvas"></div>
                             </div>
 
 

@@ -50,8 +50,13 @@ export const truncateBigNumber = (f) => {
     return truncateDecimals(parseFloat(f), 7)
 }
 
-export const displayBigNumber = (f) => {
-    return truncateBigNumber(f).toLocaleString('fullwide', { useGrouping: false, maximumFractionDigits: 7 })
+export const displayBigNumber = (f, toString = true) => {
+    const trunc = truncateBigNumber(f)
+    if (toString) {
+        return trunc.toLocaleString('fullwide', { useGrouping: false, maximumFractionDigits: 7 })
+    } else {
+        return trunc
+    }
 }
 
 export const balanceToUnit = (balance, decimals) => {
@@ -89,8 +94,8 @@ export const getPriceBigNumber = (swap, pairs) => {
         .dividedBy(IconConverter.toBigNumber(o2['amount']))
 }
 
-export const getPrice = (swap, pairs) => {
-    return displayBigNumber(getPriceBigNumber(swap, pairs))
+export const getPrice = (swap, pairs, toString = true) => {
+    return displayBigNumber(getPriceBigNumber(swap, pairs), toString)
 }
 
 export const truncateDecimals = (number, digits) => {
