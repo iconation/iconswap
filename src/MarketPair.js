@@ -49,69 +49,106 @@ const MarketPair = ({ match, wallet }) => {
         TOTAL_FORM_INDEX: 2,
     }
 
-    const refreshMarket = () => {
-
-        let promises = [
-            api.getBalance(wallet, pairs[0]),
-            api.getBalance(wallet, pairs[1]),
-            api.getMarketBuyersPendingSwaps(pairName),
-            api.getMarketSellerPendingSwaps(pairName),
-            api.getDecimals(pairs[0]),
-            api.getDecimals(pairs[1]),
-            api.tokenSymbol(pairs[0]),
-            api.tokenSymbol(pairs[1]),
-            api.getManyMarketFilledSwaps(pairName, 0, 1300)
-        ]
-
-        return Promise.all(promises).then(async market => {
-            const [
-                balance1, balance2,
-                buyers, sellers,
-                decimal1, decimal2,
-                symbol1, symbol2,
-                history
-            ] = market
-
-            // Check if inverted view
-            if (buyers.length !== 0) {
-                if (buyers[0].maker.contract === pairs[1]) {
-                    setBuyers(buyers)
-                    setSellers(sellers)
-                    setIsInverted(false)
-                } else {
-                    // inverted
-                    setBuyers(sellers)
-                    setSellers(buyers)
-                    setIsInverted(true)
-                }
-            }
-            else if (sellers.length !== 0) {
-                if (sellers[0].maker.contract === pairs[0]) {
-                    setBuyers(buyers)
-                    setSellers(sellers)
-                    setIsInverted(false)
-                } else {
-                    // inverted
-                    setBuyers(sellers)
-                    setSellers(buyers)
-                    setIsInverted(true)
-                }
-            }
-
-            setBalances([balance1, balance2])
-            setSwapsFilled(history.slice(0, 250))
-            setDecimals([decimal1, decimal2])
-            let symbols = {}
-            symbols[pairs[0]] = symbol1
-            symbols[pairs[1]] = symbol2
-            setSymbols(symbols)
-            setMarket(market)
-        })
-    }
-
     useEffect(() => {
+
+        const groupSwaps = (swaps) => {
+            if (swaps.length === 0) return swaps
+
+            // Group swaps in a dict with a price key
+            let dictionary = {}
+            swaps.forEach(swap => {
+                if (!(getPrice(swap, pairs) in dictionary)) {
+                    dictionary[getPrice(swap, pairs)] = [swap]
+                } else {
+                    dictionary[getPrice(swap, pairs)].push(swap)
+                }
+            })
+
+            var result = []
+
+            // Sort keys by value
+            const sortedKeys = Object.keys(dictionary).sort((a, b) => {
+                return parseFloat(a) - parseFloat(b)
+            })
+
+            // Iterate the dictionary
+            sortedKeys.forEach((key, index) => {
+                const swapsPrice = dictionary[key]
+                var sumSwap = swapsPrice.reduce((acc, cur) => {
+                    acc['maker']['amount'] = IconConverter.toHex(IconConverter.toBigNumber(acc['maker']['amount'])
+                        .plus(cur['maker']['amount']))
+                    acc['taker']['amount'] = IconConverter.toHex(IconConverter.toBigNumber(acc['taker']['amount'])
+                        .plus(IconConverter.toBigNumber(cur['taker']['amount'])))
+                    return acc
+                })
+                result.push(sumSwap)
+            })
+
+            return result
+        }
+
+        const refreshMarket = () => {
+
+            let promises = [
+                api.getBalance(wallet, pairs[0]),
+                api.getBalance(wallet, pairs[1]),
+                api.getMarketBuyersPendingSwaps(pairName).then(s => groupSwaps(s)),
+                api.getMarketSellerPendingSwaps(pairName).then(s => groupSwaps(s)),
+                api.getDecimals(pairs[0]),
+                api.getDecimals(pairs[1]),
+                api.tokenSymbol(pairs[0]),
+                api.tokenSymbol(pairs[1]),
+                api.getManyMarketFilledSwaps(pairName, 0, 1300)
+            ]
+
+            return Promise.all(promises).then(async market => {
+                const [
+                    balance1, balance2,
+                    buyers, sellers,
+                    decimal1, decimal2,
+                    symbol1, symbol2,
+                    history
+                ] = market
+
+                // Check if inverted view
+                if (buyers.length !== 0) {
+                    if (buyers[0].maker.contract === pairs[1]) {
+                        setBuyers(buyers)
+                        setSellers(sellers)
+                        setIsInverted(false)
+                    } else {
+                        // inverted
+                        setBuyers(sellers)
+                        setSellers(buyers)
+                        setIsInverted(true)
+                    }
+                }
+                else if (sellers.length !== 0) {
+                    if (sellers[0].maker.contract === pairs[0]) {
+                        setBuyers(buyers)
+                        setSellers(sellers)
+                        setIsInverted(false)
+                    } else {
+                        // inverted
+                        setBuyers(sellers)
+                        setSellers(buyers)
+                        setIsInverted(true)
+                    }
+                }
+
+                setBalances([balance1, balance2])
+                setSwapsFilled(history.slice(0, 250))
+                setDecimals([decimal1, decimal2])
+                let symbols = {}
+                symbols[pairs[0]] = symbol1
+                symbols[pairs[1]] = symbol2
+                setSymbols(symbols)
+                setMarket(market)
+            })
+        }
+
         refreshMarket()
-    }, [pairs]);
+    }, [pairs, pairName, wallet]);
 
     useEffect(() => {
         switch (chartView) {
@@ -122,8 +159,11 @@ const MarketPair = ({ match, wallet }) => {
             case 'depth':
                 showDepthChart(market, pairs, isInverted);
                 break;
+
+            default:
+                console.error("Undefined chartview mode")
         }
-    }, [market, chartView]);
+    }, [market, chartView, isInverted, pairs]);
 
     const goToSwap = (swap) => {
         window.open("#/swap/" + parseInt(swap['id'], 16), '_blank')
@@ -131,15 +171,27 @@ const MarketPair = ({ match, wallet }) => {
 
     const selectPercentWallet = (percentValue, sideSell) => {
         const indexBalance = sideSell ? 0 : 1
-        const amount = IconConverter.toBigNumber(balances[indexBalance]).multipliedBy(percentValue).dividedBy(100)
 
         if (sideSell) {
-            sellAmountInput.current.value = balanceToUnitDisplay(amount, decimals[indexBalance])
+            const amount = IconConverter.toBigNumber(balances[indexBalance]).multipliedBy(percentValue).dividedBy(100)
+            sellAmountInput.current.value = parseFloat(balanceToUnitDisplay(amount, decimals[indexBalance]).trim())
+            makerOrderFieldChange(sideSell, FormIndexes.AMOUNT_FORM_INDEX)
         } else {
-            buyAmountInput.current.value = balanceToUnitDisplay(amount, decimals[indexBalance])
+            const total = IconConverter.toBigNumber(balances[indexBalance]).multipliedBy(percentValue).dividedBy(100)
+            buyTotalInput.current.value = parseFloat(balanceToUnitDisplay(total, decimals[indexBalance]).trim())
+            makerOrderFieldChange(sideSell, FormIndexes.TOTAL_FORM_INDEX)
         }
+    }
 
-        makerOrderFieldChange(sideSell, FormIndexes.AMOUNT_FORM_INDEX)
+    const sanitizeOrderFieldInputs = (sideSell, price = null, amount = null, total = null) => {
+
+        const priceInput = (sideSell ? sellPriceInput : buyPriceInput)
+        const amountInput = (sideSell ? sellAmountInput : buyAmountInput)
+        const totalInput = (sideSell ? sellTotalInput : buyTotalInput)
+
+        if (price !== null) priceInput.current.value = price ? truncateDecimals(price, 7) : price === 0 ? '0' : ''
+        if (amount !== null) amountInput.current.value = amount ? truncateDecimals(amount, 7) : amount === 0 ? '0' : ''
+        if (total !== null) totalInput.current.value = total ? truncateDecimals(total, 7) : total === 0 ? '0' : ''
     }
 
     const makerOrderFieldChange = (sideSell, indexChanged) => {
@@ -149,7 +201,7 @@ const MarketPair = ({ match, wallet }) => {
         const totalInput = (sideSell ? sellTotalInput : buyTotalInput)
 
         const isInputEmpty = (input) => {
-            return input.current.value.length == 0
+            return input.current.value.length === 0
         }
 
         var price = parseFloat(priceInput.current.value)
@@ -159,21 +211,22 @@ const MarketPair = ({ match, wallet }) => {
         switch (indexChanged) {
             case FormIndexes.PRICE_FORM_INDEX: // price
                 if (isInputEmpty(priceInput) || isInputEmpty(amountInput)) break
-                total = IconConverter.toBigNumber(amount).multipliedBy(IconConverter.toBigNumber(price))
+                total = parseFloat(IconConverter.toBigNumber(amount).multipliedBy(IconConverter.toBigNumber(price)))
+                sanitizeOrderFieldInputs(sideSell, null, null, total)
                 break
             case FormIndexes.AMOUNT_FORM_INDEX: // amount
                 if (isInputEmpty(priceInput) || isInputEmpty(amountInput)) break
-                total = IconConverter.toBigNumber(amount).multipliedBy(IconConverter.toBigNumber(price))
+                total = parseFloat(IconConverter.toBigNumber(amount).multipliedBy(IconConverter.toBigNumber(price)))
+                sanitizeOrderFieldInputs(sideSell, null, null, total)
                 break
             case FormIndexes.TOTAL_FORM_INDEX: // total
                 if (isInputEmpty(priceInput) || isInputEmpty(totalInput)) break
-                amount = IconConverter.toBigNumber(total).dividedBy(IconConverter.toBigNumber(price))
+                amount = parseFloat(IconConverter.toBigNumber(total).dividedBy(IconConverter.toBigNumber(price)))
+                sanitizeOrderFieldInputs(sideSell, null, amount)
                 break
+            default:
+                console.error("makerOrderFieldChange: Invalid index")
         }
-
-        priceInput.current.value = price ? truncateDecimals(price, 8) : price === 0 ? '0' : ''
-        amountInput.current.value = amount ? truncateDecimals(amount, 4) : amount === 0 ? '0' : ''
-        totalInput.current.value = total ? truncateDecimals(total, 4) : total === 0 ? '0' : ''
     }
 
     const clickOrderLimit = (sideSell) => {
@@ -192,8 +245,6 @@ const MarketPair = ({ match, wallet }) => {
 
     const clickOnBookOrder = (swap, index, swaps, sideSell) => {
         const price = getPriceBigNumber(swap, pairs)
-        buyPriceInput.current.value = displayBigNumber(price);
-        sellPriceInput.current.value = displayBigNumber(price);
 
         // Get amount
         var amount = IconConverter.toBigNumber(0);
@@ -207,24 +258,21 @@ const MarketPair = ({ match, wallet }) => {
         const balance = IconConverter.toBigNumber(balances[indexBalance])
         if (sideSell) {
             const total = amount.multipliedBy(price)
-            if (total.comparedTo(balance) == 1) {
+            if (total.comparedTo(balance) === 1) {
                 amount = IconConverter.toBigNumber(balance).dividedBy(IconConverter.toBigNumber(price))
             }
         } else {
-            if (amount.comparedTo(balance) == 1) {
+            if (amount.comparedTo(balance) === 1) {
                 amount = balance
             }
         }
 
-        amount = balanceToUnit(amount, decimals[indexBalance])
-
-        if (sideSell) {
-            buyAmountInput.current.value = amount
-        } else {
-            sellAmountInput.current.value = amount
-        }
-
-        makerOrderFieldChange(!sideSell, FormIndexes.AMOUNT_FORM_INDEX)
+        const total = amount.multipliedBy(price)
+        sanitizeOrderFieldInputs(!sideSell,
+            parseFloat(price),
+            parseFloat(balanceToUnit(amount, decimals[0])),
+            parseFloat(balanceToUnit(total, decimals[1]))
+        )
     }
 
     const getSpread = (swapBid, swapAsk, pairs) => {

@@ -5,7 +5,7 @@ import OrderView from './OrderView'
 import LoadingOverlay from './LoadingOverlay'
 import InfoBox from './InfoBox'
 import './Swap.css';
-import { truncateDecimals } from './utils'
+import { displayBigNumber } from './utils'
 import { IconConverter } from 'icon-sdk-js'
 import { createBrowserHistory } from 'history';
 
@@ -66,7 +66,7 @@ const Swap = ({ match, wallet }) => {
             }, 1000)
             setIntervalHandle(interval)
         }
-    }, [ready, swapId, wallet]);
+    }, [ready, swapId, wallet, intervalHandle]);
 
     const cancellable = () => {
         return (swap && swap['status'] === 'PENDING')
@@ -122,7 +122,7 @@ const Swap = ({ match, wallet }) => {
     const over = ((maker && taker) !== null) && (!withdrawingInProgress) && (!depositingInProgress)
 
     const getSwapPrice = (o1, o2) => {
-        return truncateDecimals(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber(o2['amount'])), 8)
+        return displayBigNumber(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber(o2['amount'])))
     }
 
     return (

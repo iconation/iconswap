@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import './Admin.css';
 import CustomInput from './CustomInput'
 import { api } from './API'
@@ -7,17 +7,12 @@ const Admin = ({ wallet }) => {
 
     const [cancelSwapId, setCancelSwapId] = useState(null)
 
-
     const [swapsLoadingCount, setSwapsLoadingCount] = useState(0)
-    const [swapsLoadingPendingCount, setSwapsLoadingPendingCount] = useState(0)
-    const [swapsLoadingSuccessCount, setSwapsLoadingSuccessCount] = useState(0)
-    const [finishedLoadingSwaps, setFinishedLoadingSwaps] = useState(null)
-    const [finishedLoadingPending, setFinishedLoadingPending] = useState(null)
     const [finishedLoadingSuccess, setFinishedLoadingSuccess] = useState(null)
     const [isMaintenanceEnabled, setIsMaintenanceEnabled] = useState(null)
-    const [swapsList, setswapsList] = useState({})
-    const [pendingSwapsList, setpendingSwapsList] = useState({})
-    const [successSwapsList, setsuccessSwapsList] = useState({})
+    const [swapsList,] = useState({})
+    const [pendingSwapsList,] = useState({})
+    const [successSwapsList,] = useState({})
     const ITERATION_COUNT = 100;
 
     const doMaintenanceMode = (status) => {
@@ -98,10 +93,6 @@ const Admin = ({ wallet }) => {
 
     const getAllSwaps = async () => {
         getSwapsAsync(1).then(() => {
-            setFinishedLoadingSwaps(true)
-            setSwapsLoadingPendingCount(Object.keys(pendingSwapsList).length)
-            setFinishedLoadingPending(true)
-            setSwapsLoadingSuccessCount(Object.keys(successSwapsList).length)
             setFinishedLoadingSuccess(true)
         })
     }

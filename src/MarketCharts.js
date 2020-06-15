@@ -1,5 +1,5 @@
 
-import { convertTsToNumericDate, balanceToUnitDisplay, getPrice } from './utils'
+import { convertTsToNumericDate, truncateBigNumber, balanceToUnit, getPriceBigNumber } from './utils'
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
@@ -23,10 +23,10 @@ export const showDepthChart = (market, pairs, isInverted) => {
         curChart = chart;
 
         const bids = buyers.map(buyer => {
-            return [getPrice(buyer, pairs).toString(), parseFloat(balanceToUnitDisplay(buyer['taker']['amount'], decimal1))]
+            return [truncateBigNumber(getPriceBigNumber(buyer, pairs)), truncateBigNumber(balanceToUnit(buyer['taker']['amount'], decimal1))]
         })
         const asks = sellers.map(seller => {
-            return [getPrice(seller, pairs).toString(), parseFloat(balanceToUnitDisplay(seller['maker']['amount'], decimal2))]
+            return [truncateBigNumber(getPriceBigNumber(seller, pairs)), truncateBigNumber(balanceToUnit(seller['maker']['amount'], decimal2))]
         })
         const data = !isInverted ?
             { "asks": asks, "bids": bids }
@@ -39,12 +39,12 @@ export const showDepthChart = (market, pairs, isInverted) => {
             function processData(list, type, desc) {
 
                 // Convert to data points
-                for (var i = 0; i < list.length; i++) {
-                    list[i] = {
-                        value: Number(list[i][0]),
-                        volume: Number(list[i][1]),
+                list = list.map(item => {
+                    return {
+                        value: Number(item[0]),
+                        volume: Number(item[1]),
                     }
-                }
+                })
 
                 // Sort list just in case
                 list.sort(function (a, b) {
@@ -61,14 +61,14 @@ export const showDepthChart = (market, pairs, isInverted) => {
 
                 // Calculate cummulative volume
                 if (desc) {
-                    for (var i = list.length - 1; i >= 0; i--) {
+                    for (let i = list.length - 1; i >= 0; i--) {
                         if (i < (list.length - 1)) {
                             list[i].totalvolume = list[i + 1].totalvolume + list[i].volume;
                         }
                         else {
                             list[i].totalvolume = list[i].volume;
                         }
-                        var dp = {};
+                        let dp = {};
                         dp["value"] = list[i].value;
                         dp[type + "volume"] = list[i].volume;
                         dp[type + "totalvolume"] = list[i].totalvolume;
@@ -76,14 +76,14 @@ export const showDepthChart = (market, pairs, isInverted) => {
                     }
                 }
                 else {
-                    for (var i = 0; i < list.length; i++) {
+                    for (let i = 0; i < list.length; i++) {
                         if (i > 0) {
                             list[i].totalvolume = list[i - 1].totalvolume + list[i].volume;
                         }
                         else {
                             list[i].totalvolume = list[i].volume;
                         }
-                        var dp = {};
+                        let dp = {};
                         dp["value"] = list[i].value;
                         dp[type + "volume"] = list[i].volume;
                         dp[type + "totalvolume"] = list[i].totalvolume;
@@ -183,7 +183,7 @@ export const showPriceChart = (market, pairs, isInverted) => {
             var lastVolume = 0;
 
             for (const [key, swap] of Object.entries(history)) {
-                const curPrice = getPrice(swap, pairs)
+                const curPrice = truncateBigNumber(getPriceBigNumber(swap, pairs))
 
                 // init
                 if (parseInt(key) === 0) {
@@ -211,9 +211,9 @@ export const showPriceChart = (market, pairs, isInverted) => {
                     lastOpen = curPrice;
                     lastClose = curPrice;
                     if (swap.maker.contract === pairs[0]) {
-                        lastVolume = parseFloat(balanceToUnitDisplay(swap['maker']['amount'], decimal1))
+                        lastVolume = truncateBigNumber(balanceToUnit(swap['maker']['amount'], decimal1))
                     } else {
-                        lastVolume = parseFloat(balanceToUnitDisplay(swap['taker']['amount'], decimal1))
+                        lastVolume = truncateBigNumber(balanceToUnit(swap['taker']['amount'], decimal1))
                     }
                 }
                 else {
@@ -225,9 +225,9 @@ export const showPriceChart = (market, pairs, isInverted) => {
                     }
 
                     if (swap.maker.contract === pairs[0]) {
-                        lastVolume += parseFloat(balanceToUnitDisplay(swap['maker']['amount'], decimal1))
+                        lastVolume += truncateBigNumber(balanceToUnit(swap['maker']['amount'], decimal1))
                     } else {
-                        lastVolume += parseFloat(balanceToUnitDisplay(swap['taker']['amount'], decimal1))
+                        lastVolume += truncateBigNumber(balanceToUnit(swap['taker']['amount'], decimal1))
                     }
 
                     lastClose = curPrice;

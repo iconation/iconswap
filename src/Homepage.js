@@ -5,7 +5,7 @@ import OrderChoser from './OrderChoser'
 import './Homepage.css'
 import swapPicture from './static/img/swap.png'
 import { useHistory } from 'react-router-dom'
-import { truncateDecimals } from './utils'
+import { displayBigNumber } from './utils'
 import InfoBox from './InfoBox'
 import LoadingOverlay from './LoadingOverlay'
 import CustomInput from './CustomInput'
@@ -134,7 +134,7 @@ const Homepage = ({ wallet }) => {
             o1.amount !== "" && o2.amount !== "")) {
             return "?"
         }
-        return truncateDecimals(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber(o2['amount'])), 8)
+        return displayBigNumber(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber(o2['amount'])))
     }
 
     const getPairDisplaySymbol = (o) => {

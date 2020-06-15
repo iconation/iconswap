@@ -178,7 +178,6 @@ class API {
     }
 
     getManyMarketFilledSwaps(pair, offset, count) {
-        var curOffset = offset;
         var promises = []
 
         for (var curOffset = offset; curOffset < count; curOffset += MAX_ITERATION_LOOP) {
@@ -191,7 +190,7 @@ class API {
         }
 
         return Promise.allSettled(promises).then(result => {
-            result = result.filter(item => item.status == "fulfilled")
+            result = result.filter(item => item.status === "fulfilled")
             result = result.map(item => item.value)
             return Array.prototype.concat.apply([], result);
         })

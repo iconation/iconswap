@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom'
 import LoadingOverlay from './LoadingOverlay'
 import InfoBox from './InfoBox'
 import { IconConverter } from 'icon-sdk-js'
-import { convertTsToDate } from './utils'
+import { convertTsToDate, balanceToUnitDisplay, displayBigNumber } from './utils'
 
 const AccountOrders = ({ wallet }) => {
     const [openSwaps, setOpenSwaps] = useState(null)
@@ -49,12 +49,7 @@ const AccountOrders = ({ wallet }) => {
                 setIntervalHandle(null)
             }
         }
-    }, [withdrawingInProgress, setOpenSwaps, setWithdrawingInProgress]);
-
-    const balanceToFloat = (balance, decimals) => {
-        const digits = IconConverter.toBigNumber('10').exponentiatedBy(decimals)
-        return IconConverter.toBigNumber(balance).dividedBy(digits).toString()
-    }
+    }, [withdrawingInProgress, setOpenSwaps, setWithdrawingInProgress, intervalHandle]);
 
     const getAllSwapDetails = async (swaps) => {
 
@@ -88,8 +83,8 @@ const AccountOrders = ({ wallet }) => {
             swap.timestamp_swap = convertTsToDate(swap.timestamp_swap)
             swap.maker.token = tokenDetails[swap.maker.contract]
             swap.taker.token = tokenDetails[swap.taker.contract]
-            swap.taker.amountDisplay = balanceToFloat(swap.taker.amount, tokenDetails[swap.taker.contract].decimals)
-            swap.maker.amountDisplay = balanceToFloat(swap.maker.amount, tokenDetails[swap.maker.contract].decimals)
+            swap.taker.amountDisplay = balanceToUnitDisplay(swap.taker.amount, tokenDetails[swap.taker.contract].decimals)
+            swap.maker.amountDisplay = balanceToUnitDisplay(swap.maker.amount, tokenDetails[swap.maker.contract].decimals)
             return swap
         })
     }
@@ -125,10 +120,7 @@ const AccountOrders = ({ wallet }) => {
     const over = (openSwaps !== null && filledSwaps !== null) && (!withdrawingInProgress)
 
     const getPrice = (o1, o2) => {
-        return parseFloat(
-            IconConverter.toBigNumber(o1['amount'])
-                .dividedBy(IconConverter.toBigNumber(o2['amount']))
-                .toFixed(8)).toString()
+        return displayBigNumber(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber(o2['amount'])))
     }
 
     return (<>

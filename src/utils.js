@@ -46,8 +46,12 @@ export const redirectClick = (event, history, dest) => {
     }
 }
 
+export const truncateBigNumber = (f) => {
+    return truncateDecimals(parseFloat(f), 7)
+}
+
 export const displayBigNumber = (f) => {
-    return parseFloat(f.toFixed(8)).toString()
+    return truncateBigNumber(f).toLocaleString('fullwide', { useGrouping: false, maximumFractionDigits: 7 })
 }
 
 export const balanceToUnit = (balance, decimals) => {
@@ -90,9 +94,6 @@ export const getPrice = (swap, pairs) => {
 }
 
 export const truncateDecimals = (number, digits) => {
-    var multiplier = Math.pow(10, digits),
-        adjustedNum = number * multiplier,
-        truncatedNum = Math[adjustedNum < 0 ? 'ceil' : 'floor'](adjustedNum);
-
-    return truncatedNum / multiplier;
+    var multiplier = Math.pow(10, digits)
+    return Math.round((number + Number.EPSILON) * multiplier) / multiplier
 };
