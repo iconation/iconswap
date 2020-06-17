@@ -16,7 +16,6 @@ const Header = ({ wallet, setWallet }) => {
 
     const history = useHistory();
 
-    // HackFix
     const [appVersion, setAppVersion] = useState(null)
     !appVersion && api.getVersion().then(version => {
         setAppVersion(version)

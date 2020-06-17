@@ -11,11 +11,14 @@ export const showDepthChart = (market, pairs, isInverted) => {
     if (curChart) curChart.dispose();
 
     const [
-        , ,
         buyers, sellers,
-        decimal1, decimal2,
-        symbol1, symbol2
-    ] = market
+        decimals,
+        symbols
+    ] = [
+            market.swaps[0], market.swaps[1],
+            market.decimals,
+            [market.symbols[pairs[0]], market.symbols[pairs[1]]]
+        ]
 
     am4core.ready(function () {
         am4core.useTheme(am4themes_animated);
@@ -23,10 +26,10 @@ export const showDepthChart = (market, pairs, isInverted) => {
         curChart = chart;
 
         const bids = buyers.map(buyer => {
-            return [truncateBigNumber(getPriceBigNumber(buyer, pairs)), truncateBigNumber(balanceToUnit(buyer['taker']['amount'], decimal1))]
+            return [truncateBigNumber(getPriceBigNumber(buyer, pairs)), truncateBigNumber(balanceToUnit(buyer['taker']['amount'], decimals[0]))]
         })
         const asks = sellers.map(seller => {
-            return [truncateBigNumber(getPriceBigNumber(seller, pairs)), truncateBigNumber(balanceToUnit(seller['maker']['amount'], decimal2))]
+            return [truncateBigNumber(getPriceBigNumber(seller, pairs)), truncateBigNumber(balanceToUnit(seller['maker']['amount'], decimals[1]))]
         })
         const data = !isInverted ?
             { "asks": asks, "bids": bids }
@@ -109,10 +112,13 @@ export const showDepthChart = (market, pairs, isInverted) => {
 
         // Create axes
         var xAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+        xAxis.renderer.gridContainer.background.fill = am4core.color("#000000");
+        xAxis.renderer.gridContainer.background.fillOpacity = 0.05;
+
         xAxis.dataFields.category = "value";
         //xAxis.renderer.grid.template.location = 0;
         xAxis.renderer.minGridDistance = 50;
-        xAxis.title.text = "Price (" + symbol1 + "/" + symbol2 + ")";
+        xAxis.title.text = "Price (" + symbols[0] + "/" + symbols[1] + ")";
 
         var yAxis = chart.yAxes.push(new am4charts.ValueAxis());
         yAxis.title.text = "Volume";
@@ -160,13 +166,9 @@ export const showPriceChart = (market, pairs, isInverted) => {
     if (curChart) curChart.dispose();
 
     const [
-        , ,
-        , ,
-        decimal1, ,
-        , ,
-        history,
-
-    ] = market
+        decimals,
+        history
+    ] = [market.decimals, market.history]
 
     am4core.ready(function () {
         am4core.useTheme(am4themes_animated);
@@ -211,9 +213,9 @@ export const showPriceChart = (market, pairs, isInverted) => {
                     lastOpen = curPrice;
                     lastClose = curPrice;
                     if (swap.maker.contract === pairs[0]) {
-                        lastVolume = truncateBigNumber(balanceToUnit(swap['maker']['amount'], decimal1))
+                        lastVolume = truncateBigNumber(balanceToUnit(swap['maker']['amount'], decimals[0]))
                     } else {
-                        lastVolume = truncateBigNumber(balanceToUnit(swap['taker']['amount'], decimal1))
+                        lastVolume = truncateBigNumber(balanceToUnit(swap['taker']['amount'], decimals[0]))
                     }
                 }
                 else {
@@ -225,9 +227,9 @@ export const showPriceChart = (market, pairs, isInverted) => {
                     }
 
                     if (swap.maker.contract === pairs[0]) {
-                        lastVolume += truncateBigNumber(balanceToUnit(swap['maker']['amount'], decimal1))
+                        lastVolume += truncateBigNumber(balanceToUnit(swap['maker']['amount'], decimals[0]))
                     } else {
-                        lastVolume += truncateBigNumber(balanceToUnit(swap['taker']['amount'], decimal1))
+                        lastVolume += truncateBigNumber(balanceToUnit(swap['taker']['amount'], decimals[0]))
                     }
 
                     lastClose = curPrice;
