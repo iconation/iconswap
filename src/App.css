@@ -40,21 +40,6 @@
 
 /* If you want the content centered horizontally and vertically */
 
-.center {
-  position: fixed;
-  top: 45%;
-  left: 50%;
-  transform: translate3d(-50%, 0, 0);
-}
-
-.center-bottom {
-  position: fixed;
-  bottom: 15%;
-  left: 49.7%;
-  transform: translate3d(-49.7%, 0, 0);
-
-}
-
 .bottom {
   position: fixed;
   bottom: 0;
@@ -112,13 +97,13 @@
     background-color: #1d7376;
     background-repeat:no-repeat;
     outline:none;
-    border: #2d8386 1px solid;
+    border: #005356 1px solid;
     color: white;
-    padding: 10px;
+    padding: 5px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 15px;
+    font-size: 12px;
     border-radius: 6px;
     margin: 5px;
     cursor:pointer;
@@ -143,29 +128,38 @@
 
 .tooltip {
   position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black;
 }
 
-.tooltip .tooltiptext {
+.tooltiptext {
   visibility: hidden;
-  width: 120px;
+  opacity: 0%;
+  transition:opacity 0.2s;
   background-color: black;
   color: #fff;
   text-align: center;
   border-radius: 6px;
-  padding: 5px 0;
-  
+  width: auto;
+  white-space:nowrap;
+  padding: 5px;
+}
+
+.tooltiptext {
   /* Position the tooltip */
   position: absolute;
-  z-index: 1;
-  bottom: 100%;
-  left: 50%;
-  margin-left: -60px;
+  bottom: 120%;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.tooltiptext-bottom {
+  bottom: -140% !important;
+  left: 70%;
 }
 
 .tooltip:hover .tooltiptext {
   visibility: visible;
+  opacity: 100%;
+  transition:opacity 0.2s;
 }
 
 .button-svg-container {
@@ -174,3 +168,15 @@
   font-weight: 500;
 }
 
+
+.svg-icon-button {
+  width: 20px;
+  height: 20px;
+}
+
+
+.svg-text-button {
+  margin-top: 3px;
+  padding-left: 15px;
+  padding-right: 10px;
+}

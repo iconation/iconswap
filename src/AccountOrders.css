@@ -50,9 +50,11 @@
 }
 
 .swaps-table-view {
-    max-height: 50vh;
+    border-radius: 0.25em;
+    max-height: 55vh;
     overflow: auto;
     scroll-behavior: smooth;
+    background: #fafafa;
     box-shadow: 10px 15px 20px -12px rgba(0,0,0,.25);
 }
 

@@ -25,9 +25,9 @@
 }
 
 .field.active input + label {
-  left: -1px;
-  top: -1px;
-  height: 28px;
+  left: 0px;
+  top: 0px;
+  height: 27px;
   background: #00a0a0;
   padding: 5px;
   padding-right:20px;
@@ -84,8 +84,8 @@
   pointer-events: none;
 }
 
-.error {
-  border: 2px solid #ec392f;
+.custom-input-error {
+  border: 2px solid #ec392f !important;
 }
 
 .field p.predicted {

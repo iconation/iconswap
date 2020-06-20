@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { api } from './API'
+import { EMPTY_ORDER_PROVIDER } from './constants'
 import OrderView from './OrderView'
 import LoadingOverlay from './LoadingOverlay'
 import InfoBox from './InfoBox'
 import './Swap.css';
+import { displayBigNumber } from './utils'
 import { IconConverter } from 'icon-sdk-js'
 import { createBrowserHistory } from 'history';
 
@@ -64,7 +66,7 @@ const Swap = ({ match, wallet }) => {
             }, 1000)
             setIntervalHandle(interval)
         }
-    }, [ready, swapId, wallet]);
+    }, [ready, swapId, wallet, intervalHandle]);
 
     const cancellable = () => {
         return (swap && swap['status'] === 'PENDING')
@@ -112,11 +114,16 @@ const Swap = ({ match, wallet }) => {
 
     const isMaker = swapPending() && swap['maker']['provider'] === wallet
     const isTaker = swapPending() && swap['maker']['provider'] !== wallet
+    const isPrivate = swapPending() && swap['taker']['provider'] !== EMPTY_ORDER_PROVIDER
 
     withdrawingInProgress && swapCancel() && setWithdrawingInProgress(false)
     depositingInProgress && swapSuccess() && setDepositingInProgress(false)
 
     const over = ((maker && taker) !== null) && (!withdrawingInProgress) && (!depositingInProgress)
+
+    const getSwapPrice = (o1, o2) => {
+        return displayBigNumber(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber(o2['amount'])))
+    }
 
     return (
         <>
@@ -145,16 +152,17 @@ const Swap = ({ match, wallet }) => {
                     "You may share this link with anyone you want to trade your tokens with : <br/>" +
                     "<strong><a href='" + window.location.href + "'>" + window.location.href + "</a></strong>"} />}
 
-                {isTaker && <InfoBox content={"You may deposit the amount of tokens displayed on the right (<strong>" +
-                    IconConverter.toBigNumber(taker['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(taker['token']['decimals'])) +
-                    " " + taker['token']['symbol'] + "</strong>), " +
-                    "<br/>which will be traded instantly against the amount of tokens displayed on the left (<strong>" +
-                    IconConverter.toBigNumber(maker['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(maker['token']['decimals'])) +
-                    " " + maker['token']['symbol'] + "</strong>) to your address."} />}
+                {isTaker && (taker.provider === EMPTY_ORDER_PROVIDER || (isPrivate && wallet === taker.provider)) &&
+                    <InfoBox content={"You may deposit the amount of tokens displayed on the right (<strong>" +
+                        IconConverter.toBigNumber(taker['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(taker['token']['decimals'])) +
+                        " " + taker['token']['symbol'] + "</strong>), " +
+                        "<br/>which will be traded instantly against the amount of tokens displayed on the left (<strong>" +
+                        IconConverter.toBigNumber(maker['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(maker['token']['decimals'])) +
+                        " " + maker['token']['symbol'] + "</strong>) to your address."} />}
 
                 {maker && taker && <>
                     <div className="split left">
-                        <div className="centered">
+                        <div className="swap-centered">
                             <div className={"order-view-container " + (orderEmpty(maker) ? 'order-view-container-pulse' : '')}>
                                 <OrderView wallet={wallet} order={maker} />
                                 {isMaker &&
@@ -170,10 +178,10 @@ const Swap = ({ match, wallet }) => {
                     </div>
 
                     <div className="split right">
-                        <div className="centered">
+                        <div className="swap-centered">
                             <div className={"order-view-container " + (orderEmpty(taker) ? 'order-view-container-pulse' : '')}>
                                 <OrderView wallet={wallet} order={taker} />
-                                {isTaker &&
+                                {isTaker && (taker.provider === EMPTY_ORDER_PROVIDER || (isPrivate && wallet === taker.provider)) &&
                                     <div>
                                         <button className="big-button order-view-action-buttons" disabled={!cancellable()}
                                             onClick={() => depositClicked()}>
@@ -183,16 +191,23 @@ const Swap = ({ match, wallet }) => {
                                 }
                             </div>
                         </div>
+
+                        {isPrivate && wallet !== taker.provider &&
+                            <div id="swap-private-notice">
+                                This swap is private. <br />
+                                Only <strong>{taker.provider}</strong> can fill it.
+                            </div>
+                        }
                     </div>
 
-                    <div className="center">
+                    <div className="swap-center-price">
                         <div className="swap-info">
                             <div className="swap-info-header">
                                 Swap Price
                             </div>
-                            1 {maker['token']['symbol']} ≈ {parseFloat((taker['amount'] / maker['amount']).toFixed(5)).toString()} {taker['token']['symbol']}
+                            1 {maker['token']['symbol']} ≈ {getSwapPrice(taker, maker)} {taker['token']['symbol']}
                             <br />
-                            1 {taker['token']['symbol']} ≈ {parseFloat((maker['amount'] / taker['amount']).toFixed(5)).toString()} {maker['token']['symbol']}
+                            1 {taker['token']['symbol']} ≈ {getSwapPrice(maker, taker)} {maker['token']['symbol']}
                         </div>
                     </div>
                 </>}

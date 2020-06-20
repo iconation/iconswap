@@ -5,9 +5,13 @@ import OrderChoser from './OrderChoser'
 import './Homepage.css'
 import swapPicture from './static/img/swap.png'
 import { useHistory } from 'react-router-dom'
+import { displayBigNumber } from './utils'
 import InfoBox from './InfoBox'
 import LoadingOverlay from './LoadingOverlay'
+import CustomInput from './CustomInput'
 import { ReactComponent as SwapSvg } from './static/svg/Swap.svg'
+import Switch from "react-switch";
+import { IconValidator } from 'icon-sdk-js'
 
 const Homepage = ({ wallet }) => {
     const emptyOrder = {
@@ -20,6 +24,9 @@ const Homepage = ({ wallet }) => {
     const [whitelist, setWhitelist] = useState(null)
     const [waitForSwapCreation, setWaitForSwapCreation] = useState(false)
     const [errorUi, setErrorUi] = useState(null)
+    const [switchPrivate, setSwitchPrivate] = useState(false)
+    const [privateSwapAddress, setPrivateSwapAddress] = useState(null)
+    const [privateAddressError, setPrivateAddressError] = useState(false)
 
     const maker = orders[0]
     const taker = orders[1]
@@ -42,6 +49,10 @@ const Homepage = ({ wallet }) => {
         })
     })
 
+    const doSwitchPrivate = () => {
+        setSwitchPrivate(!switchPrivate)
+    }
+
     const createSwapClicked = () => {
         if (!swappable()) {
             // Highlight form that hasn't been filled correctly
@@ -49,7 +60,8 @@ const Homepage = ({ wallet }) => {
             !taker.contract && setContractError(1, true);
             !maker.amount && setAmountError(0, true);
             !taker.amount && setAmountError(1, true);
-            if (maker.contract === taker.contract) {
+            switchPrivate && !IconValidator.isEoaAddress(privateSwapAddress) && setPrivateAddressError(true)
+            if (maker.contract === taker.contract && maker.contract !== null) {
                 setContractError(1, true)
                 setErrorUi("You cannot trade the same pair")
             }
@@ -62,7 +74,8 @@ const Homepage = ({ wallet }) => {
                         maker.contract,
                         IconConverter.toBigNumber(maker.amount).multipliedBy(IconConverter.toBigNumber('10').exponentiatedBy(decimals_maker)),
                         taker.contract,
-                        IconConverter.toBigNumber(taker.amount).multipliedBy(IconConverter.toBigNumber('10').exponentiatedBy(decimals_taker))
+                        IconConverter.toBigNumber(taker.amount).multipliedBy(IconConverter.toBigNumber('10').exponentiatedBy(decimals_taker)),
+                        privateSwapAddress
                     ).then(swapInfo => {
                         if (swapInfo) {
                             history.push("/swap/" + swapInfo['swapId']);
@@ -79,7 +92,12 @@ const Homepage = ({ wallet }) => {
     }
 
     const swappable = () => {
-        return maker.contract && taker.contract && orders[0].amount && taker.contract && maker.contract !== taker.contract
+        return maker.contract
+            && taker.contract
+            && orders[0].amount
+            && taker.contract
+            && maker.contract !== taker.contract
+            && (!switchPrivate || (switchPrivate && IconValidator.isEoaAddress(privateSwapAddress)))
     }
 
     const setContract = (index, value) => {
@@ -98,7 +116,9 @@ const Homepage = ({ wallet }) => {
     const setAmount = (index, value) => {
         let newOrders = [...orders]
         newOrders[index].amount = value
+        newOrders[index].amountError = false
         setOrders(newOrders)
+        setAmountError(index, false)
     }
 
     const setAmountError = (index, value) => {
@@ -107,7 +127,29 @@ const Homepage = ({ wallet }) => {
         setOrders(newOrders)
     }
 
-    const loadingText = waitForSwapCreation ? 'Creating Swap, please wait...' : 'Loading wallet...'
+    const getPairDisplayPrice = (o1, o2) => {
+        if (!(o1.contract !== null && o2.contract !== null &&
+            o1.amount !== null && o2.amount !== null &&
+            parseFloat(o1.amount) !== 0 && parseFloat(o2.amount) !== 0 &&
+            o1.amount !== "" && o2.amount !== "")) {
+            return "?"
+        }
+        return displayBigNumber(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber(o2['amount'])))
+    }
+
+    const getPairDisplaySymbol = (o) => {
+        if (o.contract === null) {
+            return ""
+        }
+        return whitelist[o.contract].symbol
+    }
+
+    const setPrivateAddress = (value) => {
+        setPrivateSwapAddress(value.trim())
+        setPrivateAddressError(false)
+    }
+
+    const loadingText = waitForSwapCreation ? 'Creating Swap, please wait...' : 'Loading Wallet...'
     const over = (whitelist !== null)
 
     return (
@@ -118,7 +160,7 @@ const Homepage = ({ wallet }) => {
             {over && <>
 
                 <div className="split left">
-                    <div className="centered">
+                    <div className="homepage-orders-centered">
                         <OrderChoser
                             whitelist={whitelist}
                             setContract={setContract}
@@ -130,7 +172,7 @@ const Homepage = ({ wallet }) => {
                 </div>
 
                 <div className="split right">
-                    <div className="centered">
+                    <div className="homepage-orders-centered">
                         <OrderChoser
                             whitelist={whitelist}
                             setContract={setContract}
@@ -145,11 +187,62 @@ const Homepage = ({ wallet }) => {
                     <img src={swapPicture} height="60" alt="logo" />
                 </div>}
 
-                {whitelist && <div className="center-bottom">
-                    <button className="big-button button-svg-container" onClick={() => { createSwapClicked() }}>
-                        <div className="svg-icon-button"><SwapSvg /></div>
-                        <div className="svg-text-button">Create Swap</div>
-                    </button>
+                {whitelist && <div id="homepage-create-swap-container">
+
+                    <div className="homepage-create-swap-item" id="homepage-price-container">
+
+                        <div className="homepage-create-swap-title">Swap Price</div>
+                        <div className="homepage-create-swap-content">
+                            {maker.contract && taker.contract && <>
+                                <div>1 {getPairDisplaySymbol(maker)} ≈ {getPairDisplayPrice(taker, maker)} {getPairDisplaySymbol(taker)}</div>
+                                <div>1 {getPairDisplaySymbol(taker)} ≈ {getPairDisplayPrice(maker, taker)} {getPairDisplaySymbol(maker)}</div>
+                            </>}
+                            {!(maker.contract && taker.contract) && <>
+                                <div id="homepage-price-wait-price-input">
+                                    <div className="loadingDots">
+                                        <span>.</span> <span>.</span> <span>.</span>
+                                    </div>
+                                </div>
+                            </>}
+                        </div>
+                    </div>
+
+                    <div className="homepage-create-swap-item" id="homepage-swap-settings-container">
+
+                        <div className="homepage-create-swap-title">Swap Settings</div>
+                        <div className="homepage-create-swap-content">
+
+                            <div id="homepage-private-toggle-container" className="tooltip">
+                                <span className="tooltiptext">
+                                    Private Swaps aren't listed on the Market. <br />
+                                    Only the given ICON address will be able to fulfill the swap.
+                                </span>
+                                <div id="homepage-private-toggle">
+                                    <Switch onChange={() => { doSwitchPrivate() }} checked={switchPrivate} />
+                                    <div id="homepage-private-text">Private Swap</div>
+                                </div>
+                            </div>
+                            {switchPrivate && <>
+                                <div id="homepage-private-address-container">
+                                    <CustomInput
+                                        error={privateAddressError}
+                                        label="Address"
+                                        locked={!switchPrivate}
+                                        active={false}
+                                        onChange={(value) => { setPrivateAddress(value) }}
+                                    />
+                                </div>
+                            </>}
+                        </div>
+                    </div>
+
+                    <div className="homepage-create-swap-item" id="homepage-create-swap-button-container">
+                        <button className="big-button button-svg-container homepage-create-swap-button" onClick={() => { createSwapClicked() }}>
+                            <div className="svg-icon-button"><SwapSvg /></div>
+                            <div className="svg-text-button">Create Swap</div>
+                        </button>
+                    </div>
+
                 </div>}
             </>}
         </>

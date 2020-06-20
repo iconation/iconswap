@@ -1,6 +1,6 @@
 <p align="center">
   <img 
-    src="src/static/img/logo.png" 
+    src="https://i.imgur.com/H5lyBFn.png" 
     width="120px"
     alt="ICONation logo">
 </p>
@@ -11,9 +11,9 @@
 
 ## Introduction
 
-ICONSwap is a fully **open source**, **free** (excluding ICON transaction fees) service that allows any ICONist to **trade safely** any of their IRC2 tokens against any amount of ICX or IRC2 tokens.
+ICONSwap is a fully **open source**, **free** service that allows any ICONist to **safely trade** with anyone IRC2 tokens against any other.
 
-It is an alternative solution to the [Over-The-Counter](https://www.investopedia.com/terms/o/otc.asp) (OTC) trading method taking place on few unlisted tokens on ICON. This method is insecure as the trade isn't atomic.
+It is an alternative solution to the [Over-The-Counter](https://www.investopedia.com/terms/o/otc.asp) (OTC) trading method taking place on few unlisted tokens on ICON.
 
 Alternatively, ICONSwap may be used by other SCORE developers willing to implement a token swap in their contract : the ICONSwap SCORE contract may be called from another SCORE.
 

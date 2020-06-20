@@ -2,352 +2,543 @@ import React, { useState, useEffect, useRef } from 'react'
 import LoadingOverlay from './LoadingOverlay'
 import { api } from './API'
 import './MarketPair.css'
+import { useHistory } from 'react-router-dom';
+import { showPriceChart, showDepthChart } from './MarketCharts'
+import {
+    convertTsToDate,
+    displayBigNumber,
+    balanceToUnit,
+    balanceToUnitDisplay,
+    isBuyer,
+    getPriceBigNumber,
+    getPrice,
+    truncateDecimals
+} from './utils'
 import { IconConverter } from 'icon-sdk-js'
-import { convertTsToDate } from './utils'
-import * as am4core from "@amcharts/amcharts4/core";
-import * as am4charts from "@amcharts/amcharts4/charts";
-import am4themes_animated from "@amcharts/amcharts4/themes/animated";
+import { ReactComponent as WalletSvg } from './static/svg/Wallet.svg'
+import { ReactComponent as SwapSpotSvg } from './static/svg/SwapSpot.svg'
 
 
 const MarketPair = ({ match, wallet }) => {
 
-    const pairs = [match.params.pair1, match.params.pair2]
-    const scrollSellers = useRef(null);
+    const history = useHistory();
 
+    const [pairs, setPairs] = useState([match.params.pair1, match.params.pair2])
     const [buyers, setBuyers] = useState(null)
     const [sellers, setSellers] = useState(null)
-    const [decimals, setDecimals] = useState(null)
-    const [symbols, setSymbols] = useState(null)
-    const [swapsFilled, setSwapsFilled] = useState(null)
+    const [market, setMarket] = useState(null)
+    const [chartView, setChartView] = useState('price')
+    const [isInverted, setIsInverted] = useState(false)
+
+    const chartCanvas = useRef(null)
+    const buyPriceInput = useRef(null)
+    const buyAmountInput = useRef(null)
+    const buyTotalInput = useRef(null)
+    const sellPriceInput = useRef(null)
+    const sellAmountInput = useRef(null)
+    const sellTotalInput = useRef(null)
 
     const pairName = pairs.join('/')
 
-    const addDepthChart = (results) => {
-
-        const [
-            buyers, sellers,
-            _,
-            decimal1, decimal2,
-            symbol1, symbol2
-        ] = results
-
-        am4core.ready(function () {
-            am4core.useTheme(am4themes_animated);
-            let chart = am4core.create("market-pair-depth", am4charts.XYChart);
-
-            const bids = buyers.map(buyer => {
-                return [getPrice(buyer).toString(), parseFloat(balanceToUnitDisplay(buyer['taker']['amount'], decimal1))]
-            })
-            const asks = sellers.map(seller => {
-                return [getPrice(seller).toString(), parseFloat(balanceToUnitDisplay(seller['maker']['amount'], decimal2))]
-            })
-            const data = { "asks": asks, "bids": bids }
-
-            // Add data
-            const getData = (rawData) => {
-
-                // Function to process (sort and calculate cummulative volume)
-                function processData(list, type, desc) {
-
-                    // Convert to data points
-                    for (var i = 0; i < list.length; i++) {
-                        list[i] = {
-                            value: Number(list[i][0]),
-                            volume: Number(list[i][1]),
-                        }
-                    }
-
-                    // Sort list just in case
-                    list.sort(function (a, b) {
-                        if (a.value > b.value) {
-                            return 1;
-                        }
-                        else if (a.value < b.value) {
-                            return -1;
-                        }
-                        else {
-                            return 0;
-                        }
-                    });
-
-                    // Calculate cummulative volume
-                    if (desc) {
-                        for (var i = list.length - 1; i >= 0; i--) {
-                            if (i < (list.length - 1)) {
-                                list[i].totalvolume = list[i + 1].totalvolume + list[i].volume;
-                            }
-                            else {
-                                list[i].totalvolume = list[i].volume;
-                            }
-                            var dp = {};
-                            dp["value"] = list[i].value;
-                            dp[type + "volume"] = list[i].volume;
-                            dp[type + "totalvolume"] = list[i].totalvolume;
-                            res.unshift(dp);
-                        }
-                    }
-                    else {
-                        for (var i = 0; i < list.length; i++) {
-                            if (i > 0) {
-                                list[i].totalvolume = list[i - 1].totalvolume + list[i].volume;
-                            }
-                            else {
-                                list[i].totalvolume = list[i].volume;
-                            }
-                            var dp = {};
-                            dp["value"] = list[i].value;
-                            dp[type + "volume"] = list[i].volume;
-                            dp[type + "totalvolume"] = list[i].totalvolume;
-                            res.push(dp);
-                        }
-                    }
-
-                }
-
-                // Init
-                var res = [];
-                processData(rawData['bids'], "bids", true);
-                processData(rawData['asks'], "asks", false);
-
-                return res;
-            };
-
-            const formattedData = getData(data);
-            chart.data = formattedData;
-
-            // Set up precision for numbers
-            chart.numberFormatter.numberFormat = "#,###.####";
-
-            // Create axes
-            var xAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-            xAxis.dataFields.category = "value";
-            //xAxis.renderer.grid.template.location = 0;
-            xAxis.renderer.minGridDistance = 20;
-            xAxis.title.text = "Price (" + symbol1 + "/" + symbol2 + ")";
-
-            var yAxis = chart.yAxes.push(new am4charts.ValueAxis());
-            yAxis.title.text = "Volume";
-
-            // Create series
-            var series = chart.series.push(new am4charts.StepLineSeries());
-            series.dataFields.categoryX = "value";
-            series.dataFields.valueY = "bidstotalvolume";
-            series.strokeWidth = 2;
-            series.stroke = am4core.color("#0f0");
-            series.fill = series.stroke;
-            series.fillOpacity = 0.1;
-            series.tooltipText = "Ask: [bold]{categoryX}[/]\nTotal volume: [bold]{valueY}[/]\nVolume: [bold]{bidsvolume}[/]"
-
-            var series2 = chart.series.push(new am4charts.StepLineSeries());
-            series2.dataFields.categoryX = "value";
-            series2.dataFields.valueY = "askstotalvolume";
-            series2.strokeWidth = 2;
-            series2.stroke = am4core.color("#f00");
-            series2.fill = series2.stroke;
-            series2.fillOpacity = 0.1;
-            series2.tooltipText = "Bids: [bold]{categoryX}[/]\nTotal volume: [bold]{valueY}[/]\nVolume: [bold]{asksvolume}[/]"
-
-            var series3 = chart.series.push(new am4charts.ColumnSeries());
-            series3.dataFields.categoryX = "value";
-            series3.dataFields.valueY = "bidsvolume";
-            series3.strokeWidth = 0;
-            series3.fill = am4core.color("#000");
-            series3.fillOpacity = 0.2;
-
-            var series4 = chart.series.push(new am4charts.ColumnSeries());
-            series4.dataFields.categoryX = "value";
-            series4.dataFields.valueY = "asksvolume";
-            series4.strokeWidth = 0;
-            series4.fill = am4core.color("#000");
-            series4.fillOpacity = 0.2;
-
-            // Add cursor
-            chart.cursor = new am4charts.XYCursor();
-        })
+    const FormIndexes = {
+        PRICE_FORM_INDEX: 0,
+        AMOUNT_FORM_INDEX: 1,
+        TOTAL_FORM_INDEX: 2,
     }
 
     useEffect(() => {
 
-        let promises = [
-            api.getMarketBuyersPendingSwaps(pairName),
-            api.getMarketSellerPendingSwaps(pairName),
-            api.getMarketFilledSwaps(pairName, 0),
-            api.getDecimals(pairs[0]),
-            api.getDecimals(pairs[1]),
-            api.tokenSymbol(pairs[0]),
-            api.tokenSymbol(pairs[1]),
-        ]
+        const percentVolumeSwaps = (swaps) => {
+            var makerAmountSum = IconConverter.toBigNumber(0)
+            var takerAmountSum = IconConverter.toBigNumber(0)
 
-        Promise.all(promises).then(results => {
-            const [
-                buyers, sellers,
-                filledSwaps,
-                decimal1, decimal2,
-                symbol1, symbol2
-            ] = results
-            setBuyers(buyers)
-            setSellers(sellers)
-            setSwapsFilled(filledSwaps)
-            setDecimals([decimal1, decimal2])
-            setSymbols([symbol1, symbol2])
-            scrollSellersToBottom()
-            addDepthChart(results)
-        })
-    }, [setBuyers,
-        setSellers,
-        setSwapsFilled,
-        setDecimals,
-        setSymbols]);
+            swaps.forEach(swap => {
+                makerAmountSum = makerAmountSum.plus(IconConverter.toBigNumber(swap['maker']['amount']))
+                takerAmountSum = takerAmountSum.plus(IconConverter.toBigNumber(swap['taker']['amount']))
+            })
 
-    const scrollSellersToBottom = () => {
-        const div = scrollSellers.current;
-        if (div) {
-            div.scrollTop = div.scrollHeight;
+            // Determine the volume percent
+            swaps.forEach(swap => {
+                swap['maker']['volume_percent'] = parseFloat(IconConverter.toBigNumber(swap['maker']['amount']).dividedBy(makerAmountSum)) * 100
+                swap['taker']['volume_percent'] = parseFloat(IconConverter.toBigNumber(swap['taker']['amount']).dividedBy(takerAmountSum)) * 100
+            })
         }
-    }
 
-    const isBuyer = (swap) => {
-        return swap['maker']['contract'] === pairs[1]
-    }
+        const groupSwaps = (swaps, sellSide) => {
+            if (swaps.length === 0) return swaps
 
-    const getPriceBigNumber = (swap) => {
+            // Group swaps in a dict with a price key
+            let dictionary = {}
+            swaps.forEach(swap => {
+                if (!(getPrice(swap, pairs, false) in dictionary)) {
+                    dictionary[getPrice(swap, pairs, false)] = [swap]
+                } else {
+                    dictionary[getPrice(swap, pairs, false)].push(swap)
+                }
+            })
 
-        const [o1, o2] = isBuyer(swap) ?
-            [swap['maker'], swap['taker']]
-            : [swap['taker'], swap['maker']]
+            var result = []
 
-        return IconConverter.toBigNumber(o1['amount'])
-            .dividedBy(IconConverter.toBigNumber(o2['amount']))
-    }
+            // Sort keys by value
+            const sortedKeys = Object.keys(dictionary).sort((a, b) => {
+                return sellSide ? parseFloat(a) - parseFloat(b) : parseFloat(b) - parseFloat(a)
+            })
 
-    const displayBigNumber = (f) => {
-        return parseFloat(f.toFixed(8)).toString()
-    }
+            // Iterate the dictionary
+            sortedKeys.forEach(key => {
+                const swapsPrice = dictionary[key]
+                var sumSwap = swapsPrice.reduce((acc, cur) => {
+                    acc['maker']['amount'] = IconConverter.toHex(IconConverter.toBigNumber(acc['maker']['amount'])
+                        .plus(cur['maker']['amount']))
+                    acc['taker']['amount'] = IconConverter.toHex(IconConverter.toBigNumber(acc['taker']['amount'])
+                        .plus(IconConverter.toBigNumber(cur['taker']['amount'])))
+                    return acc
+                })
+                result.push(sumSwap)
+            })
 
-    const getPrice = (swap) => {
-        return displayBigNumber(getPriceBigNumber(swap))
-    }
+            return result
+        }
 
-    const balanceToUnit = (balance, decimals) => {
-        const digits = IconConverter.toBigNumber('10').exponentiatedBy(decimals)
-        return IconConverter.toBigNumber(balance).dividedBy(digits)
-    }
+        const refreshMarket = () => {
 
-    const balanceToUnitDisplay = (balance, decimals) => {
-        return displayBigNumber(balanceToUnit(balance, decimals))
-    }
+            let promises = [
+                api.getBalance(wallet, pairs[0]),
+                api.getBalance(wallet, pairs[1]),
+                api.getMarketBuyersPendingSwaps(pairName),
+                api.getMarketSellerPendingSwaps(pairName),
+                api.getDecimals(pairs[0]),
+                api.getDecimals(pairs[1]),
+                api.tokenSymbol(pairs[0]),
+                api.tokenSymbol(pairs[1]),
+                api.getManyMarketFilledSwaps(pairName, 0, 1500)
+            ]
+
+            return Promise.all(promises).then(async market => {
+                const [
+                    balance1, balance2,
+                    buySide, sellSide,
+                    decimal1, decimal2,
+                    symbol1, symbol2,
+                    history
+                ] = market
+
+                // Restructure market into dict
+                market = {
+                    balances: [balance1, balance2],
+                    swaps: [buySide, sellSide],
+                    decimals: [decimal1, decimal2],
+                    symbols: {
+                        [pairs[0]]: symbol1,
+                        [pairs[1]]: symbol2
+                    },
+                    history: history
+                }
+
+                // Check if inverted view
+                if (market.swaps[0].length !== 0) {
+                    if (market.swaps[0][0].maker.contract === pairs[1]) {
+                        const buyersGroup = groupSwaps(market.swaps[0], false)
+                        const sellersGroup = groupSwaps(market.swaps[1], true)
+                        setBuyers(buyersGroup)
+                        setSellers(sellersGroup)
+
+                        percentVolumeSwaps(buyersGroup)
+                        percentVolumeSwaps(sellersGroup)
+
+                        setIsInverted(false)
+                    } else {
+                        // inverted
+                        setBuyers(groupSwaps(market.swaps[1], false))
+                        setSellers(groupSwaps(market.swaps[0], true))
+                        setIsInverted(true)
+                    }
+                }
+                else if (market.swaps[1].length !== 0) {
+                    if (market.swaps[1][0].maker.contract === pairs[0]) {
+                        setBuyers(groupSwaps(market.swaps[0], false))
+                        setSellers(groupSwaps(market.swaps[1], true))
+                        setIsInverted(false)
+                    } else {
+                        // inverted
+                        setBuyers(groupSwaps(market.swaps[1], false))
+                        setSellers(groupSwaps(market.swaps[0], true))
+                        setIsInverted(true)
+                    }
+                }
+
+                setMarket(market)
+            })
+        }
+
+        refreshMarket()
+    }, [pairs, pairName, wallet]);
+
+    useEffect(() => {
+        switch (chartView) {
+            case 'price':
+                if (chartCanvas.current) showPriceChart(market, pairs, isInverted);
+                break;
+
+            case 'depth':
+                if (chartCanvas.current) showDepthChart(market, pairs, isInverted);
+                break;
+
+            default:
+                console.error("Undefined chartview mode")
+        }
+    }, [market, chartView, isInverted, pairs]);
 
     const goToSwap = (swap) => {
         window.open("#/swap/" + parseInt(swap['id'], 16), '_blank')
     }
 
-    const getSpread = (swapBid, swapAsk) => {
+    const selectPercentWallet = (percentValue, sideSell) => {
+        const indexBalance = sideSell ? 0 : 1
+
+        if (sideSell) {
+            const amount = IconConverter.toBigNumber(market.balances[indexBalance]).multipliedBy(percentValue).dividedBy(100)
+            sellAmountInput.current.value = parseFloat(balanceToUnitDisplay(amount, market.decimals[indexBalance]).trim())
+            makerOrderFieldChange(sideSell, FormIndexes.AMOUNT_FORM_INDEX)
+        } else {
+            const total = IconConverter.toBigNumber(market.balances[indexBalance]).multipliedBy(percentValue).dividedBy(100)
+            buyTotalInput.current.value = parseFloat(balanceToUnitDisplay(total, market.decimals[indexBalance]).trim())
+            makerOrderFieldChange(sideSell, FormIndexes.TOTAL_FORM_INDEX)
+        }
+    }
+
+    const sanitizeOrderFieldInputs = (sideSell, price = null, amount = null, total = null) => {
+
+        const priceInput = (sideSell ? sellPriceInput : buyPriceInput)
+        const amountInput = (sideSell ? sellAmountInput : buyAmountInput)
+        const totalInput = (sideSell ? sellTotalInput : buyTotalInput)
+
+        if (price !== null) priceInput.current.value = price ? truncateDecimals(price, 7) : price === 0 ? '0' : ''
+        if (amount !== null) amountInput.current.value = amount ? truncateDecimals(amount, 7) : amount === 0 ? '0' : ''
+        if (total !== null) totalInput.current.value = total ? truncateDecimals(total, 7) : total === 0 ? '0' : ''
+    }
+
+    const makerOrderFieldChange = (sideSell, indexChanged) => {
+
+        const priceInput = (sideSell ? sellPriceInput : buyPriceInput)
+        const amountInput = (sideSell ? sellAmountInput : buyAmountInput)
+        const totalInput = (sideSell ? sellTotalInput : buyTotalInput)
+
+        const isInputEmpty = (input) => {
+            return input.current.value.length === 0
+        }
+
+        var price = parseFloat(priceInput.current.value)
+        var amount = parseFloat(amountInput.current.value)
+        var total = parseFloat(totalInput.current.value)
+
+        switch (indexChanged) {
+            case FormIndexes.PRICE_FORM_INDEX: // price
+                if (isInputEmpty(priceInput) || isInputEmpty(amountInput)) break
+                total = parseFloat(IconConverter.toBigNumber(amount).multipliedBy(IconConverter.toBigNumber(price)))
+                sanitizeOrderFieldInputs(sideSell, null, null, total)
+                break
+            case FormIndexes.AMOUNT_FORM_INDEX: // amount
+                if (isInputEmpty(priceInput) || isInputEmpty(amountInput)) break
+                total = parseFloat(IconConverter.toBigNumber(amount).multipliedBy(IconConverter.toBigNumber(price)))
+                sanitizeOrderFieldInputs(sideSell, null, null, total)
+                break
+            case FormIndexes.TOTAL_FORM_INDEX: // total
+                if (isInputEmpty(priceInput) || isInputEmpty(totalInput)) break
+                amount = parseFloat(IconConverter.toBigNumber(total).dividedBy(IconConverter.toBigNumber(price)))
+                sanitizeOrderFieldInputs(sideSell, null, amount)
+                break
+            default:
+                console.error("makerOrderFieldChange: Invalid index")
+        }
+    }
+
+    const clickOrderLimit = (sideSell) => {
+
+        const amountInput = (sideSell ? sellAmountInput : buyAmountInput)
+        const totalInput = (sideSell ? sellTotalInput : buyTotalInput)
+
+        const maker_amount = sideSell ? parseFloat(amountInput.current.value) : parseFloat(totalInput.current.value)
+        const taker_amount = sideSell ? parseFloat(totalInput.current.value) : parseFloat(amountInput.current.value)
+
+        const maker_contract = sideSell ? pairs[0] : pairs[1]
+        const taker_contract = sideSell ? pairs[1] : pairs[0]
+
+        api.marketCreateLimitOrder(wallet, maker_contract, maker_amount, taker_contract, taker_amount)
+    }
+
+    const clickOnBookOrder = (swap, index, swaps, sideSell) => {
+        const price = getPriceBigNumber(swap, pairs)
+
+        // Get amount
+        var amount = IconConverter.toBigNumber(0);
+        const sideOrder = sideSell ? 'maker' : 'taker'
+        for (var curIndex = index; curIndex >= 0; curIndex--) {
+            amount = amount.plus(IconConverter.toBigNumber(swaps[curIndex][sideOrder]['amount']))
+        }
+
+        // Check if amount exceed balance
+        const indexBalance = sideSell ? 1 : 0
+        const balance = IconConverter.toBigNumber(market.balances[indexBalance])
+        if (sideSell) {
+            const total = amount.multipliedBy(price)
+            if (total.comparedTo(balance) === 1) {
+                amount = IconConverter.toBigNumber(balance).dividedBy(IconConverter.toBigNumber(price))
+            }
+        } else {
+            if (amount.comparedTo(balance) === 1) {
+                amount = balance
+            }
+        }
+
+        const total = amount.multipliedBy(price)
+        sanitizeOrderFieldInputs(!sideSell,
+            parseFloat(price),
+            parseFloat(balanceToUnit(amount, market.decimals[0])),
+            parseFloat(balanceToUnit(total, market.decimals[1]))
+        )
+    }
+
+    const getSpread = (swapBid, swapAsk, pairs) => {
         if (!swapBid | !swapAsk) return 0;
 
-        const bid = getPriceBigNumber(swapBid)
-        const ask = getPriceBigNumber(swapAsk)
+        const bid = getPriceBigNumber(swapBid, pairs)
+        const ask = getPriceBigNumber(swapAsk, pairs)
         return displayBigNumber(bid.minus(ask).dividedBy(ask.plus(bid).dividedBy(2)).multipliedBy(100).abs())
     }
 
-    const over = buyers && sellers && decimals && symbols
+    const swapSpot = () => {
+        history.push("/market/" + pairs[1] + "/" + pairs[0])
+        setBuyers(null)
+        setPairs([pairs[1], pairs[0]])
+    }
+
+    const isUserSwap = (swap) => {
+        return (swap.maker.provider === wallet || swap.taker.provider === wallet)
+    }
+
+    const over = market && buyers && sellers
+    const swapsFilled = market && market.history.slice(0, 250)
+
     const loadingText = 'Loading Market...'
 
     return (<>
-
         <LoadingOverlay over={over} text={loadingText} />
 
         <div id="market-pair-root">
             {over && <>
                 <div id="market-pair-container">
-                    <div id="market-pair-title">{symbols[0]}/{symbols[1]}</div>
-                    <div id="market-pair-view">
-                        <div id="market-pair-orderbook">
+                    <div id="market-pair-title">
 
-                            <div ref={scrollSellers} id="market-pair-sellers">
-                                <table className="market-pair-table-content market-pair-table">
-                                    <tbody>
-                                        {sellers && sellers.map(swap => (
-                                            <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
-                                                <td className="market-pair-orderbook-price market-pair-sellers-text" >{getPrice(swap)}</td>
-                                                <td className="market-pair-orderbook-amount">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
-                                                <td className="market-pair-orderbook-total">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                        {market.symbols[pairs[0]]}/{market.symbols[pairs[1]]}
+
+                        <button id="market-pair-swap-spots" className="big-button button-svg-container tooltip"
+                            onClick={() => { swapSpot() }}>
+                            <div className="svg-icon-button"><SwapSpotSvg /></div>
+                        </button>
+
+                    </div>
+
+                    <div id="market-pair-view">
+                        <div id="market-pair-left">
+                            <table id="market-pair-sellers" className="market-pair-table">
+                                <tbody id="market-pair-sellers-entries">
+                                    {sellers && sellers.map((swap, index) => console.log(swap['maker']['volume_percent']) || (
+                                        <tr
+                                            style={{ background: `linear-gradient(to left, #ec4b7033 ${swap['maker']['volume_percent'] * 10}%, #ffffff00 0%)` }}
+                                            className="market-pair-tr-percent-volume market-pair-tr-clickeable"
+                                            onClick={() => { clickOnBookOrder(swap, index, sellers, true) }}
+                                            key={swap['id']}>
+                                            <td className={"market-pair-left-status tooltip"}>{isUserSwap(swap) && <>
+                                                <span className="market-pair-yourswap market-pair-yourswap-seller">⮞</span>
+                                                <span className="tooltiptext">You created this swap</span>
+                                            </>}
+                                            </td>
+                                            <td className="market-pair-left-price market-pair-sellers-text" >{getPrice(swap, pairs)}</td>
+                                            <td className="market-pair-left-amount">{balanceToUnitDisplay(swap['maker']['amount'], market.decimals[1])}</td>
+                                            <td className="market-pair-left-total">{balanceToUnitDisplay(swap['taker']['amount'], market.decimals[0])}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
 
                             <table className="market-pair-table">
                                 <thead>
                                     <tr>
-                                        <th className="market-pair-orderbook-price">Price ({symbols[1]}) </th>
-                                        <th className="market-pair-orderbook-amount">Amount ({symbols[0]})</th>
-                                        <th className="market-pair-orderbook-total">Total ({symbols[1]})</th>
+                                        <th className="market-pair-left-status"></th>
+                                        <th className="market-pair-left-price">Price ({market.symbols[pairs[1]]}) </th>
+                                        <th className="market-pair-left-amount">Amount ({market.symbols[pairs[0]]})</th>
+                                        <th className="market-pair-left-total">Total ({market.symbols[pairs[1]]})</th>
                                     </tr>
                                 </thead>
                             </table>
 
                             <div id="market-pair-middleinfo">
-                                <div id="market-pair-spread">Spread: <br /> {getSpread(sellers.slice(-1)[0], buyers[0])} %</div>
-                                <div id="market-pair-lastprice">Last Price : <br /> {(swapsFilled.length > 0 && getPrice(swapsFilled[0])) || 0}</div>
+                                <div id="market-pair-spread">Spread: <br /> {getSpread(sellers[0], buyers[0], pairs)} %</div>
+                                <div id="market-pair-lastprice">Last Price : <br /> {(swapsFilled.length > 0 && getPrice(swapsFilled[0], pairs)) || 0}</div>
                             </div>
 
                             <table className="market-pair-table">
                                 <thead>
                                     <tr>
-                                        <th className="market-pair-orderbook-price">Price ({symbols[1]}) </th>
-                                        <th className="market-pair-orderbook-amount">Amount ({symbols[0]})</th>
-                                        <th className="market-pair-orderbook-total">Total ({symbols[1]})</th>
+                                        <th className="market-pair-left-status"></th>
+                                        <th className="market-pair-left-price">Price ({market.symbols[pairs[1]]}) </th>
+                                        <th className="market-pair-left-amount">Amount ({market.symbols[pairs[0]]})</th>
+                                        <th className="market-pair-left-total">Total ({market.symbols[pairs[1]]})</th>
                                     </tr>
                                 </thead>
                             </table>
-                            <div id="market-pair-buyers">
+
+                            <table id="market-pair-buyers" className="market-pair-table">
+                                <tbody id="market-pair-buyers-entries">
+                                    {buyers && buyers.map((swap, index) => (
+                                        <tr style={{ background: `linear-gradient(to left, #74aa1733 ${swap['taker']['volume_percent'] * 10}%, #ffffff00 0%)` }}
+                                            className="market-pair-tr-clickeable"
+                                            onClick={() => { clickOnBookOrder(swap, index, buyers, false) }}
+                                            key={swap['id']}>
+                                            <td className={"market-pair-left-status tooltip"}>{isUserSwap(swap) && <>
+                                                <span className="market-pair-yourswap market-pair-yourswap-buyer">⮞</span>
+                                                <span className="tooltiptext tooltiptext-bottom">You created this swap</span>
+                                            </>}
+                                            </td>
+                                            <td className="market-pair-left-price market-pair-buyers-text" >{getPrice(swap, pairs)}</td>
+                                            <td className="market-pair-left-amount">{balanceToUnitDisplay(swap['taker']['amount'], market.decimals[0])}</td>
+                                            <td className="market-pair-left-total">{balanceToUnitDisplay(swap['maker']['amount'], market.decimals[1])}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="market-pair-middle">
+                            <div id="market-pair-chart">
+                                <div id="market-pair-chart-choser">
+
+                                    <button className="small-button tooltip" onClick={() => { setChartView('depth') }}>
+                                        Depth
+                                    </button>
+
+                                    <button className="small-button tooltip" onClick={() => { setChartView('price') }}>
+                                        Price
+                                    </button>
+                                </div>
+
+                                <div ref={chartCanvas} id="market-pair-chart-canvas"></div>
+                            </div>
+
+
+                            <div id="market-pair-make-order">
+                                <div id="market-pair-buy-order">
+                                    <div className="market-pair-make-order-header">
+                                        <div className="market-pair-make-order-title">Buy {market.symbols[pairs[0]]}</div>
+
+                                        <div className="market-pair-make-order-balance">
+                                            <div className="svg-icon-button"><WalletSvg /></div>&nbsp;
+                                        {balanceToUnitDisplay(market.balances[1], market.decimals[1])} {market.symbols[pairs[1]]}
+                                        </div>
+                                    </div>
+
+                                    <div className="market-pair-make-order-fields">
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-price"}>
+                                            <div className="market-pair-make-order-textfield">Price ({market.symbols[pairs[1]]}):</div>
+                                            <input onChange={() => { makerOrderFieldChange(false, FormIndexes.PRICE_FORM_INDEX) }} ref={buyPriceInput} className="market-pair-make-order-inputfield" type="number"></input>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-amount"}>
+                                            <div className="market-pair-make-order-textfield">Amount ({market.symbols[pairs[0]]}):</div>
+                                            <input onChange={() => { makerOrderFieldChange(false, FormIndexes.AMOUNT_FORM_INDEX) }} ref={buyAmountInput} className="market-pair-make-order-inputfield" type="number"></input>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-percent"}>
+                                            <button onClick={() => { selectPercentWallet(25, false) }} className={"market-pair-percent-button"}>25%</button>
+                                            <button onClick={() => { selectPercentWallet(50, false) }} className={"market-pair-percent-button"}>50%</button>
+                                            <button onClick={() => { selectPercentWallet(75, false) }} className={"market-pair-percent-button"}>75%</button>
+                                            <button onClick={() => { selectPercentWallet(100, false) }} className={"market-pair-percent-button"}>100%</button>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-total"}>
+                                            <div className="market-pair-make-order-textfield">Total ({market.symbols[pairs[1]]}):</div>
+                                            <input onChange={() => { makerOrderFieldChange(false, FormIndexes.TOTAL_FORM_INDEX) }} ref={buyTotalInput} className="market-pair-make-order-inputfield" type="number"></input>
+                                        </div>
+
+                                        <button className="market-pair-buysell-button market-pair-buy-button"
+                                            onClick={() => { clickOrderLimit(false) }}>
+                                            Buy {market.symbols[pairs[0]]}</button>
+                                    </div>
+                                </div>
+
+                                <div id="market-pair-sell-order">
+
+                                    <div className="market-pair-make-order-header">
+                                        <div className="market-pair-make-order-title">Sell {market.symbols[pairs[0]]}</div>
+
+                                        <div className="market-pair-make-order-balance">
+                                            <div className="svg-icon-button"><WalletSvg /></div>&nbsp;
+                                        {balanceToUnitDisplay(market.balances[0], market.decimals[0])} {market.symbols[pairs[0]]}
+                                        </div>
+                                    </div>
+
+                                    <div className="market-pair-make-order-fields">
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-price"}>
+                                            <div className="market-pair-make-order-textfield">Price ({market.symbols[pairs[1]]}):</div>
+                                            <input onChange={() => { makerOrderFieldChange(true, FormIndexes.PRICE_FORM_INDEX) }} ref={sellPriceInput} className="market-pair-make-order-inputfield" type="number"></input>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-amount"}>
+                                            <div className="market-pair-make-order-textfield">Amount ({market.symbols[pairs[0]]}):</div>
+                                            <input onChange={() => { makerOrderFieldChange(true, FormIndexes.AMOUNT_FORM_INDEX) }} ref={sellAmountInput} className="market-pair-make-order-inputfield" type="number"></input>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-percent"}>
+                                            <button onClick={() => { selectPercentWallet(25, true) }} className={"market-pair-percent-button"}>25%</button>
+                                            <button onClick={() => { selectPercentWallet(50, true) }} className={"market-pair-percent-button"}>50%</button>
+                                            <button onClick={() => { selectPercentWallet(75, true) }} className={"market-pair-percent-button"}>75%</button>
+                                            <button onClick={() => { selectPercentWallet(100, true) }} className={"market-pair-percent-button"}>100%</button>
+                                        </div>
+                                        <div className={"market-pair-make-order-hz market-pair-make-order-total"}>
+                                            <div className="market-pair-make-order-textfield">Total ({market.symbols[pairs[1]]}):</div>
+                                            <input onChange={() => { makerOrderFieldChange(true, FormIndexes.TOTAL_FORM_INDEX) }} ref={sellTotalInput} className="market-pair-make-order-inputfield" type="number"></input>
+                                        </div>
+
+                                        <button className="market-pair-buysell-button market-pair-sell-button"
+                                            onClick={() => { clickOrderLimit(true) }}>
+                                            Sell {market.symbols[pairs[0]]}</button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="market-pair-right">
+
+                            <table className="market-pair-table">
+                                <thead>
+                                    <tr>
+                                        <th className="market-pair-history-price">Price ({market.symbols[pairs[1]]}) </th>
+                                        <th className="market-pair-history-amount">Amount ({market.symbols[pairs[0]]})</th>
+                                        <th className="market-pair-history-total">Total ({market.symbols[pairs[1]]})</th>
+                                        <th className="market-pair-history-filled">Time filled</th>
+                                    </tr>
+                                </thead>
+                            </table>
+
+                            <div id="market-pair-history">
                                 <table className="market-pair-table">
                                     <tbody>
-                                        {buyers && buyers.map(swap => (
+                                        {swapsFilled && swapsFilled.map(swap => (
                                             <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
-                                                <td className="market-pair-orderbook-price market-pair-buyers-text" >{getPrice(swap)}</td>
-                                                <td className="market-pair-orderbook-amount">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
-                                                <td className="market-pair-orderbook-total">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
+                                                {isBuyer(swap, pairs) && <>
+                                                    <td className="market-pair-history-price market-pair-buyers-text" >{getPrice(swap, pairs)}</td>
+                                                    <td className="market-pair-history-amount">{balanceToUnitDisplay(swap['taker']['amount'], market.decimals[0])}</td>
+                                                    <td className="market-pair-history-total">{balanceToUnitDisplay(swap['maker']['amount'], market.decimals[1])}</td>
+                                                    <td className="market-pair-history-filled">{convertTsToDate(swap['timestamp_swap'])}</td>
+                                                </>}
+                                                {!isBuyer(swap, pairs) && <>
+                                                    <td className="market-pair-history-price market-pair-sellers-text" >{getPrice(swap, pairs)}</td>
+                                                    <td className="market-pair-history-amount">{balanceToUnitDisplay(swap['maker']['amount'], market.decimals[1])}</td>
+                                                    <td className="market-pair-history-total">{balanceToUnitDisplay(swap['taker']['amount'], market.decimals[0])}</td>
+                                                    <td className="market-pair-history-filled">{convertTsToDate(swap['timestamp_swap'])}</td>
+                                                </>}
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-                        <div id="market-pair-depth"></div>
-                        <div id="market-pair-history">
-
-                            <table className="market-pair-table">
-                                <thead>
-                                    <tr>
-                                        <th className="market-pair-history-price">Price ({symbols[1]}) </th>
-                                        <th className="market-pair-history-amount">Amount ({symbols[0]})</th>
-                                        <th className="market-pair-history-total">Total ({symbols[1]})</th>
-                                        <th className="market-pair-history-filled">Time filled</th>
-                                    </tr>
-                                </thead>
-                            </table>
-                            <table className="market-pair-table">
-                                <tbody>
-                                    {swapsFilled && swapsFilled.map(swap => (
-                                        <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
-                                            {isBuyer(swap) && <>
-                                                <td className="market-pair-history-price market-pair-buyers-text" >{getPrice(swap)}</td>
-                                                <td className="market-pair-history-amount">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
-                                                <td className="market-pair-history-total">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
-                                                <td className="market-pair-history-filled">{convertTsToDate(swap['timestamp_swap'])}</td>
-                                            </>}
-                                            {!isBuyer(swap) && <>
-                                                <td className="market-pair-history-price market-pair-sellers-text" >{getPrice(swap)}</td>
-                                                <td className="market-pair-history-amount">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
-                                                <td className="market-pair-history-total">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
-                                                <td className="market-pair-history-filled">{convertTsToDate(swap['timestamp_swap'])}</td>
-                                            </>}
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>

@@ -3,7 +3,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    background-color: #2d8386;
+    background-color: #2d8386; /* #45c3c7; */
     position: absolute;
     top: 0;
     left: 0;
@@ -68,9 +68,4 @@
 .header-buttons {
     margin-left: 10px;
     margin-right: 10px;
-}
-
-.svg-icon-button {
-    width: 20px;
-    height: 20px;
 }
