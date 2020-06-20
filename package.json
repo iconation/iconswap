@@ -1,6 +1,6 @@
 {
-  "homepage": "https://iconation.github.io/iconswap-testnet-latest/",
-  "name": "iconswap-testnet-latest",
+  "homepage": "https://iconation.github.io/iconswap/",
+  "name": "iconswap",
   "version": "0.5.1",
   "private": true,
   "dependencies": {
