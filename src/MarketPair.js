@@ -48,6 +48,22 @@ const MarketPair = ({ match, wallet }) => {
 
     useEffect(() => {
 
+        const percentVolumeSwaps = (swaps) => {
+            var makerAmountSum = IconConverter.toBigNumber(0)
+            var takerAmountSum = IconConverter.toBigNumber(0)
+
+            swaps.forEach(swap => {
+                makerAmountSum = makerAmountSum.plus(IconConverter.toBigNumber(swap['maker']['amount']))
+                takerAmountSum = takerAmountSum.plus(IconConverter.toBigNumber(swap['taker']['amount']))
+            })
+
+            // Determine the volume percent
+            swaps.forEach(swap => {
+                swap['maker']['volume_percent'] = parseFloat(IconConverter.toBigNumber(swap['maker']['amount']).dividedBy(makerAmountSum)) * 100
+                swap['taker']['volume_percent'] = parseFloat(IconConverter.toBigNumber(swap['taker']['amount']).dividedBy(takerAmountSum)) * 100
+            })
+        }
+
         const groupSwaps = (swaps, sellSide) => {
             if (swaps.length === 0) return swaps
 
@@ -95,7 +111,7 @@ const MarketPair = ({ match, wallet }) => {
                 api.getDecimals(pairs[1]),
                 api.tokenSymbol(pairs[0]),
                 api.tokenSymbol(pairs[1]),
-                api.getManyMarketFilledSwaps(pairName, 0, 1300)
+                api.getManyMarketFilledSwaps(pairName, 0, 1500)
             ]
 
             return Promise.all(promises).then(async market => {
@@ -122,8 +138,14 @@ const MarketPair = ({ match, wallet }) => {
                 // Check if inverted view
                 if (market.swaps[0].length !== 0) {
                     if (market.swaps[0][0].maker.contract === pairs[1]) {
-                        setBuyers(groupSwaps(market.swaps[0], false))
-                        setSellers(groupSwaps(market.swaps[1], true))
+                        const buyersGroup = groupSwaps(market.swaps[0], false)
+                        const sellersGroup = groupSwaps(market.swaps[1], true)
+                        setBuyers(buyersGroup)
+                        setSellers(sellersGroup)
+
+                        percentVolumeSwaps(buyersGroup)
+                        percentVolumeSwaps(sellersGroup)
+
                         setIsInverted(false)
                     } else {
                         // inverted
@@ -321,8 +343,12 @@ const MarketPair = ({ match, wallet }) => {
                         <div id="market-pair-left">
                             <table id="market-pair-sellers" className="market-pair-table">
                                 <tbody id="market-pair-sellers-entries">
-                                    {sellers && sellers.map((swap, index) => (
-                                        <tr className="market-pair-tr-clickeable" onClick={() => { clickOnBookOrder(swap, index, sellers, true) }} key={swap['id']}>
+                                    {sellers && sellers.map((swap, index) => console.log(swap['maker']['volume_percent']) || (
+                                        <tr
+                                            style={{ background: `linear-gradient(to left, #ec4b7033 ${swap['maker']['volume_percent'] * 10}%, #ffffff00 0%)` }}
+                                            className="market-pair-tr-percent-volume market-pair-tr-clickeable"
+                                            onClick={() => { clickOnBookOrder(swap, index, sellers, true) }}
+                                            key={swap['id']}>
                                             <td className={"market-pair-left-status tooltip"}>{isUserSwap(swap) && <>
                                                 <span className="market-pair-yourswap market-pair-yourswap-seller">⮞</span>
                                                 <span className="tooltiptext">You created this swap</span>
@@ -364,9 +390,12 @@ const MarketPair = ({ match, wallet }) => {
                             </table>
 
                             <table id="market-pair-buyers" className="market-pair-table">
-                                <tbody>
+                                <tbody id="market-pair-buyers-entries">
                                     {buyers && buyers.map((swap, index) => (
-                                        <tr className="market-pair-tr-clickeable" onClick={() => { clickOnBookOrder(swap, index, buyers, false) }} key={swap['id']}>
+                                        <tr style={{ background: `linear-gradient(to left, #74aa1733 ${swap['taker']['volume_percent'] * 10}%, #ffffff00 0%)` }}
+                                            className="market-pair-tr-clickeable"
+                                            onClick={() => { clickOnBookOrder(swap, index, buyers, false) }}
+                                            key={swap['id']}>
                                             <td className={"market-pair-left-status tooltip"}>{isUserSwap(swap) && <>
                                                 <span className="market-pair-yourswap market-pair-yourswap-buyer">⮞</span>
                                                 <span className="tooltiptext tooltiptext-bottom">You created this swap</span>

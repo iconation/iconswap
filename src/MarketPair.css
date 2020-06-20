@@ -152,6 +152,7 @@
     flex-direction: column-reverse;
     min-height: 44%;
     max-height: 44%;
+    font-weight: 500;
 }
 
 #market-pair-sellers-entries {
@@ -165,10 +166,19 @@
     overflow-x: hidden;
     min-height: 30%;
     max-height: 44%;
+    font-weight: 500;
 }
 
 .market-pair-tr-clickeable {
     cursor: pointer;
+}
+
+#market-pair-sellers-entries .market-pair-tr-clickeable:hover {
+    background: #ec4b7055 !important;
+}
+
+#market-pair-buyers-entries .market-pair-tr-clickeable:hover {
+    background: #74aa1755 !important;
 }
 
 #seller-anchor {
