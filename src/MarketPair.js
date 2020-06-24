@@ -138,32 +138,42 @@ const MarketPair = ({ match, wallet }) => {
                 // Check if inverted view
                 if (market.swaps[0].length !== 0) {
                     if (market.swaps[0][0].maker.contract === pairs[1]) {
+                        setIsInverted(false)
                         const buyersGroup = groupSwaps(market.swaps[0], false)
                         const sellersGroup = groupSwaps(market.swaps[1], true)
                         setBuyers(buyersGroup)
                         setSellers(sellersGroup)
-
                         percentVolumeSwaps(buyersGroup)
                         percentVolumeSwaps(sellersGroup)
-
-                        setIsInverted(false)
                     } else {
                         // inverted
-                        setBuyers(groupSwaps(market.swaps[1], false))
-                        setSellers(groupSwaps(market.swaps[0], true))
                         setIsInverted(true)
+                        const sellersGroup = groupSwaps(market.swaps[0], true)
+                        const buyersGroup = groupSwaps(market.swaps[1], false)
+                        setBuyers(buyersGroup)
+                        setSellers(sellersGroup)
+                        percentVolumeSwaps(buyersGroup)
+                        percentVolumeSwaps(sellersGroup)
                     }
                 }
                 else if (market.swaps[1].length !== 0) {
                     if (market.swaps[1][0].maker.contract === pairs[0]) {
-                        setBuyers(groupSwaps(market.swaps[0], false))
-                        setSellers(groupSwaps(market.swaps[1], true))
                         setIsInverted(false)
+                        const buyersGroup = groupSwaps(market.swaps[0], false)
+                        const sellersGroup = groupSwaps(market.swaps[1], true)
+                        setBuyers(buyersGroup)
+                        setSellers(sellersGroup)
+                        percentVolumeSwaps(buyersGroup)
+                        percentVolumeSwaps(sellersGroup)
                     } else {
                         // inverted
-                        setBuyers(groupSwaps(market.swaps[1], false))
-                        setSellers(groupSwaps(market.swaps[0], true))
                         setIsInverted(true)
+                        const sellersGroup = groupSwaps(market.swaps[0], true)
+                        const buyersGroup = groupSwaps(market.swaps[1], false)
+                        setBuyers(buyersGroup)
+                        setSellers(sellersGroup)
+                        percentVolumeSwaps(buyersGroup)
+                        percentVolumeSwaps(sellersGroup)
                     }
                 }
 
@@ -343,7 +353,7 @@ const MarketPair = ({ match, wallet }) => {
                         <div id="market-pair-left">
                             <table id="market-pair-sellers" className="market-pair-table">
                                 <tbody id="market-pair-sellers-entries">
-                                    {sellers && sellers.map((swap, index) => console.log(swap['maker']['volume_percent']) || (
+                                    {sellers && sellers.map((swap, index) => (
                                         <tr
                                             style={{ background: `linear-gradient(to left, #ec4b7033 ${swap['maker']['volume_percent'] * 10}%, #ffffff00 0%)` }}
                                             className="market-pair-tr-percent-volume market-pair-tr-clickeable"
