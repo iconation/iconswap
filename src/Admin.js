@@ -2,9 +2,15 @@ import React, { useState, useEffect } from 'react'
 import './Admin.css';
 import CustomInput from './CustomInput'
 import { api } from './API'
+import { treasuryAPI } from './API_treasury'
+import { TREASURY_SCORE_ENDPOINT, ICX_TOKEN_CONTRACT, ICX_TOKEN_DECIMALS, TAP_TOKEN_CONTRACT } from './constants';
+import { IconConverter } from 'icon-sdk-js'
 
 const Admin = ({ wallet }) => {
 
+    const [excessFunds, setExcessFunds] = useState(0)
+    const [tapFunds, setTapFunds] = useState(0)
+    const [icxFunds, setIcxFunds] = useState(0)
     const [cancelSwapId, setCancelSwapId] = useState(null)
     const [isMaintenanceEnabled, setIsMaintenanceEnabled] = useState(null)
 
@@ -31,6 +37,24 @@ const Admin = ({ wallet }) => {
         setIsMaintenanceEnabled(result)
     })
 
+    api.getBalance(TREASURY_SCORE_ENDPOINT, ICX_TOKEN_CONTRACT).then(funds => {
+        const digits = IconConverter.toBigNumber('10').exponentiatedBy(ICX_TOKEN_DECIMALS)
+        const balance = IconConverter.toBigNumber(funds).dividedBy(digits).toString()
+        setIcxFunds(balance)
+    })
+
+    api.getBalance(TREASURY_SCORE_ENDPOINT, TAP_TOKEN_CONTRACT).then(funds => {
+        const digits = IconConverter.toBigNumber('10').exponentiatedBy(18)
+        const balance = IconConverter.toBigNumber(funds).dividedBy(digits).toString()
+        setTapFunds(balance)
+    })
+
+    treasuryAPI.icxFundsExcess().then(funds => {
+        const digits = IconConverter.toBigNumber('10').exponentiatedBy(18)
+        const balance = IconConverter.toBigNumber(funds).dividedBy(digits).toString()
+        setExcessFunds(balance)
+    })
+
     return (
         <>
             <div id="admin-screen-root">
@@ -48,6 +72,29 @@ const Admin = ({ wallet }) => {
                                 onChange={(value) => { setCancelSwapId(parseInt(value)) }}
                             />
                             <button className="admin-button" onClick={() => cancelOneSwap()}>Cancel Swap</button>
+                        </div>
+
+                        <br /><hr /><br />
+
+                        <div className={"admin-item admin-funds"}>
+                            <CustomInput
+                                label={"ICX Funds : " + icxFunds}
+                                locked={true}
+                                active={false}
+                                numericOnly={false}
+                            />
+                            <CustomInput
+                                label={"TAP Funds : " + tapFunds}
+                                locked={true}
+                                active={false}
+                                numericOnly={false}
+                            />
+                            <CustomInput
+                                label={"Excess ICX Funds : " + excessFunds}
+                                locked={true}
+                                active={false}
+                                numericOnly={false}
+                            />
                         </div>
 
                         <br /><hr /><br />
