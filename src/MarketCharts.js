@@ -184,6 +184,7 @@ export const showPriceChart = (market, pairs, isInverted) => {
 
             for (const [key, swap] of Object.entries(history)) {
                 const curPrice = getPrice(swap, pairs)
+                if (curPrice == 0) continue;
 
                 // init
                 if (parseInt(key) === 0) {
