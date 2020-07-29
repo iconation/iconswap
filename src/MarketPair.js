@@ -66,7 +66,7 @@ const MarketPair = ({ match, wallet }) => {
             api.getDecimals(pairs[1]),
             api.tokenSymbol(pairs[0]),
             api.tokenSymbol(pairs[1]),
-            api.getManyMarketFilledSwaps(pairName, 0, 1500)
+            api.getManyMarketFilledSwaps(pairName, 0, 4000)
         ]
 
         return Promise.all(promises).then(async market => {

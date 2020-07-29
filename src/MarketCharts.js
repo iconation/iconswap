@@ -184,7 +184,11 @@ export const showPriceChart = (market, pairs, isInverted) => {
 
             for (const [key, swap] of Object.entries(history)) {
                 const curPrice = getPrice(swap, pairs)
+                // Fix the log 0 price chart bug
                 if (curPrice == 0) continue;
+                // Fix the abnormal prices
+                if (lastHigh !== 0 && curPrice > (lastHigh * 3)) continue
+                if (lastLow !== 0 && curPrice < (lastLow / 3)) continue
 
                 // init
                 if (parseInt(key) === 0) {
@@ -285,7 +289,7 @@ export const showPriceChart = (market, pairs, isInverted) => {
         valueAxis.renderer.labels.template.padding(2, 2, 2, 2);
         //valueAxis.renderer.maxLabelPosition = 0.95;
         valueAxis.renderer.fontSize = "0.8em"
-        valueAxis.logarithmic = true
+        valueAxis.logarithmic = false
 
         var series = chart.series.push(new am4charts.CandlestickSeries());
         series.dataFields.dateX = "Date";
