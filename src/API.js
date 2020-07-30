@@ -318,13 +318,17 @@ class API {
             if (!tx) return null;
             const txHash = tx['result']
             const txResult = await this.__txResult(txHash)
-            const eventLogs = txResult['eventLogs'][0]
-            if (eventLogs['indexed'][0] !== SwapCreatedEvent) {
-                throw WrongEventSignature(eventLogs['indexed']);
+            const swapCreatedEventLog = txResult['eventLogs'].filter(eventLogs => {
+                return eventLogs['indexed'][0] === SwapCreatedEvent
+            })[0]
+
+            if (swapCreatedEventLog === undefined) {
+                throw WrongEventSignature(txResult['eventLogs']);
             }
-            const swapId = parseInt(eventLogs['indexed'][1], 16)
-            const maker = parseInt(eventLogs['data'][0], 16)
-            const taker = parseInt(eventLogs['data'][1], 16)
+
+            const swapId = parseInt(swapCreatedEventLog['indexed'][1], 16)
+            const maker = parseInt(swapCreatedEventLog['data'][0], 16)
+            const taker = parseInt(swapCreatedEventLog['data'][1], 16)
             return { swapId: swapId, maker: maker, taker: taker }
         }
 
