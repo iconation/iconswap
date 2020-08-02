@@ -76,6 +76,13 @@ const Homepage = ({ wallet }) => {
                 }
             }
 
+            if (curPrice > (marketPrice * 1.3)) {
+                const result = window.confirm(`Your swap price (${curPrice}) seems much higher than the market price (${marketPrice}), are you sure you want to create this swap ?`)
+                if (!result) {
+                    return
+                }
+            }
+
             setWaitForSwapCreation(true)
             api.getDecimals(maker.contract).then(decimals_maker => {
                 api.getDecimals(taker.contract).then(decimals_taker => {
