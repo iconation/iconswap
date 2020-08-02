@@ -203,24 +203,18 @@ const MarketPair = ({ match, wallet }) => {
         // Check if amount exceed balance
         const indexBalance = sideSell ? 1 : 0
         const balance = IconConverter.toBigNumber(balances[indexBalance])
-        console.log("-----------------------------")
-        console.log("pre amount ", balanceToUnitDisplay(amount, decimals[indexBalance]))
-        console.log("pre balance ", balanceToUnitDisplay(balance, decimals[indexBalance]))
+
         if (sideSell) {
-            console.log("<")
             const total = amount.multipliedBy(price)
-            console.log("pre total", balanceToUnitDisplay(total, decimals[indexBalance]))
 
             if (total.comparedTo(balance) == 1) {
                 amount = IconConverter.toBigNumber(balance).dividedBy(IconConverter.toBigNumber(price))
             }
         } else {
-            console.log(">")
             if (amount.comparedTo(balance) == 1) {
                 amount = balance
             }
         }
-        console.log("aft amount ", balanceToUnitDisplay(amount, decimals[indexBalance]))
 
         amount = balanceToUnit(amount, decimals[indexBalance])
 

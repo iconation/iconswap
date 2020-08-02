@@ -49,6 +49,10 @@ export const displayBigNumber = (f) => {
     return parseFloat(f.toFixed(8)).toString()
 }
 
+export const displayFloat = (f) => {
+    return parseFloat(f.toFixed(8)).toString()
+}
+
 export const balanceToUnit = (balance, decimals) => {
     const digits = IconConverter.toBigNumber('10').exponentiatedBy(decimals)
     return IconConverter.toBigNumber(balance).dividedBy(digits)
@@ -57,7 +61,6 @@ export const balanceToUnit = (balance, decimals) => {
 export const balanceToUnitDisplay = (balance, decimals) => {
     return displayBigNumber(balanceToUnit(balance, decimals))
 }
-
 
 export const isBuyer = (swap, pairs) => {
     return swap['maker']['contract'] === pairs[1]
