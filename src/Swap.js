@@ -122,12 +122,6 @@ const Swap = ({ match, wallet }) => {
     const over = ((maker && taker) !== null) && (!withdrawingInProgress) && (!depositingInProgress)
 
     const getSwapPrice = (o1, o2) => {
-        console.log("o1['amount'] = ", o1['amount'])
-        console.log("o2['amount'] = ", o2['amount'])
-        console.log("o1['token']['decimals'] = ", o1['token']['decimals'])
-        console.log("o2['token']['decimals'] = ", o2['token']['decimals'])
-        console.log("o1 = ", truncateDecimals(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(o1['token']['decimals'])), 8))
-        console.log("o2 = ", truncateDecimals(IconConverter.toBigNumber(o2['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(o2['token']['decimals'])), 8))
         return truncateDecimals(
             IconConverter.toBigNumber(o1['amount']).dividedBy(
                 IconConverter.toBigNumber('10').exponentiatedBy(o1['token']['decimals'])
@@ -158,7 +152,6 @@ const Swap = ({ match, wallet }) => {
                         ` rel="noopener noreferrer" target="_blank">0x` + swap['transaction'] + `</a>
                 `} />
                 }
-
 
                 {isMaker && <InfoBox content={"<strong>Your swap has been created successfully!</strong> <br/>" +
                     "You may share this link with anyone you want to trade your tokens with : <br/>" +

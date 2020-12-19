@@ -65,6 +65,7 @@ const OrderChoser = ({ whitelist, setContract, setAmount, titleText, index, orde
                         <div className="order-choser-balance-select">
                             <Select
                                 error={orders[index].contractError}
+                                menuPortalTarget={document.body}
                                 styles={customStyles}
                                 name="form-field-name"
                                 id={tokenId}
