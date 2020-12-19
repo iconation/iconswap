@@ -2,7 +2,7 @@
 import { IconConverter } from 'icon-sdk-js'
 
 export const convertTsToDate = (timestamp) => {
-    function pad(n) { return n < 10 ? '0' + n : n }
+    function pad (n) { return n < 10 ? '0' + n : n }
 
     var a = new Date(parseInt(timestamp, 16) / 1000);
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -17,7 +17,7 @@ export const convertTsToDate = (timestamp) => {
 }
 
 export const convertTsToNumericDate = (timestamp) => {
-    function pad(n) { return n < 10 ? '0' + n : n }
+    function pad (n) { return n < 10 ? '0' + n : n }
 
     var a = new Date(parseInt(timestamp, 16) / 1000);
     var year = a.getFullYear();
@@ -63,21 +63,31 @@ export const balanceToUnitDisplay = (balance, decimals) => {
 }
 
 export const isBuyer = (swap, pairs) => {
+    console.log(swap)
     return swap['maker']['contract'] === pairs[1]
 }
 
-export const getPriceBigNumber = (swap, pairs) => {
+export const getPriceBigNumber = (swap, pairs, decimals) => {
 
     const [o1, o2] = isBuyer(swap, pairs) ?
         [swap['maker'], swap['taker']]
         : [swap['taker'], swap['maker']]
 
-    return IconConverter.toBigNumber(o1['amount'])
-        .dividedBy(IconConverter.toBigNumber(o2['amount']))
+    const [d1, d2] = isBuyer(swap, pairs) ?
+        [decimals[0], decimals[1]]
+        : [decimals[1], decimals[0]]
+
+
+    return IconConverter.toBigNumber(o1['amount']).dividedBy(
+        IconConverter.toBigNumber('10').exponentiatedBy(d1))
+        .dividedBy(
+            IconConverter.toBigNumber(o2['amount']).dividedBy(
+                IconConverter.toBigNumber('10').exponentiatedBy(d2))
+        )
 }
 
-export const getPrice = (swap, pairs) => {
-    return displayBigNumber(getPriceBigNumber(swap, pairs))
+export const getPrice = (swap, pairs, decimals) => {
+    return displayBigNumber(getPriceBigNumber(swap, pairs, decimals))
 }
 
 export const truncateDecimals = (number, digits) => {

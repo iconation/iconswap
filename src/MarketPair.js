@@ -26,7 +26,7 @@ const MarketPair = ({ match, wallet }) => {
     const [pairs, setPairs] = useState([match.params.pair1, match.params.pair2])
     const [buyers, setBuyers] = useState(null)
     const [sellers, setSellers] = useState(null)
-    const [decimals, setDecimals] = useState(null)
+    const [decimals, setDecimals] = useState([0, 0])
     const [symbols, setSymbols] = useState(null)
     const [swapsFilled, setSwapsFilled] = useState(null)
     const [market, setMarket] = useState(null)
@@ -66,7 +66,7 @@ const MarketPair = ({ match, wallet }) => {
             api.getDecimals(pairs[1]),
             api.tokenSymbol(pairs[0]),
             api.tokenSymbol(pairs[1]),
-            api.getManyMarketFilledSwaps(pairName, 0, 4000)
+            api.getManyMarketFilledSwaps(pairName, 0, 6000)
         ]
 
         return Promise.all(promises).then(async market => {
@@ -183,7 +183,7 @@ const MarketPair = ({ match, wallet }) => {
     }
 
     const clickOnBookOrder = (swap, index, swaps, sideSell) => {
-        const price = getPriceBigNumber(swap, pairs)
+        const price = getPriceBigNumber(swap, pairs, decimals)
         buyPriceInput.current.value = displayBigNumber(price);
         sellPriceInput.current.value = displayBigNumber(price);
 
@@ -230,8 +230,8 @@ const MarketPair = ({ match, wallet }) => {
     const getSpread = (swapBid, swapAsk, pairs) => {
         if (!swapBid | !swapAsk) return 0;
 
-        const bid = getPriceBigNumber(swapBid, pairs)
-        const ask = getPriceBigNumber(swapAsk, pairs)
+        const bid = getPriceBigNumber(swapBid, pairs, decimals)
+        const ask = getPriceBigNumber(swapAsk, pairs, decimals)
         return displayBigNumber(bid.minus(ask).dividedBy(ask.plus(bid).dividedBy(2)).multipliedBy(100).abs())
     }
 
@@ -276,9 +276,9 @@ const MarketPair = ({ match, wallet }) => {
                                                 <span className="tooltiptext">You created this swap</span>
                                             </>}
                                             </td>
-                                            <td className="market-pair-left-price market-pair-sellers-text" >{getPrice(swap, pairs)}</td>
-                                            <td className="market-pair-left-amount">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
-                                            <td className="market-pair-left-total">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
+                                            <td className="market-pair-left-price market-pair-sellers-text" >{getPrice(swap, pairs, decimals)}</td>
+                                            <td className="market-pair-left-amount">{balanceToUnitDisplay(swap['maker']['amount'], decimals[0])}</td>
+                                            <td className="market-pair-left-total">{balanceToUnitDisplay(swap['taker']['amount'], decimals[1])}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -302,7 +302,7 @@ const MarketPair = ({ match, wallet }) => {
                                         getSpread(sellers.slice(-1)[0], buyers[0], pairs)
                                         : getSpread(sellers[0], buyers[0], pairs)
                                 } %</div>
-                                <div id="market-pair-lastprice">Last Price : <br /> {(swapsFilled.length > 0 && getPrice(swapsFilled[0], pairs)) || 0}</div>
+                                <div id="market-pair-lastprice">Last Price : <br /> {(swapsFilled.length > 0 && getPrice(swapsFilled[0], pairs, decimals)) || 0}</div>
                             </div>
 
                             <table className="market-pair-table">
@@ -325,7 +325,7 @@ const MarketPair = ({ match, wallet }) => {
                                                 <span className="tooltiptext tooltiptext-bottom">You created this swap</span>
                                             </>}
                                             </td>
-                                            <td className="market-pair-left-price market-pair-buyers-text" >{getPrice(swap, pairs)}</td>
+                                            <td className="market-pair-left-price market-pair-buyers-text" >{getPrice(swap, pairs, [decimals[1], decimals[0]])}</td>
                                             <td className="market-pair-left-amount">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
                                             <td className="market-pair-left-total">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
                                         </tr>
@@ -444,13 +444,13 @@ const MarketPair = ({ match, wallet }) => {
                                         {swapsFilled && swapsFilled.map(swap => (
                                             <tr className="market-pair-tr-clickeable" onClick={() => { goToSwap(swap) }} key={swap['id']}>
                                                 {isBuyer(swap, pairs) && <>
-                                                    <td className="market-pair-history-price market-pair-buyers-text" >{getPrice(swap, pairs)}</td>
+                                                    <td className="market-pair-history-price market-pair-buyers-text" >{getPrice(swap, pairs, decimals)}</td>
                                                     <td className="market-pair-history-amount">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
                                                     <td className="market-pair-history-total">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
                                                     <td className="market-pair-history-filled">{convertTsToDate(swap['timestamp_swap'])}</td>
                                                 </>}
                                                 {!isBuyer(swap, pairs) && <>
-                                                    <td className="market-pair-history-price market-pair-sellers-text" >{getPrice(swap, pairs)}</td>
+                                                    <td className="market-pair-history-price market-pair-sellers-text" >{getPrice(swap, pairs, decimals)}</td>
                                                     <td className="market-pair-history-amount">{balanceToUnitDisplay(swap['maker']['amount'], decimals[1])}</td>
                                                     <td className="market-pair-history-total">{balanceToUnitDisplay(swap['taker']['amount'], decimals[0])}</td>
                                                     <td className="market-pair-history-filled">{convertTsToDate(swap['timestamp_swap'])}</td>

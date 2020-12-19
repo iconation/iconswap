@@ -84,24 +84,20 @@ const Homepage = ({ wallet }) => {
             }
 
             setWaitForSwapCreation(true)
-            api.getDecimals(maker.contract).then(decimals_maker => {
-                api.getDecimals(taker.contract).then(decimals_taker => {
-                    api.createSwap(
-                        wallet,
-                        maker.contract,
-                        IconConverter.toBigNumber(maker.amount).multipliedBy(IconConverter.toBigNumber('10').exponentiatedBy(decimals_maker)),
-                        taker.contract,
-                        IconConverter.toBigNumber(taker.amount).multipliedBy(IconConverter.toBigNumber('10').exponentiatedBy(decimals_taker)),
-                        privateSwapAddress
-                    ).then(swapInfo => {
-                        if (swapInfo) {
-                            history.push("/swap/" + swapInfo['swapId']);
-                            setWaitForSwapCreation(false)
-                        }
-                    }).finally(() => {
-                        setWaitForSwapCreation(false)
-                    })
-                })
+            api.createSwap(
+                wallet,
+                maker.contract,
+                IconConverter.toBigNumber(maker.amount).multipliedBy(IconConverter.toBigNumber('10').exponentiatedBy(maker.decimals)),
+                taker.contract,
+                IconConverter.toBigNumber(taker.amount).multipliedBy(IconConverter.toBigNumber('10').exponentiatedBy(taker.decimals)),
+                privateSwapAddress
+            ).then(swapInfo => {
+                if (swapInfo) {
+                    history.push("/swap/" + swapInfo['swapId']);
+                    setWaitForSwapCreation(false)
+                }
+            }).finally(() => {
+                setWaitForSwapCreation(false)
             }).catch((error) => {
                 setErrorUi(error)
             })
@@ -120,9 +116,12 @@ const Homepage = ({ wallet }) => {
     const setContract = (index, value) => {
         let newOrders = [...orders]
         newOrders[index].contract = value
-        setOrders(newOrders)
-        setContractError(index, false)
-        setMarketPrice(null)
+        api.getDecimals(value).then(decimals => {
+            newOrders[index].decimals = decimals
+            setOrders(newOrders)
+            setContractError(index, false)
+            setMarketPrice(null)
+        })
     }
 
     const setContractError = (index, value) => {
@@ -155,7 +154,7 @@ const Homepage = ({ wallet }) => {
         return truncateDecimals(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber(o2['amount'])), 8)
     }
 
-    const getMarketPrice = (c1, c2) => {
+    const getMarketPrice = (c1, c2, d1, d2) => {
         const pairs = c1 + '/' + c2
         const pairsArr = [c1, c2]
 
@@ -168,7 +167,7 @@ const Homepage = ({ wallet }) => {
             var prices = []
 
             for (const [key, swap] of Object.entries(swaps)) {
-                const curPrice = getPrice(swap, pairsArr)
+                const curPrice = getPrice(swap, pairsArr, [d1, d2])
                 // Fix the log 0 price chart bug
                 if (curPrice === 0) continue;
                 // Fix the abnormal prices
@@ -218,7 +217,7 @@ const Homepage = ({ wallet }) => {
     const over = (whitelist !== null)
 
     !marketPrice && (maker.contract && taker.contract) &&
-        getMarketPrice(maker.contract, taker.contract).then(price => {
+        getMarketPrice(maker.contract, taker.contract, maker.decimals, taker.decimals).then(price => {
             setMarketPrice(price)
         })
 

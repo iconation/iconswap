@@ -17,16 +17,18 @@ export const showDepthChart = (market, pairs, isInverted) => {
         symbol1, symbol2
     ] = market
 
+    const decimals = [decimal1, decimal2]
+
     am4core.ready(function () {
         am4core.useTheme(am4themes_animated);
         let chart = am4core.create("market-pair-chart-canvas", am4charts.XYChart);
         curChart = chart;
 
         const bids = buyers.map(buyer => {
-            return [getPrice(buyer, pairs).toString(), parseFloat(balanceToUnitDisplay(buyer['taker']['amount'], decimal1))]
+            return [getPrice(buyer, pairs, decimals).toString(), parseFloat(balanceToUnitDisplay(buyer['taker']['amount'], decimal1))]
         })
         const asks = sellers.map(seller => {
-            return [getPrice(seller, pairs).toString(), parseFloat(balanceToUnitDisplay(seller['maker']['amount'], decimal2))]
+            return [getPrice(seller, pairs, decimals).toString(), parseFloat(balanceToUnitDisplay(seller['maker']['amount'], decimal2))]
         })
         const data = !isInverted ?
             { "asks": asks, "bids": bids }
@@ -36,7 +38,7 @@ export const showDepthChart = (market, pairs, isInverted) => {
         const getData = (rawData) => {
 
             // Function to process (sort and calculate cummulative volume)
-            function processData(list, type, desc) {
+            function processData (list, type, desc) {
 
                 // Convert to data points
                 for (var i = 0; i < list.length; i++) {
@@ -162,11 +164,13 @@ export const showPriceChart = (market, pairs, isInverted) => {
     const [
         , ,
         , ,
-        decimal1, ,
+        decimal1, decimal2,
         , ,
         history,
 
     ] = market
+
+    const decimals = [decimal1, decimal2]
 
     am4core.ready(function () {
         am4core.useTheme(am4themes_animated);
@@ -183,7 +187,7 @@ export const showPriceChart = (market, pairs, isInverted) => {
             var lastVolume = 0;
 
             for (const [key, swap] of Object.entries(history)) {
-                const curPrice = getPrice(swap, pairs)
+                const curPrice = getPrice(swap, pairs, decimals)
                 // Fix the log 0 price chart bug
                 if (curPrice == 0) continue;
                 // Fix the abnormal prices

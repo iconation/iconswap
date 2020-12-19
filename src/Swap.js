@@ -122,7 +122,19 @@ const Swap = ({ match, wallet }) => {
     const over = ((maker && taker) !== null) && (!withdrawingInProgress) && (!depositingInProgress)
 
     const getSwapPrice = (o1, o2) => {
-        return truncateDecimals(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber(o2['amount'])), 8)
+        console.log("o1['amount'] = ", o1['amount'])
+        console.log("o2['amount'] = ", o2['amount'])
+        console.log("o1['token']['decimals'] = ", o1['token']['decimals'])
+        console.log("o2['token']['decimals'] = ", o2['token']['decimals'])
+        console.log("o1 = ", truncateDecimals(IconConverter.toBigNumber(o1['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(o1['token']['decimals'])), 8))
+        console.log("o2 = ", truncateDecimals(IconConverter.toBigNumber(o2['amount']).dividedBy(IconConverter.toBigNumber('10').exponentiatedBy(o2['token']['decimals'])), 8))
+        return truncateDecimals(
+            IconConverter.toBigNumber(o1['amount']).dividedBy(
+                IconConverter.toBigNumber('10').exponentiatedBy(o1['token']['decimals'])
+            ).dividedBy(
+                IconConverter.toBigNumber(o2['amount']).dividedBy(
+                    IconConverter.toBigNumber('10').exponentiatedBy(o2['token']['decimals'])))
+            , 8)
     }
 
     return (

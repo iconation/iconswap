@@ -7,6 +7,9 @@ import LoadingOverlay from './LoadingOverlay'
 import InfoBox from './InfoBox'
 import { IconConverter } from 'icon-sdk-js'
 import { convertTsToDate } from './utils'
+import {
+    getPrice,
+} from './utils'
 
 const AccountOrders = ({ wallet }) => {
     const [openSwaps, setOpenSwaps] = useState(null)
@@ -124,13 +127,6 @@ const AccountOrders = ({ wallet }) => {
 
     const over = (openSwaps !== null && filledSwaps !== null) && (!withdrawingInProgress)
 
-    const getPrice = (o1, o2) => {
-        return parseFloat(
-            IconConverter.toBigNumber(o1['amount'])
-                .dividedBy(IconConverter.toBigNumber(o2['amount']))
-                .toFixed(8)).toString()
-    }
-
     return (<>
 
         <LoadingOverlay over={over} text={loadingText} />
@@ -164,13 +160,27 @@ const AccountOrders = ({ wallet }) => {
                                                 <td>{openSwaps[order]['maker']['amountDisplay'] + " " + openSwaps[order]['maker']['token']['symbol']}</td>
                                                 <td>{openSwaps[order]['taker']['amountDisplay'] + " " + openSwaps[order]['taker']['token']['symbol']}</td>
                                                 <td>
+
                                                     1 {openSwaps[order]['maker']['token']['symbol']} ≈&nbsp;
-                                                    {getPrice(openSwaps[order]['taker'], openSwaps[order]['maker'])}&nbsp;
+
+                                                    {getPrice(
+                                                    openSwaps[order],
+                                                    [openSwaps[order]['maker']['contract'], openSwaps[order]['taker']['contract']],
+                                                    [openSwaps[order]['maker']['token']['decimals'], openSwaps[order]['taker']['token']['decimals']])
+                                                    }&nbsp;
                                                     {openSwaps[order]['taker']['token']['symbol']}
+
+
                                                     <br />
+
                                                     1 {openSwaps[order]['taker']['token']['symbol']} ≈&nbsp;
-                                                    {getPrice(openSwaps[order]['maker'], openSwaps[order]['taker'])}&nbsp;
+                                                    {getPrice(
+                                                        openSwaps[order],
+                                                        [openSwaps[order]['taker']['contract'], openSwaps[order]['maker']['contract']],
+                                                        [openSwaps[order]['taker']['token']['decimals'], openSwaps[order]['maker']['token']['decimals']])
+                                                    }&nbsp;
                                                     {openSwaps[order]['maker']['token']['symbol']}
+
                                                 </td>
                                                 <td>{openSwaps[order]['timestamp_create']}</td>
                                                 <td className={"open-orders-actions"}>
@@ -203,7 +213,7 @@ const AccountOrders = ({ wallet }) => {
                                     </thead>
 
                                     <tbody>
-                                        {filledSwaps && Object.keys(filledSwaps).map(order => (
+                                        {filledSwaps && Object.keys(filledSwaps).map(order => console.log(filledSwaps) || (
                                             <tr className="account-tr-clickeable"
                                                 onClick={() => { goToSwap(filledSwaps[order]) }}
                                                 key={order}>
@@ -212,13 +222,26 @@ const AccountOrders = ({ wallet }) => {
                                                 <td className={(filledSwaps[order]['taker']['provider'] === wallet ? "order-filled-sell" : "order-filled-buy")}>
                                                     {filledSwaps[order]['taker']['amountDisplay'] + " " + filledSwaps[order]['taker']['token']['symbol']}</td>
                                                 <td>
+
                                                     1 {filledSwaps[order]['maker']['token']['symbol']} ≈&nbsp;
-                                                    {getPrice(filledSwaps[order]['taker'], filledSwaps[order]['maker'])}&nbsp;
+
+                                                    {getPrice(
+                                                    filledSwaps[order],
+                                                    [filledSwaps[order]['maker']['contract'], filledSwaps[order]['taker']['contract']],
+                                                    [filledSwaps[order]['maker']['token']['decimals'], filledSwaps[order]['taker']['token']['decimals']])
+                                                    }&nbsp;
                                                     {filledSwaps[order]['taker']['token']['symbol']}
+
                                                     <br />
+
                                                     1 {filledSwaps[order]['taker']['token']['symbol']} ≈&nbsp;
-                                                    {getPrice(filledSwaps[order]['maker'], filledSwaps[order]['taker'])}&nbsp;
+                                                    {getPrice(
+                                                        filledSwaps[order],
+                                                        [filledSwaps[order]['taker']['contract'], filledSwaps[order]['maker']['contract']],
+                                                        [filledSwaps[order]['taker']['token']['decimals'], filledSwaps[order]['maker']['token']['decimals']])
+                                                    }&nbsp;
                                                     {filledSwaps[order]['maker']['token']['symbol']}
+
                                                 </td>
                                                 <td>{filledSwaps[order]['timestamp_swap']}</td>
                                             </tr>
